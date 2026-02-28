@@ -1,17 +1,10 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, decimal, longtext, index } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
- * Extend this file with additional tables as your product grows.
- * Columns use camelCase to match both database fields and generated types.
  */
 export const users = mysqlTable("users", {
-  /**
-   * Surrogate primary key. Auto-incremented numeric value managed by the database.
-   * Use this for relations between tables.
-   */
   id: int("id").autoincrement().primaryKey(),
-  /** Manus OAuth identifier (openId) returned from the OAuth callback. Unique per user. */
   openId: varchar("openId", { length: 64 }).notNull().unique(),
   name: text("name"),
   email: varchar("email", { length: 320 }),
@@ -25,4 +18,191 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// TODO: Add your tables here
+/**
+ * Blog posts table with SEO metadata
+ */
+export const blogPosts = mysqlTable("blog_posts", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  excerpt: text("excerpt"),
+  content: longtext("content").notNull(),
+  featuredImage: text("featuredImage"),
+  author: varchar("author", { length: 255 }),
+  published: boolean("published").default(false).notNull(),
+  publishedAt: timestamp("publishedAt"),
+  views: int("views").default(0).notNull(),
+  
+  // SEO fields
+  metaTitle: varchar("metaTitle", { length: 255 }),
+  metaDescription: varchar("metaDescription", { length: 255 }),
+  metaKeywords: text("metaKeywords"),
+  canonicalUrl: text("canonicalUrl"),
+  ogImage: text("ogImage"),
+  ogTitle: varchar("ogTitle", { length: 255 }),
+  ogDescription: varchar("ogDescription", { length: 255 }),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  slugIdx: index("slug_idx").on(table.slug),
+  publishedIdx: index("published_idx").on(table.published),
+}));
+
+export type BlogPost = typeof blogPosts.$inferSelect;
+export type InsertBlogPost = typeof blogPosts.$inferInsert;
+
+/**
+ * Services table with SEO metadata
+ */
+export const services = mysqlTable("services", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  description: longtext("description").notNull(),
+  shortDescription: varchar("shortDescription", { length: 500 }),
+  icon: text("icon"),
+  image: text("image"),
+  order: int("order").default(0).notNull(),
+  published: boolean("published").default(true).notNull(),
+  
+  // SEO fields
+  metaTitle: varchar("metaTitle", { length: 255 }),
+  metaDescription: varchar("metaDescription", { length: 255 }),
+  metaKeywords: text("metaKeywords"),
+  canonicalUrl: text("canonicalUrl"),
+  ogImage: text("ogImage"),
+  ogTitle: varchar("ogTitle", { length: 255 }),
+  ogDescription: varchar("ogDescription", { length: 255 }),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  slugIdx: index("service_slug_idx").on(table.slug),
+  publishedIdx: index("service_published_idx").on(table.published),
+}));
+
+export type Service = typeof services.$inferSelect;
+export type InsertService = typeof services.$inferInsert;
+
+/**
+ * Projects table with SEO metadata and gallery support
+ */
+export const projects = mysqlTable("projects", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  description: longtext("description").notNull(),
+  shortDescription: varchar("shortDescription", { length: 500 }),
+  featuredImage: text("featuredImage"),
+  galleryImages: longtext("galleryImages"), // JSON array of image URLs
+  client: varchar("client", { length: 255 }),
+  completionDate: varchar("completionDate", { length: 50 }),
+  budget: varchar("budget", { length: 100 }),
+  status: mysqlEnum("status", ["completed", "ongoing", "planned"]).default("completed").notNull(),
+  published: boolean("published").default(true).notNull(),
+  
+  // SEO fields
+  metaTitle: varchar("metaTitle", { length: 255 }),
+  metaDescription: varchar("metaDescription", { length: 255 }),
+  metaKeywords: text("metaKeywords"),
+  canonicalUrl: text("canonicalUrl"),
+  ogImage: text("ogImage"),
+  ogTitle: varchar("ogTitle", { length: 255 }),
+  ogDescription: varchar("ogDescription", { length: 255 }),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  slugIdx: index("project_slug_idx").on(table.slug),
+  publishedIdx: index("project_published_idx").on(table.published),
+}));
+
+export type Project = typeof projects.$inferSelect;
+export type InsertProject = typeof projects.$inferInsert;
+
+/**
+ * Contact submissions table
+ */
+export const contacts = mysqlTable("contacts", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  phone: varchar("phone", { length: 20 }),
+  subject: varchar("subject", { length: 255 }).notNull(),
+  message: longtext("message").notNull(),
+  status: mysqlEnum("status", ["new", "read", "replied"]).default("new").notNull(),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  statusIdx: index("contact_status_idx").on(table.status),
+  emailIdx: index("contact_email_idx").on(table.email),
+}));
+
+export type Contact = typeof contacts.$inferSelect;
+export type InsertContact = typeof contacts.$inferInsert;
+
+/**
+ * Contact replies table - admin responses to contact submissions
+ */
+export const contactReplies = mysqlTable("contact_replies", {
+  id: int("id").autoincrement().primaryKey(),
+  contactId: int("contactId").notNull(),
+  adminId: int("adminId").notNull(),
+  reply: longtext("reply").notNull(),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ContactReply = typeof contactReplies.$inferSelect;
+export type InsertContactReply = typeof contactReplies.$inferInsert;
+
+/**
+ * Page content table for static pages (About, Home sections, etc.)
+ */
+export const pageContent = mysqlTable("page_content", {
+  id: int("id").autoincrement().primaryKey(),
+  pageKey: varchar("pageKey", { length: 100 }).notNull().unique(), // e.g., "about", "home-hero"
+  title: varchar("title", { length: 255 }),
+  content: longtext("content").notNull(),
+  image: text("image"),
+  
+  // SEO fields
+  metaTitle: varchar("metaTitle", { length: 255 }),
+  metaDescription: varchar("metaDescription", { length: 255 }),
+  metaKeywords: text("metaKeywords"),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type PageContent = typeof pageContent.$inferSelect;
+export type InsertPageContent = typeof pageContent.$inferInsert;
+
+/**
+ * Company settings table for global configuration
+ */
+export const companySettings = mysqlTable("company_settings", {
+  id: int("id").autoincrement().primaryKey(),
+  companyName: varchar("companyName", { length: 255 }).notNull(),
+  companyDescription: text("companyDescription"),
+  logo: text("logo"),
+  favicon: text("favicon"),
+  phone: varchar("phone", { length: 20 }),
+  email: varchar("email", { length: 320 }),
+  address: text("address"),
+  socialLinks: longtext("socialLinks"), // JSON object
+  
+  // Global SEO
+  siteTitle: varchar("siteTitle", { length: 255 }),
+  siteDescription: varchar("siteDescription", { length: 255 }),
+  siteKeywords: text("siteKeywords"),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CompanySettings = typeof companySettings.$inferSelect;
+export type InsertCompanySettings = typeof companySettings.$inferInsert;

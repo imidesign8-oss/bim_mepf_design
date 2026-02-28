@@ -1,0 +1,25 @@
+# BIM & MEPF Design Website - Robots.txt
+# Allow all search engines to crawl and index the site
+
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api
+
+# Sitemaps
+Sitemap: https://bim-mepf.manus.space/sitemap.xml
+
+# Crawl delay (optional - adjust based on server capacity)
+Crawl-delay: 1
+
+# Specific rules for Google
+User-agent: Googlebot
+Allow: /
+Disallow: /admin
+Disallow: /api
+
+# Specific rules for Bing
+User-agent: Bingbot
+Allow: /
+Disallow: /admin
+Disallow: /api
