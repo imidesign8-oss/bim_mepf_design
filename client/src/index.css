@@ -294,3 +294,49 @@ p {
     opacity: 0.7;
   }
 }
+
+/* Footer Styling */
+footer {
+  @apply border-t border-slate-700;
+}
+
+footer a {
+  @apply transition-colors;
+}
+
+footer .font-playfair {
+  font-family: 'Playfair Display', serif;
+}
+
+/* Footer Social Icons */
+footer a[aria-label] {
+  @apply inline-flex items-center justify-center;
+}
+
+/* Footer Newsletter Input */
+footer input[type="email"] {
+  @apply focus:ring-offset-0;
+}
+
+/* Footer Link Hover Effects */
+footer a:not([aria-label]):not([target="_blank"]) {
+  @apply relative;
+}
+
+footer a:not([aria-label]):not([target="_blank"])::after {
+  @apply absolute bottom-0 left-0 h-0.5 bg-primary rounded-full;
+  content: '';
+  width: 0;
+  transition: width 0.3s ease;
+}
+
+footer a:not([aria-label]):not([target="_blank"]):hover::after {
+  width: 100%;
+}
+
+/* Responsive Footer Grid */
+@media (max-width: 768px) {
+  footer .grid-cols-1 {
+    @apply space-y-8;
+  }
+}

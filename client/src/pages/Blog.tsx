@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
+import Footer from "@/components/Footer";
 import { ArrowRight, Calendar, User } from "lucide-react";
 import { useState } from "react";
 
@@ -144,6 +145,7 @@ export default function Blog() {
           <p>&copy; 2026 BIM & MEPF Design Services. All rights reserved.</p>
         </div>
       </footer>
+      <Footer />
     </div>
   );
 }

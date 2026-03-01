@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { ArrowRight, Zap, Briefcase, Users, Award } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import Footer from "@/components/Footer";
 
 export default function Home() {
   const { user } = useAuth();
@@ -224,6 +225,7 @@ export default function Home() {
           </div>
         </div>
       </footer>
+      <Footer />
     </div>
   );
 }

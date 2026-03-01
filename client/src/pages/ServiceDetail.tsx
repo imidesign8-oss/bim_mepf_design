@@ -1,5 +1,6 @@
 import { Link, useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
+import Footer from "@/components/Footer";
 import { ArrowRight, ArrowLeft } from "lucide-react";
 import { useEffect } from "react";
 
@@ -143,6 +144,7 @@ export default function ServiceDetail() {
           <p>&copy; 2026 BIM & MEPF Design Services. All rights reserved.</p>
         </div>
       </footer>
+      <Footer />
     </div>
   );
 }
