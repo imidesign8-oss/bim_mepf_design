@@ -44,15 +44,16 @@
 }
 
 :root {
-  --primary: var(--color-blue-700);
-  --primary-foreground: var(--color-blue-50);
-  --sidebar-primary: var(--color-blue-600);
-  --sidebar-primary-foreground: var(--color-blue-50);
-  --chart-1: var(--color-blue-300);
-  --chart-2: var(--color-blue-500);
-  --chart-3: var(--color-blue-600);
-  --chart-4: var(--color-blue-700);
-  --chart-5: var(--color-blue-800);
+  /* IMI DESIGN Brand Colors */
+  --primary: #ED1C24;  /* Brand Red */
+  --primary-foreground: #FFFFFF;
+  --sidebar-primary: #D41A1F;  /* Darker Red */
+  --sidebar-primary-foreground: #FFFFFF;
+  --chart-1: #FF6B6B;  /* Light Red */
+  --chart-2: #ED1C24;  /* Brand Red */
+  --chart-3: #D41A1F;  /* Dark Red */
+  --chart-4: #B81418;  /* Darker Red */
+  --chart-5: #8B0D12;  /* Very Dark Red */
   --radius: 0.65rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.235 0.015 65);

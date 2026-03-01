@@ -66,3 +66,13 @@
 ## Deployment
 - [ ] Create checkpoint for deployment
 - [ ] Deploy to production
+
+
+## Logo & Branding (New)
+- [ ] Upload and optimize IMI DESIGN logo
+- [ ] Extract brand colors from logo (red primary, accent colors)
+- [ ] Update CSS color variables to match brand
+- [ ] Update all UI components with new colors
+- [ ] Update admin panel branding
+- [ ] Test all pages with new branding
+- [ ] Create favicon from logo

@@ -30,9 +30,9 @@ export default function ProjectDetail() {
       <div className="min-h-screen bg-background">
         <nav className="sticky top-0 z-50 bg-card/95 backdrop-blur border-b border-border">
           <div className="container flex items-center justify-between h-16">
-            <Link href="/">
-              <a className="text-2xl font-bold text-primary">BIM & MEPF</a>
-            </Link>
+            <Link href="/" className="flex items-center gap-2">
+            <img src="/logo.svg" alt="IMI DESIGN" className="h-12 w-auto" />
+          </Link>
           </div>
         </nav>
         <div className="container py-20 text-center">
@@ -55,8 +55,8 @@ export default function ProjectDetail() {
       {/* Navigation */}
       <nav className="sticky top-0 z-50 bg-card/95 backdrop-blur border-b border-border">
         <div className="container flex items-center justify-between h-16">
-          <Link href="/">
-            <a className="text-2xl font-bold text-primary">BIM & MEPF</a>
+          <Link href="/" className="flex items-center gap-2">
+            <img src="/logo.svg" alt="IMI DESIGN" className="h-12 w-auto" />
           </Link>
           <div className="hidden md:flex gap-8">
             <Link href="/"><a className="nav-link">Home</a></Link>
