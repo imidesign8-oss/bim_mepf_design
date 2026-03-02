@@ -246,7 +246,7 @@ export const appRouter = router({
         description: z.string().min(1),
         shortDescription: z.string().optional(),
         featuredImage: z.string().optional(),
-        galleryImages: z.string().optional(),
+        galleryImages: z.array(z.string()).optional(),
         client: z.string().optional(),
         completionDate: z.string().optional(),
         budget: z.string().optional(),
@@ -263,6 +263,7 @@ export const appRouter = router({
         const slug = generateSlug(input.title);
         return createProject({
           ...input,
+          galleryImages: input.galleryImages ? JSON.stringify(input.galleryImages) : undefined,
           slug,
           canonicalUrl: `/projects/${slug}`,
         });
@@ -276,7 +277,7 @@ export const appRouter = router({
         description: z.string().optional(),
         shortDescription: z.string().optional(),
         featuredImage: z.string().optional(),
-        galleryImages: z.string().optional(),
+        galleryImages: z.array(z.string()).optional(),
         client: z.string().optional(),
         completionDate: z.string().optional(),
         budget: z.string().optional(),
@@ -292,7 +293,11 @@ export const appRouter = router({
       .mutation(async ({ input, ctx }) => {
         ensureAdmin(ctx);
         const { id, ...data } = input;
-        return updateProject(id, data);
+        const processedData = {
+          ...data,
+          galleryImages: data.galleryImages ? JSON.stringify(data.galleryImages) : undefined,
+        };
+        return updateProject(id, processedData);
       }),
 
     // Admin: Delete project

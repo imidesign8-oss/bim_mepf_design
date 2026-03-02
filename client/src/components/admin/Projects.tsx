@@ -1,5 +1,5 @@
 import { trpc } from "@/lib/trpc";
-import { Edit2, Trash2, Plus } from "lucide-react";
+import { Edit2, Trash2, Plus, Image, X } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 
@@ -14,7 +14,9 @@ export default function AdminProjects() {
     status: "completed" as const,
     metaTitle: "",
     metaDescription: "",
+    galleryImages: [] as string[],
   });
+  const [imageUrl, setImageUrl] = useState("");
 
   const createMutation = trpc.projects.create.useMutation({
     onSuccess: () => {
@@ -27,7 +29,9 @@ export default function AdminProjects() {
         status: "completed",
         metaTitle: "",
         metaDescription: "",
+        galleryImages: [],
       });
+      setImageUrl("");
       setShowForm(false);
       refetch();
     },
@@ -127,6 +131,63 @@ export default function AdminProjects() {
               />
             </div>
 
+            <div>
+              <label className="block text-sm font-semibold mb-2">Gallery Images</label>
+              <div className="space-y-3">
+                <div className="flex gap-2">
+                  <input
+                    type="url"
+                    value={imageUrl}
+                    onChange={(e) => setImageUrl(e.target.value)}
+                    placeholder="Paste image URL here"
+                    className="flex-1 px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (imageUrl.trim()) {
+                        setFormData({
+                          ...formData,
+                          galleryImages: [...formData.galleryImages, imageUrl],
+                        });
+                        setImageUrl("");
+                        toast.success("Image added");
+                      }
+                    }}
+                    className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors flex items-center gap-2"
+                  >
+                    <Plus size={16} />
+                    Add
+                  </button>
+                </div>
+                {formData.galleryImages.length > 0 && (
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {formData.galleryImages.map((img, idx) => (
+                      <div key={idx} className="relative group">
+                        <img
+                          src={img}
+                          alt={`Gallery ${idx + 1}`}
+                          className="w-full h-24 object-cover rounded-lg border border-border"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData({
+                              ...formData,
+                              galleryImages: formData.galleryImages.filter((_, i) => i !== idx),
+                            });
+                          }}
+                          className="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-semibold mb-2">Meta Title</label>
@@ -203,11 +264,15 @@ export default function AdminProjects() {
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex gap-2">
-                        <button className="p-2 hover:bg-secondary rounded-lg transition-colors">
-                          <Edit2 size={16} />
+                        <button className="p-2 hover:bg-secondary rounded-lg transition-colors" title="View project images">
+                          <Image size={16} />
                         </button>
                         <button
-                          onClick={() => deleteMutation.mutate({ id: project.id })}
+                          onClick={() => {
+                            if (confirm("Delete this project?")) {
+                              deleteMutation.mutate({ id: project.id });
+                            }
+                          }}
                           className="p-2 hover:bg-red-100 text-red-600 rounded-lg transition-colors"
                         >
                           <Trash2 size={16} />
