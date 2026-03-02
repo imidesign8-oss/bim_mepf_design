@@ -14,6 +14,7 @@ import {
   upsertPageContent, getPageContent,
   upsertCompanySettings, getCompanySettings,
 } from "./db";
+import { validateContactForm } from "./contact-service";
 
 // Utility function to generate slug from title
 function generateSlug(title: string): string {
@@ -315,6 +316,16 @@ export const appRouter = router({
         message: z.string().min(1),
       }))
       .mutation(async ({ input }) => {
+        // Validate input
+        const validation = validateContactForm(input);
+        if (!validation.valid) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: validation.errors.join(", "),
+          });
+        }
+        
+        // Save contact to database
         return createContact(input);
       }),
 
@@ -439,7 +450,7 @@ export const appRouter = router({
         services: services.map(s => ({ slug: s.slug, updatedAt: s.updatedAt })),
         projects: projects.map(p => ({ slug: p.slug, updatedAt: p.updatedAt })),
       };
-    }),
+      }),
   }),
 });
 
