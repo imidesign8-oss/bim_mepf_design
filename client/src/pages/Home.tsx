@@ -24,9 +24,9 @@ export default function Home() {
 
   useEffect(() => {
     // Set page title and meta tags
-    setPageTitle("BIM & MEPF Design Services | Professional Building Design Solutions");
+    setPageTitle("BIM & MEPF Design Services | IMI Design");
     setPageDescription(
-      "Transform your building projects with cutting-edge BIM technology and expert MEPF design solutions. Professional coordination, precision modeling, and innovative solutions for modern buildings."
+      "Expert BIM coordination and MEPF design services for modern buildings. Professional solutions for mechanical, electrical, and plumbing design."
     );
     setCanonicalUrl(getFullUrl("/"));
     setOpenGraphImage(
