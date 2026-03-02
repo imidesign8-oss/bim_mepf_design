@@ -10,37 +10,6 @@ export default function Services() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-card/95 backdrop-blur border-b border-border">
-        <div className="container flex items-center justify-between px-4 md:px-0" style={{height: '64px'}}>
-          <Link href="/" className="flex items-center gap-2 flex-shrink-0 overflow-hidden">
-            <img src="/logo.svg" alt="IMI DESIGN" className="h-8 md:h-10 w-auto" style={{maxHeight: '48px'}} />
-          </Link>
-          <div className="hidden md:flex gap-6 lg:gap-8">
-            <Link href="/">
-              <a className="nav-link">Home</a>
-            </Link>
-            <Link href="/about">
-              <a className="nav-link">About</a>
-            </Link>
-            <Link href="/services">
-              <a className="nav-link active">Services</a>
-            </Link>
-            <Link href="/projects">
-              <a className="nav-link">Projects</a>
-            </Link>
-            <Link href="/blog">
-              <a className="nav-link">Blog</a>
-            </Link>
-            <Link href="/contact">
-              <a className="nav-link">Contact</a>
-            </Link>
-          </div>
-          <div className="flex gap-2 md:gap-4 items-center">
-            <MobileMenu />
-          </div>
-        </div>
-      </nav>
 
       {/* Hero */}
       <section className="py-20 md:py-32 bg-gradient-to-br from-primary/5 to-accent/5">

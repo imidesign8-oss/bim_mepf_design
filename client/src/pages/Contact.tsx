@@ -37,26 +37,7 @@ export default function Contact() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-card/95 backdrop-blur border-b border-border">
-        <div className="container flex items-center justify-between h-16">
-          <Link href="/" className="flex items-center gap-2">
-            <img src="/logo.svg" alt="IMI DESIGN" className="h-16 w-auto" />
-          </Link>
-          <div className="hidden md:flex gap-8">
-            <Link href="/"><a className="nav-link">Home</a></Link>
-            <Link href="/about"><a className="nav-link">About</a></Link>
-            <Link href="/services"><a className="nav-link">Services</a></Link>
-            <Link href="/projects"><a className="nav-link">Projects</a></Link>
-            <Link href="/blog"><a className="nav-link">Blog</a></Link>
-            <Link href="/contact"><a className="nav-link active">Contact</a></Link>
-          </div>
-        <MobileMenu />
-          </div>
-      </nav>
-
-      {/* Hero */}
+    <div className="min-h-screen bg-background">{/* Hero */}
       <section className="py-20 md:py-32 bg-gradient-to-br from-primary/5 to-accent/5">
         <div className="container">
           <div className="max-w-3xl">

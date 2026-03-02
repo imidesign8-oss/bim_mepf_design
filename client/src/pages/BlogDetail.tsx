@@ -52,22 +52,7 @@ export default function BlogDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-card/95 backdrop-blur border-b border-border">
-        <div className="container flex items-center justify-between h-16">
-          <Link href="/" className="flex items-center gap-2">
-            <img src="/logo.svg" alt="IMI DESIGN" className="h-16 w-auto" />
-          </Link>
-          <div className="hidden md:flex gap-8">
-            <Link href="/"><a className="nav-link">Home</a></Link>
-            <Link href="/blog"><a className="nav-link active">Blog</a></Link>
-          </div>
-        <MobileMenu />
-          </div>
-      </nav>
-
-      {/* Breadcrumb */}
+    <div className="min-h-screen bg-background">{/* Breadcrumb */}
       <div className="bg-secondary/30 border-b border-border">
         <div className="container py-4 flex items-center gap-2 text-sm">
           <Link href="/"><a className="text-primary hover:underline">Home</a></Link>
