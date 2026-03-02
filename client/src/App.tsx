@@ -14,6 +14,8 @@ import Blog from "./pages/Blog";
 import BlogDetail from "./pages/BlogDetail";
 import Contact from "./pages/Contact";
 import Admin from "./pages/Admin";
+import LiveChat from "./components/LiveChat";
+import Analytics from "./components/Analytics";
 
 function Router() {
   return (
@@ -47,8 +49,10 @@ function App() {
         // switchable
       >
         <TooltipProvider>
+          <Analytics />
           <Toaster />
           <Router />
+          <LiveChat />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

@@ -3,6 +3,7 @@ import { trpc } from "@/lib/trpc";
 import Footer from "@/components/Footer";
 import { useState } from "react";
 import { Phone, Mail, MapPin, Send } from "lucide-react";
+import MobileMenu from "@/components/MobileMenu";
 import { toast } from "sonner";
 
 export default function Contact() {
@@ -51,7 +52,8 @@ export default function Contact() {
             <Link href="/blog"><a className="nav-link">Blog</a></Link>
             <Link href="/contact"><a className="nav-link active">Contact</a></Link>
           </div>
-        </div>
+        <MobileMenu />
+          </div>
       </nav>
 
       {/* Hero */}

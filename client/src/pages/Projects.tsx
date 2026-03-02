@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import Footer from "@/components/Footer";
 import { ArrowRight } from "lucide-react";
+import MobileMenu from "@/components/MobileMenu";
 import { useState } from "react";
 
 export default function Projects() {
@@ -24,7 +25,8 @@ export default function Projects() {
             <Link href="/blog"><a className="nav-link">Blog</a></Link>
             <Link href="/contact"><a className="nav-link">Contact</a></Link>
           </div>
-        </div>
+        <MobileMenu />
+          </div>
       </nav>
 
       {/* Hero */}

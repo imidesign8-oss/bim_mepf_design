@@ -2,6 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { ArrowRight, Zap, Briefcase, Users, Award } from "lucide-react";
+import MobileMenu from "@/components/MobileMenu";
 import { trpc } from "@/lib/trpc";
 import Footer from "@/components/Footer";
 
@@ -48,7 +49,8 @@ export default function Home() {
               </Link>
             )}
           </div>
-        </div>
+        <MobileMenu />
+          </div>
       </nav>
 
       {/* Hero Section */}

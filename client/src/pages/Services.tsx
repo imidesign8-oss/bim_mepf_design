@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import Footer from "@/components/Footer";
 import { ArrowRight } from "lucide-react";
+import MobileMenu from "@/components/MobileMenu";
 
 export default function Services() {
   const { data: services, isLoading } = trpc.services.list.useQuery();

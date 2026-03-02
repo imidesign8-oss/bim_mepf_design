@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import Footer from "@/components/Footer";
 import { ArrowRight } from "lucide-react";
+import MobileMenu from "@/components/MobileMenu";
 
 export default function About() {
   const { data: content } = trpc.pages.getContent.useQuery({ pageKey: "about" });
@@ -23,7 +24,8 @@ export default function About() {
             <Link href="/blog"><a className="nav-link">Blog</a></Link>
             <Link href="/contact"><a className="nav-link">Contact</a></Link>
           </div>
-        </div>
+        <MobileMenu />
+          </div>
       </nav>
 
       {/* Hero */}
