@@ -1,12 +1,42 @@
+import { useEffect } from "react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import Footer from "@/components/Footer";
 import { ArrowRight } from "lucide-react";
 import MobileMenu from "@/components/MobileMenu";
+import {
+  setPageTitle,
+  setPageDescription,
+  setOpenGraphImage,
+  setCanonicalUrl,
+  addJsonLd,
+  createBreadcrumbSchema,
+  getFullUrl,
+} from "@/lib/seoHelpers";
 
 export default function About() {
   const { data: content } = trpc.pages.getContent.useQuery({ pageKey: "about" });
   const { data: settings } = trpc.settings.get.useQuery();
+
+  useEffect(() => {
+    // Set page title and meta tags
+    setPageTitle("About Us | IMI Design - BIM & MEPF Design Services");
+    setPageDescription(
+      "Learn about IMI Design, a team of dedicated professionals specializing in BIM and MEPF design. We are committed to delivering excellence, innovation, and integrity in every project."
+    );
+    setCanonicalUrl(getFullUrl("/about"));
+    setOpenGraphImage(
+      "https://d2xsxph8kpxj0f.cloudfront.net/310519663379809910/dQGMwfPzENE9oJMqbRVUVv/og-image-about-Gg7rqCWLF88rntw9qkRRBs.png",
+      "About IMI Design - Professional BIM & MEPF Design Team"
+    );
+
+    // Add breadcrumb schema
+    const breadcrumbSchema = createBreadcrumbSchema([
+      { name: "Home", url: getFullUrl("/") },
+      { name: "About", url: getFullUrl("/about") },
+    ]);
+    addJsonLd(breadcrumbSchema);
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">{/* Hero */}

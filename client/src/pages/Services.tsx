@@ -1,12 +1,42 @@
+import { useEffect } from "react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import Footer from "@/components/Footer";
 import { ArrowRight } from "lucide-react";
 import MobileMenu from "@/components/MobileMenu";
 import { useAuth } from "@/_core/hooks/useAuth";
+import {
+  setPageTitle,
+  setPageDescription,
+  setOpenGraphImage,
+  setCanonicalUrl,
+  addJsonLd,
+  createBreadcrumbSchema,
+  getFullUrl,
+} from "@/lib/seoHelpers";
 
 export default function Services() {
   const { data: services, isLoading } = trpc.services.list.useQuery();
+
+  useEffect(() => {
+    // Set page title and meta tags
+    setPageTitle("Services | BIM Coordination & MEPF Design | IMI Design");
+    setPageDescription(
+      "Explore our comprehensive BIM coordination and MEPF design services. We offer expert mechanical, electrical, plumbing, and fire safety design solutions tailored to your project requirements."
+    );
+    setCanonicalUrl(getFullUrl("/services"));
+    setOpenGraphImage(
+      "https://d2xsxph8kpxj0f.cloudfront.net/310519663379809910/dQGMwfPzENE9oJMqbRVUVv/og-image-services-ZBdW9B3vAXRPJovjAajWFP.png",
+      "BIM & MEPF Design Services - Professional Design Solutions"
+    );
+
+    // Add breadcrumb schema
+    const breadcrumbSchema = createBreadcrumbSchema([
+      { name: "Home", url: getFullUrl("/") },
+      { name: "Services", url: getFullUrl("/services") },
+    ]);
+    addJsonLd(breadcrumbSchema);
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">

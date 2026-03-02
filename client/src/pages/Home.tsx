@@ -1,15 +1,89 @@
+import { useEffect } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { ArrowRight, Zap, Briefcase, Users, Award } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import Footer from "@/components/Footer";
+import {
+  setPageTitle,
+  setPageDescription,
+  setOpenGraphImage,
+  setCanonicalUrl,
+  addJsonLd,
+  createOrganizationSchema,
+  createLocalBusinessSchema,
+  getFullUrl,
+} from "@/lib/seoHelpers";
 
 export default function Home() {
   const { user } = useAuth();
   const { data: services } = trpc.services.list.useQuery();
   const { data: projects } = trpc.projects.list.useQuery();
   const { data: settings } = trpc.settings.get.useQuery();
+
+  useEffect(() => {
+    // Set page title and meta tags
+    setPageTitle("BIM & MEPF Design Services | Professional Building Design Solutions");
+    setPageDescription(
+      "Transform your building projects with cutting-edge BIM technology and expert MEPF design solutions. Professional coordination, precision modeling, and innovative solutions for modern buildings."
+    );
+    setCanonicalUrl(getFullUrl("/"));
+    setOpenGraphImage(
+      "https://d2xsxph8kpxj0f.cloudfront.net/310519663379809910/dQGMwfPzENE9oJMqbRVUVv/og-image-home-gfEqx39qqX76uf2HjqitJ8.png",
+      "BIM & MEPF Design Services - Professional Building Design"
+    );
+
+    // Add Organization schema
+    const orgSchema = createOrganizationSchema({
+      name: "IMI Design - BIM & MEPF Design Services",
+      description:
+        "Professional BIM and MEPF design services for modern buildings. Expert coordination, precision modeling, and innovative solutions.",
+      url: getFullUrl("/"),
+      logo: getFullUrl("/favicon.svg"),
+      email: "projects@imidesign.in",
+      phone: "+91-9876543210",
+      address: {
+        streetAddress: "123 Design Street",
+        addressLocality: "Bangalore",
+        addressRegion: "Karnataka",
+        postalCode: "560001",
+        addressCountry: "IN",
+      },
+      sameAs: [
+        "https://www.linkedin.com/company/imidesign",
+        "https://twitter.com/imidesign",
+        "https://www.facebook.com/imidesign",
+        "https://www.instagram.com/imidesign",
+      ],
+    });
+    addJsonLd(orgSchema);
+
+    // Add LocalBusiness schema
+    const localBusinessSchema = createLocalBusinessSchema({
+      name: "IMI Design - BIM & MEPF Design Services",
+      description:
+        "Professional BIM and MEPF design services for modern buildings. Expert coordination, precision modeling, and innovative solutions.",
+      url: getFullUrl("/"),
+      logo: getFullUrl("/favicon.svg"),
+      email: "projects@imidesign.in",
+      phone: "+91-9876543210",
+      address: {
+        streetAddress: "123 Design Street",
+        addressLocality: "Bangalore",
+        addressRegion: "Karnataka",
+        postalCode: "560001",
+        addressCountry: "IN",
+      },
+      sameAs: [
+        "https://www.linkedin.com/company/imidesign",
+        "https://twitter.com/imidesign",
+        "https://www.facebook.com/imidesign",
+        "https://www.instagram.com/imidesign",
+      ],
+    });
+    addJsonLd(localBusinessSchema);
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">

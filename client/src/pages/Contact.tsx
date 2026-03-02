@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import Footer from "@/components/Footer";
@@ -5,6 +6,16 @@ import { useState } from "react";
 import { Phone, Mail, MapPin, Send } from "lucide-react";
 import MobileMenu from "@/components/MobileMenu";
 import { toast } from "sonner";
+import {
+  setPageTitle,
+  setPageDescription,
+  setOpenGraphImage,
+  setCanonicalUrl,
+  addJsonLd,
+  createBreadcrumbSchema,
+  createFAQSchema,
+  getFullUrl,
+} from "@/lib/seoHelpers";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -27,6 +38,47 @@ export default function Contact() {
       toast.error(errorMessage);
     },
   });
+
+  useEffect(() => {
+    // Set page title and meta tags
+    setPageTitle("Contact Us | Get in Touch | IMI Design BIM & MEPF Services");
+    setPageDescription(
+      "Contact IMI Design for your BIM coordination and MEPF design projects. We respond within 24 hours. Call, email, or fill out our contact form to discuss your requirements."
+    );
+    setCanonicalUrl(getFullUrl("/contact"));
+    setOpenGraphImage(
+      "https://d2xsxph8kpxj0f.cloudfront.net/310519663379809910/dQGMwfPzENE9oJMqbRVUVv/og-image-contact-evTTTa4kGeJenhvtkdALja.png",
+      "Contact IMI Design - BIM & MEPF Design Services"
+    );
+
+    // Add breadcrumb schema
+    const breadcrumbSchema = createBreadcrumbSchema([
+      { name: "Home", url: getFullUrl("/") },
+      { name: "Contact", url: getFullUrl("/contact") },
+    ]);
+    addJsonLd(breadcrumbSchema);
+
+    // Add FAQ schema
+    const faqSchema = createFAQSchema([
+      {
+        question: "How long does a typical project take?",
+        answer: "Project timelines vary based on complexity and scope. We'll provide a detailed timeline during the initial consultation.",
+      },
+      {
+        question: "What is your pricing structure?",
+        answer: "We offer competitive pricing tailored to your project requirements. Contact us for a custom quote.",
+      },
+      {
+        question: "Do you provide ongoing support?",
+        answer: "Yes, we offer post-project support and maintenance services to ensure your satisfaction.",
+      },
+      {
+        question: "Can you work with our existing team?",
+        answer: "Absolutely! We specialize in collaboration and can integrate seamlessly with your team.",
+      },
+    ]);
+    addJsonLd(faqSchema);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

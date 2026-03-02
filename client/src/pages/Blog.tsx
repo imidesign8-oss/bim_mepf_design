@@ -1,13 +1,43 @@
+import { useEffect } from "react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import Footer from "@/components/Footer";
 import { ArrowRight, Calendar, User } from "lucide-react";
 import MobileMenu from "@/components/MobileMenu";
 import { useState } from "react";
+import {
+  setPageTitle,
+  setPageDescription,
+  setOpenGraphImage,
+  setCanonicalUrl,
+  addJsonLd,
+  createBreadcrumbSchema,
+  getFullUrl,
+} from "@/lib/seoHelpers";
 
 export default function Blog() {
   const [page, setPage] = useState(1);
   const { data: posts, isLoading } = trpc.blog.list.useQuery({ page, limit: 10 });
+
+  useEffect(() => {
+    // Set page title and meta tags
+    setPageTitle("Blog | BIM & MEPF Design Insights | IMI Design");
+    setPageDescription(
+      "Read our latest blog posts about BIM technology, MEPF design best practices, industry trends, and expert insights from our team of professionals."
+    );
+    setCanonicalUrl(getFullUrl("/blog"));
+    setOpenGraphImage(
+      "https://d2xsxph8kpxj0f.cloudfront.net/310519663379809910/dQGMwfPzENE9oJMqbRVUVv/og-image-blog-K2uLwCuAVKFvkZDnLRne7k.png",
+      "BIM & MEPF Design Blog - Industry Insights and Tips"
+    );
+
+    // Add breadcrumb schema
+    const breadcrumbSchema = createBreadcrumbSchema([
+      { name: "Home", url: getFullUrl("/") },
+      { name: "Blog", url: getFullUrl("/blog") },
+    ]);
+    addJsonLd(breadcrumbSchema);
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">{/* Hero */}
