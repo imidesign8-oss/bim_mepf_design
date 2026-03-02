@@ -20,22 +20,16 @@ export default function Footer() {
             <div className="space-y-3 pt-4">
               <div className="flex items-center gap-3 text-slate-300">
                 <Mail size={18} className="text-primary flex-shrink-0" />
-                <a href="mailto:info@imidesign.com" className="hover:text-primary transition-colors text-sm">
-                  info@imidesign.com
-                </a>
-              </div>
-              <div className="flex items-center gap-3 text-slate-300">
-                <Phone size={18} className="text-primary flex-shrink-0" />
-                <a href="tel:+1234567890" className="hover:text-primary transition-colors text-sm">
-                  +1 (234) 567-890
+                <a href="mailto:projects@imidesign.in" className="hover:text-primary transition-colors text-sm">
+                  projects@imidesign.in
                 </a>
               </div>
               <div className="flex items-start gap-3 text-slate-300">
                 <MapPin size={18} className="text-primary flex-shrink-0 mt-0.5" />
                 <span className="text-sm">
-                  123 Design Street<br />
-                  New York, NY 10001<br />
-                  United States
+                  S4 B Block, Colaso Arcade<br />
+                  Desterro, Vasco da Gama<br />
+                  Goa 403 802, India
                 </span>
               </div>
             </div>

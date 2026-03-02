@@ -340,3 +340,119 @@ footer a:not([aria-label]):not([target="_blank"]):hover::after {
     @apply space-y-8;
   }
 }
+
+
+/* Mobile Responsiveness Fixes */
+
+/* Image Responsiveness */
+img {
+  @apply max-w-full h-auto;
+}
+
+/* Gallery Images */
+.gallery-image {
+  @apply w-full h-auto object-cover;
+}
+
+/* Hero Section Mobile */
+@media (max-width: 768px) {
+  h1 {
+    @apply text-3xl md:text-4xl lg:text-5xl;
+  }
+  
+  h2 {
+    @apply text-2xl md:text-3xl lg:text-4xl;
+  }
+  
+  .section-padding {
+    @apply py-12 md:py-16 lg:py-20;
+  }
+}
+
+/* Grid Responsive Mobile */
+@media (max-width: 640px) {
+  .grid-responsive {
+    @apply grid-cols-1;
+  }
+  
+  .grid-cols-2 {
+    @apply grid-cols-1;
+  }
+  
+  .gap-6 {
+    @apply gap-4;
+  }
+}
+
+/* Navigation Mobile */
+@media (max-width: 768px) {
+  nav {
+    @apply px-4;
+  }
+  
+  .nav-link {
+    @apply text-sm;
+  }
+}
+
+/* Card Responsive */
+.card-elegant {
+  @apply w-full;
+}
+
+/* Project Gallery Mobile */
+@media (max-width: 768px) {
+  .gallery-grid {
+    @apply grid-cols-1 md:grid-cols-2;
+  }
+  
+  .gallery-item {
+    @apply aspect-video;
+  }
+}
+
+/* Blog Grid Mobile */
+@media (max-width: 768px) {
+  .blog-grid {
+    @apply grid-cols-1;
+  }
+}
+
+/* Service Cards Mobile */
+@media (max-width: 768px) {
+  .service-card {
+    @apply p-4 md:p-6;
+  }
+}
+
+/* Flex Wrapping */
+.flex-wrap-mobile {
+  @apply flex-col md:flex-row;
+}
+
+/* Padding Mobile */
+.px-mobile {
+  @apply px-4 md:px-6 lg:px-8;
+}
+
+.py-mobile {
+  @apply py-6 md:py-8 lg:py-12;
+}
+
+/* Text Responsive */
+@media (max-width: 640px) {
+  .text-lg {
+    @apply text-base;
+  }
+  
+  .text-xl {
+    @apply text-lg;
+  }
+}
+
+/* Button Mobile */
+@media (max-width: 640px) {
+  button {
+    @apply text-sm px-3 py-2;
+  }
+}
