@@ -74,13 +74,13 @@ export default function Home() {
             <div className="grid-responsive">
               {services.slice(0, 3).map((service) => (
                 <Link key={service.id} href={`/services/${service.slug}`}>
-                  <a className="card-elegant group">
+                  <a className="card-elegant group flex flex-col">
                     {service.image && (
                       <img src={service.image} alt={service.title} className="w-full h-48 object-cover rounded-lg mb-4" />
                     )}
                     <h3 className="mb-2 group-hover:text-primary transition-colors">{service.title}</h3>
-                    <p className="text-sm text-muted-foreground mb-4">{service.shortDescription}</p>
-                    <div className="flex items-center text-primary font-semibold">
+                    <p className="text-sm text-muted-foreground mb-4 flex-grow">{service.shortDescription}</p>
+                    <div className="flex items-center text-primary font-semibold whitespace-nowrap">
                       Learn More <ArrowRight size={16} className="ml-2" />
                     </div>
                   </a>

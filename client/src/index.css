@@ -230,7 +230,7 @@ p {
   }
 
   .card-elegant {
-    @apply bg-card text-card-foreground rounded-lg shadow-lg hover:shadow-xl transition-shadow p-6;
+    @apply bg-card text-card-foreground rounded-lg shadow-lg hover:shadow-xl transition-shadow p-6 block w-full;
   }
 
   .grid-responsive {
