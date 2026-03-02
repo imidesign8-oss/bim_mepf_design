@@ -36,22 +36,24 @@ export default function Services() {
                 <Link key={service.id} href={`/services/${service.slug}`}>
                   <a className="card-elegant group h-full flex flex-col overflow-hidden hover:shadow-lg transition-shadow">
                     {service.image && (
-                      <img 
-                        src={service.image} 
-                        alt={service.title} 
-                        className="w-full h-48 object-cover rounded-lg mb-4 group-hover:scale-105 transition-transform flex-shrink-0"
-                      />
+                      <div className="relative w-full h-40 overflow-hidden rounded-lg mb-4 flex-shrink-0">
+                        <img 
+                          src={service.image} 
+                          alt={service.title} 
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        />
+                      </div>
                     )}
                     <div className="flex flex-col flex-grow">
                       {service.icon && (
-                        <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-primary/10 mb-4">
+                        <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-primary/10 mb-3">
                           <span className="text-2xl">{service.icon}</span>
                         </div>
                       )}
-                      <h3 className="mb-3 group-hover:text-primary transition-colors text-lg font-semibold">{service.title}</h3>
-                      <p className="text-sm text-muted-foreground mb-6 flex-grow leading-relaxed">{service.shortDescription}</p>
+                      <h3 className="mb-2 group-hover:text-primary transition-colors text-lg font-semibold leading-tight">{service.title}</h3>
+                      <p className="text-sm text-muted-foreground mb-4 flex-grow leading-relaxed">{service.shortDescription}</p>
                       <div className="flex items-center text-primary font-semibold mt-auto pt-4 border-t border-border/50 group-hover:gap-2 transition-all">
-                        Learn More <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                        Learn More <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform flex-shrink-0" />
                       </div>
                     </div>
                   </a>

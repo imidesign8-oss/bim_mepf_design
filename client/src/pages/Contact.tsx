@@ -21,13 +21,19 @@ export default function Contact() {
       toast.success("Message sent successfully! We'll get back to you soon.");
       setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
     },
-    onError: (error) => {
-      toast.error("Failed to send message. Please try again.");
+    onError: (error: any) => {
+      console.error("Contact submission error:", error);
+      const errorMessage = error?.message || "Failed to send message. Please try again.";
+      toast.error(errorMessage);
     },
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.name || !formData.email || !formData.subject || !formData.message) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
     submitMutation.mutate(formData);
   };
 

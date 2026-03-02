@@ -25,12 +25,12 @@ export default function MobileMenu() {
       </button>
 
       {isOpen && (
-        <div className="absolute top-16 left-0 right-0 bg-card border-b border-border shadow-lg z-40">
+        <div className="fixed top-16 left-0 right-0 bottom-0 bg-card border-b border-border shadow-lg z-50 overflow-y-auto">
           <nav className="flex flex-col">
             {menuItems.map((item) => (
               <Link key={item.href} href={item.href}>
                 <a
-                  className="px-4 py-3 border-b border-border hover:bg-secondary transition-colors text-foreground"
+                  className="px-4 py-4 border-b border-border hover:bg-secondary transition-colors text-foreground text-lg"
                   onClick={() => setIsOpen(false)}
                 >
                   {item.label}
