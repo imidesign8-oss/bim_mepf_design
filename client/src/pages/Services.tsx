@@ -65,23 +65,25 @@ export default function Services() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {services.map((service) => (
                 <Link key={service.id} href={`/services/${service.slug}`}>
-                  <a className="card-elegant group h-full flex flex-col">
+                  <a className="card-elegant group h-full flex flex-col overflow-hidden hover:shadow-lg transition-shadow">
                     {service.image && (
                       <img 
                         src={service.image} 
                         alt={service.title} 
-                        className="w-full h-48 object-cover rounded-lg mb-4 group-hover:scale-105 transition-transform"
+                        className="w-full h-48 object-cover rounded-lg mb-4 group-hover:scale-105 transition-transform flex-shrink-0"
                       />
                     )}
-                    {service.icon && (
-                      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-primary/10 mb-4">
-                        <span className="text-2xl">{service.icon}</span>
+                    <div className="flex flex-col flex-grow">
+                      {service.icon && (
+                        <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-primary/10 mb-4">
+                          <span className="text-2xl">{service.icon}</span>
+                        </div>
+                      )}
+                      <h3 className="mb-3 group-hover:text-primary transition-colors text-lg font-semibold">{service.title}</h3>
+                      <p className="text-sm text-muted-foreground mb-6 flex-grow leading-relaxed">{service.shortDescription}</p>
+                      <div className="flex items-center text-primary font-semibold mt-auto pt-4 border-t border-border/50 group-hover:gap-2 transition-all">
+                        Learn More <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform" />
                       </div>
-                    )}
-                    <h3 className="mb-2 group-hover:text-primary transition-colors">{service.title}</h3>
-                    <p className="text-sm text-muted-foreground mb-4 flex-grow">{service.shortDescription}</p>
-                    <div className="flex items-center text-primary font-semibold">
-                      Learn More <ArrowRight size={16} className="ml-2" />
                     </div>
                   </a>
                 </Link>
@@ -116,7 +118,7 @@ export default function Services() {
                   <div className="w-2 h-2 rounded-full bg-primary" />
                 </div>
                 <div>
-                  <h4 className="mb-2">{item.title}</h4>
+                  <h4 className="font-semibold mb-1">{item.title}</h4>
                   <p className="text-sm text-muted-foreground">{item.desc}</p>
                 </div>
               </div>
@@ -125,27 +127,6 @@ export default function Services() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-16 md:py-24 bg-gradient-to-r from-primary/10 to-accent/10">
-        <div className="container text-center">
-          <h2 className="mb-6">Ready to Get Started?</h2>
-          <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Let's discuss your service requirements and find the perfect solution for your project.
-          </p>
-          <Link href="/contact">
-            <a className="inline-flex items-center px-8 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors">
-              Contact Us <ArrowRight size={20} className="ml-2" />
-            </a>
-          </Link>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-card border-t border-border py-12">
-        <div className="container text-center text-sm text-muted-foreground">
-          <p>&copy; 2026 BIM & MEPF Design Services. All rights reserved.</p>
-        </div>
-      </footer>
       <Footer />
     </div>
   );
