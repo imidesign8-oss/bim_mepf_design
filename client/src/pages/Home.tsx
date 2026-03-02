@@ -18,7 +18,7 @@ export default function Home() {
       <nav className="sticky top-0 z-50 bg-card/95 backdrop-blur border-b border-border">
         <div className="container flex items-center justify-between h-16 px-4 md:px-0">
           <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-            <img src="/logo.svg" alt="IMI DESIGN" className="h-12 md:h-16 w-auto" />
+            <img src="/logo.svg" alt="IMI DESIGN" className="h-10 md:h-12 w-auto" />
           </Link>
           <div className="hidden md:flex gap-6 lg:gap-8">
             <Link href="/">
