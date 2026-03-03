@@ -20,9 +20,9 @@ export default function About() {
 
   useEffect(() => {
     // Set page title and meta tags
-    setPageTitle("About Us | IMI Design - BIM & MEPF Design Services");
+    setPageTitle("About IMI Design | BIM & MEPF Experts");
     setPageDescription(
-      "Learn about IMI Design, a team of dedicated professionals specializing in BIM and MEPF design. We are committed to delivering excellence, innovation, and integrity in every project."
+      "Meet our team of BIM and MEPF design professionals. We deliver excellence, innovation, and integrity in every building design project."
     );
     setCanonicalUrl(getFullUrl("/about"));
     setOpenGraphImage(

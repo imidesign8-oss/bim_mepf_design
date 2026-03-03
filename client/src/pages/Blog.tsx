@@ -21,9 +21,9 @@ export default function Blog() {
 
   useEffect(() => {
     // Set page title and meta tags
-    setPageTitle("Blog | BIM & MEPF Design Insights | IMI Design");
+    setPageTitle("BIM & MEPF Design Blog | Industry Insights");
     setPageDescription(
-      "Read our latest blog posts about BIM technology, MEPF design best practices, industry trends, and expert insights from our team of professionals."
+      "Expert insights on BIM technology, MEPF design best practices, and building industry trends. Learn from our team of design professionals."
     );
     setCanonicalUrl(getFullUrl("/blog"));
     setOpenGraphImage(
@@ -126,6 +126,23 @@ export default function Blog() {
               <p className="text-muted-foreground">No blog posts available yet.</p>
             </div>
           )}
+        </div>
+      </section>
+
+      {/* Related Services */}
+      <section className="section-padding">
+        <div className="container">
+          <div className="section-title">
+            <h2>Our Services</h2>
+            <p>Explore our comprehensive BIM and MEPF design solutions</p>
+          </div>
+          <div className="text-center">
+            <Link href="/services">
+              <a className="inline-flex items-center px-8 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors">
+                View All Services <ArrowRight size={20} className="ml-2" />
+              </a>
+            </Link>
+          </div>
         </div>
       </section>
 

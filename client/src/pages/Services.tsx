@@ -20,9 +20,9 @@ export default function Services() {
 
   useEffect(() => {
     // Set page title and meta tags
-    setPageTitle("Services | BIM Coordination & MEPF Design | IMI Design");
+    setPageTitle("BIM & MEPF Design Services | IMI Design");
     setPageDescription(
-      "Explore our comprehensive BIM coordination and MEPF design services. We offer expert mechanical, electrical, plumbing, and fire safety design solutions tailored to your project requirements."
+      "Professional BIM coordination, MEP design, and 3D visualization services for modern buildings. Expert solutions for mechanical, electrical, and plumbing design."
     );
     setCanonicalUrl(getFullUrl("/services"));
     setOpenGraphImage(
@@ -95,6 +95,23 @@ export default function Services() {
               <p className="text-muted-foreground">No services available yet.</p>
             </div>
           )}
+        </div>
+      </section>
+
+      {/* Related Projects */}
+      <section className="section-padding">
+        <div className="container">
+          <div className="section-title">
+            <h2>See Our Work in Action</h2>
+            <p>Explore our portfolio of successful projects</p>
+          </div>
+          <div className="text-center">
+            <Link href="/projects">
+              <a className="inline-flex items-center px-8 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors">
+                View All Projects <ArrowRight size={20} className="ml-2" />
+              </a>
+            </Link>
+          </div>
         </div>
       </section>
 

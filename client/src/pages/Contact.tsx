@@ -41,9 +41,9 @@ export default function Contact() {
 
   useEffect(() => {
     // Set page title and meta tags
-    setPageTitle("Contact Us | Get in Touch | IMI Design BIM & MEPF Services");
+    setPageTitle("Contact IMI Design | BIM & MEPF Services");
     setPageDescription(
-      "Contact IMI Design for your BIM coordination and MEPF design projects. We respond within 24 hours. Call, email, or fill out our contact form to discuss your requirements."
+      "Get in touch with IMI Design for BIM coordination and MEPF design services. We respond within 24 hours. Call or email us today."
     );
     setCanonicalUrl(getFullUrl("/contact"));
     setOpenGraphImage(

@@ -3,11 +3,23 @@ import { trpc } from "@/lib/trpc";
 import Footer from "@/components/Footer";
 import { ArrowRight } from "lucide-react";
 import MobileMenu from "@/components/MobileMenu";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { setPageTitle, setPageDescription, setOpenGraphImage, setCanonicalUrl, addJsonLd, createBreadcrumbSchema, getFullUrl } from "@/lib/seoHelpers";
 
 export default function Projects() {
   const [page, setPage] = useState(1);
   const { data: projects, isLoading } = trpc.projects.list.useQuery({ page, limit: 12 });
+
+  useEffect(() => {
+    setPageTitle("Portfolio | BIM & MEPF Projects | IMI Design");
+    setPageDescription("View our portfolio of completed BIM coordination and MEPF design projects. Showcase of expertise in building design and engineering.");
+    setCanonicalUrl(getFullUrl("/projects"));
+    const breadcrumbSchema = createBreadcrumbSchema([
+      { name: "Home", url: getFullUrl("/") },
+      { name: "Projects", url: getFullUrl("/projects") },
+    ]);
+    addJsonLd(breadcrumbSchema);
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">{/* Hero */}
