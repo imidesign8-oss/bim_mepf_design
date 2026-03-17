@@ -25,7 +25,7 @@ export default function MobileMenu() {
       </button>
 
       {isOpen && (
-        <div className="fixed top-16 left-0 right-0 bottom-0 bg-card border-b border-border shadow-lg z-50 overflow-y-auto">
+        <div className="fixed top-16 left-0 right-0 bottom-0 bg-card border-b border-border shadow-lg z-40 overflow-y-auto">
           <nav className="flex flex-col">
             {menuItems.map((item) => (
               <Link key={item.href} href={item.href}>
