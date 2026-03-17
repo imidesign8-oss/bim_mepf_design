@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import Footer from "@/components/Footer";
 import { ArrowRight } from "lucide-react";
-import MobileMenu from "@/components/MobileMenu";
+
 import { useState, useEffect } from "react";
 import { setPageTitle, setPageDescription, setOpenGraphImage, setCanonicalUrl, addJsonLd, createBreadcrumbSchema, getFullUrl } from "@/lib/seoHelpers";
 

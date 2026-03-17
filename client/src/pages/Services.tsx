@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import Footer from "@/components/Footer";
 import { ArrowRight } from "lucide-react";
-import MobileMenu from "@/components/MobileMenu";
+
 import { useAuth } from "@/_core/hooks/useAuth";
 import {
   setPageTitle,

@@ -137,3 +137,14 @@
 - [x] Add breadcrumb navigation with internal links
 - [x] Add "Related Services" section to blog posts
 - [x] Add "Related Projects" section to service pages
+
+## Backlink Strategy (In Progress)
+- [ ] Research industry publications and BIM blogs
+- [ ] Identify BIM forums and discussion communities
+- [ ] Research architecture blogs and design publications
+- [ ] Create list of 20+ high-authority backlink opportunities
+- [ ] Develop guest post ideas for target publications
+- [ ] Create outreach email templates
+- [ ] Identify broken link opportunities
+- [ ] Research competitor backlink profiles
+- [ ] Create link building action plan with timeline

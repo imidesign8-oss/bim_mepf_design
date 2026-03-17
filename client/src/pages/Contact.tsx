@@ -4,7 +4,7 @@ import { trpc } from "@/lib/trpc";
 import Footer from "@/components/Footer";
 import { useState } from "react";
 import { Phone, Mail, MapPin, Send } from "lucide-react";
-import MobileMenu from "@/components/MobileMenu";
+
 import { toast } from "sonner";
 import {
   setPageTitle,

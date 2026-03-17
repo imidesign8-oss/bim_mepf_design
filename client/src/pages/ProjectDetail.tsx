@@ -2,7 +2,7 @@ import { Link, useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
 import Footer from "@/components/Footer";
 import { ArrowRight } from "lucide-react";
-import MobileMenu from "@/components/MobileMenu";
+
 import { useEffect } from "react";
 
 export default function ProjectDetail() {
@@ -35,7 +35,7 @@ export default function ProjectDetail() {
             <Link href="/" className="flex items-center gap-2">
             <img src="/logo.svg" alt="IMI DESIGN" className="h-16 w-auto" />
           </Link>
-          <MobileMenu />
+
           </div>
         </nav>
         <div className="container py-20 text-center">
