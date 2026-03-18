@@ -4,10 +4,7 @@ import { Mail, Phone, MapPin, Linkedin, Twitter, Facebook, Instagram } from "luc
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
-  const handleNavClick = () => {
-    // Scroll to top when navigation link is clicked
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+
 
   return (
     <footer className="bg-slate-900 text-slate-100 mt-20">
@@ -45,32 +42,32 @@ export default function Footer() {
             <h3 className="text-lg font-semibold text-white mb-6 font-playfair">Quick Links</h3>
             <ul className="space-y-3">
               <li>
-                <Link href="/" onClick={handleNavClick}>
+                <Link href="/">
                   <a className="text-slate-300 hover:text-primary transition-colors text-sm">Home</a>
                 </Link>
               </li>
               <li>
-                <Link href="/about" onClick={handleNavClick}>
+                <Link href="/about">
                   <a className="text-slate-300 hover:text-primary transition-colors text-sm">About Us</a>
                 </Link>
               </li>
               <li>
-                <Link href="/services" onClick={handleNavClick}>
+                <Link href="/services">
                   <a className="text-slate-300 hover:text-primary transition-colors text-sm">Services</a>
                 </Link>
               </li>
               <li>
-                <Link href="/projects" onClick={handleNavClick}>
+                <Link href="/projects">
                   <a className="text-slate-300 hover:text-primary transition-colors text-sm">Projects</a>
                 </Link>
               </li>
               <li>
-                <Link href="/blog" onClick={handleNavClick}>
+                <Link href="/blog">
                   <a className="text-slate-300 hover:text-primary transition-colors text-sm">Blog</a>
                 </Link>
               </li>
               <li>
-                <Link href="/contact" onClick={handleNavClick}>
+                <Link href="/contact">
                   <a className="text-slate-300 hover:text-primary transition-colors text-sm">Contact</a>
                 </Link>
               </li>

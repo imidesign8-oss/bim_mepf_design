@@ -172,4 +172,4 @@
 - [x] Fix admin panel 404/access denied errors - admin panel working correctly
 
 ## Navigation Issues (Completed)
-- [x] Add scroll-to-top when clicking footer navigation links
+- [x] Fix scroll-to-top when clicking footer navigation links - implemented useScrollToTop hook
