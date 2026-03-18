@@ -1,0 +1,16 @@
+{
+  "query": "SELECT id, email, name, role FROM users LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user nLTEuQhDwWZW7wX.0273048ae673 --database dQGMwfPzENE9oJMqbRVUVv --execute SELECT id, email, name, role FROM users LIMIT 10;",
+  "rows": [
+    {
+      "id": "1",
+      "email": "4trcnbvwhr@privaterelay.appleid.com",
+      "name": "Kiran Krishnan",
+      "role": "admin"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\temail\tname\trole\n1\t4trcnbvwhr@privaterelay.appleid.com\tKiran Krishnan\tadmin\n",
+  "stderr": "",
+  "execution_time_ms": 1709
+}
