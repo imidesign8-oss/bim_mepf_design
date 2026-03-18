@@ -206,3 +206,56 @@ export const companySettings = mysqlTable("company_settings", {
 
 export type CompanySettings = typeof companySettings.$inferSelect;
 export type InsertCompanySettings = typeof companySettings.$inferInsert;
+
+/**
+ * Chat conversations table for AI assistant
+ */
+export const chatConversations = mysqlTable("chat_conversations", {
+  id: int("id").autoincrement().primaryKey(),
+  visitorId: varchar("visitorId", { length: 255 }).notNull(),
+  visitorEmail: varchar("visitorEmail", { length: 320 }),
+  visitorName: varchar("visitorName", { length: 255 }),
+  visitorPhone: varchar("visitorPhone", { length: 20 }),
+  
+  // Lead qualification fields
+  leadQualified: boolean("leadQualified").default(false).notNull(),
+  leadScore: int("leadScore").default(0).notNull(),
+  serviceInterest: varchar("serviceInterest", { length: 255 }),
+  projectBudget: varchar("projectBudget", { length: 100 }),
+  projectTimeline: varchar("projectTimeline", { length: 100 }),
+  
+  // Routing
+  routedToAdmin: boolean("routedToAdmin").default(false).notNull(),
+  assignedAdminId: int("assignedAdminId"),
+  routingReason: text("routingReason"),
+  
+  // Status
+  status: mysqlEnum("status", ["active", "closed", "routed"]).default("active").notNull(),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  visitorIdIdx: index("chat_visitor_idx").on(table.visitorId),
+  statusIdx: index("chat_status_idx").on(table.status),
+  emailIdx: index("chat_email_idx").on(table.visitorEmail),
+}));
+
+export type ChatConversation = typeof chatConversations.$inferSelect;
+export type InsertChatConversation = typeof chatConversations.$inferInsert;
+
+/**
+ * Chat messages table
+ */
+export const chatMessages = mysqlTable("chat_messages", {
+  id: int("id").autoincrement().primaryKey(),
+  conversationId: int("conversationId").notNull(),
+  role: mysqlEnum("role", ["user", "assistant"]).notNull(),
+  content: longtext("content").notNull(),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  conversationIdx: index("chat_message_conversation_idx").on(table.conversationId),
+}));
+
+export type ChatMessage = typeof chatMessages.$inferSelect;
+export type InsertChatMessage = typeof chatMessages.$inferInsert;

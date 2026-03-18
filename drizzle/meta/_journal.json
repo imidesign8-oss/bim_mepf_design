@@ -15,6 +15,13 @@
       "when": 1772286894202,
       "tag": "0001_blue_justice",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1773813726444,
+      "tag": "0002_aberrant_maggott",
+      "breakpoints": true
     }
   ]
 }

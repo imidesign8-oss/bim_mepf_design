@@ -17,7 +17,7 @@ import Blog from "./pages/Blog";
 import BlogDetail from "./pages/BlogDetail";
 import Contact from "./pages/Contact";
 import Admin from "./pages/Admin";
-import LiveChat from "./components/LiveChat";
+import { AIChatWidget } from "./components/AIChatWidget";
 import Analytics from "./components/Analytics";
 import Header from "./components/Header";
 
@@ -66,7 +66,7 @@ function App() {
             <Router />
           </div>
           <FloatingBackToTop />
-          <LiveChat />
+          <AIChatWidget />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
