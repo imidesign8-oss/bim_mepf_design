@@ -173,3 +173,8 @@
 
 ## Navigation Issues (Completed)
 - [x] Fix scroll-to-top when clicking footer navigation links - implemented useScrollToTop hook
+
+## UX Improvements (Completed)
+- [x] Add mobile menu scroll-to-top behavior
+- [x] Implement scroll-to-section anchors with smooth scrolling
+- [x] Create floating back-to-top button component

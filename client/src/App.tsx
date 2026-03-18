@@ -5,6 +5,8 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { useScrollToTop } from "./hooks/useScrollToTop";
+import { useSmoothScroll } from "./hooks/useSmoothScroll";
+import FloatingBackToTop from "./components/FloatingBackToTop";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Services from "./pages/Services";
@@ -46,6 +48,9 @@ function Router() {
 function App() {
   // Scroll to top on route change
   useScrollToTop();
+  
+  // Enable smooth scrolling for anchor links
+  useSmoothScroll();
 
   return (
     <ErrorBoundary>
@@ -60,6 +65,7 @@ function App() {
           <div style={{paddingTop: '64px'}}>
             <Router />
           </div>
+          <FloatingBackToTop />
           <LiveChat />
         </TooltipProvider>
       </ThemeProvider>
