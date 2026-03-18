@@ -2,12 +2,13 @@ import { Link, useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
 import Footer from "@/components/Footer";
 import { ArrowRight, Calendar, User, Share2 } from "lucide-react";
-
+import { Streamdown } from "streamdown";
 import { useEffect } from "react";
 
 export default function BlogDetail() {
   const { slug } = useParams<{ slug: string }>();
   const { data: post, isLoading } = trpc.blog.getBySlug.useQuery({ slug: slug || "" });
+  const { data: allPosts } = trpc.blog.list.useQuery({ limit: 100 });
 
   useEffect(() => {
     if (post) {
@@ -18,6 +19,9 @@ export default function BlogDetail() {
       }
     }
   }, [post]);
+
+  // Get related posts (same category or random if not enough)
+  const relatedPosts = allPosts?.filter((p: any) => p.id !== post?.id).slice(0, 3) || [];
 
   if (isLoading) {
     return (
@@ -107,9 +111,9 @@ export default function BlogDetail() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2">
-              <div className="prose prose-lg max-w-none">
-                <div dangerouslySetInnerHTML={{ __html: post.content }} />
-              </div>
+              <article className="prose prose-lg max-w-none text-foreground prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-a:text-primary prose-a:underline prose-code:text-primary prose-code:bg-secondary/30 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-pre:bg-secondary/50 prose-blockquote:border-primary prose-blockquote:text-foreground prose-hr:border-border">
+                <Streamdown>{post.content}</Streamdown>
+              </article>
             </div>
 
             {/* Sidebar */}
@@ -144,18 +148,32 @@ export default function BlogDetail() {
             <p>More insights on BIM and MEPF design</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="card-elegant">
-                <div className="w-full h-40 bg-primary/10 rounded-lg mb-4" />
-                <h3 className="mb-2">Related Article {i}</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Interesting insights about BIM and MEPF design practices.
-                </p>
-                <div className="flex items-center text-primary font-semibold">
-                  Read More <ArrowRight size={16} className="ml-2" />
-                </div>
+            {relatedPosts && relatedPosts.length > 0 ? (
+              relatedPosts.map((relatedPost: any) => (
+                <Link key={relatedPost.id} href={`/blog/${relatedPost.slug}`}>
+                  <a className="card-elegant block hover:shadow-lg transition-shadow">
+                    {relatedPost.featuredImage && (
+                      <img
+                        src={relatedPost.featuredImage}
+                        alt={relatedPost.title}
+                        className="w-full h-40 object-cover rounded-lg mb-4"
+                      />
+                    )}
+                    <h3 className="mb-2">{relatedPost.title}</h3>
+                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                      {relatedPost.description}
+                    </p>
+                    <div className="flex items-center text-primary font-semibold">
+                      Read More <ArrowRight size={16} className="ml-2" />
+                    </div>
+                  </a>
+                </Link>
+              ))
+            ) : (
+              <div className="col-span-3 text-center text-muted-foreground">
+                <p>No related articles found.</p>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </section>
