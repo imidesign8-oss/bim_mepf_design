@@ -4,6 +4,11 @@ import { Mail, Phone, MapPin, Linkedin, Twitter, Facebook, Instagram } from "luc
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
+  const handleNavClick = () => {
+    // Scroll to top when navigation link is clicked
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <footer className="bg-slate-900 text-slate-100 mt-20">
       {/* Main Footer Content */}
@@ -40,32 +45,32 @@ export default function Footer() {
             <h3 className="text-lg font-semibold text-white mb-6 font-playfair">Quick Links</h3>
             <ul className="space-y-3">
               <li>
-                <Link href="/">
+                <Link href="/" onClick={handleNavClick}>
                   <a className="text-slate-300 hover:text-primary transition-colors text-sm">Home</a>
                 </Link>
               </li>
               <li>
-                <Link href="/about">
+                <Link href="/about" onClick={handleNavClick}>
                   <a className="text-slate-300 hover:text-primary transition-colors text-sm">About Us</a>
                 </Link>
               </li>
               <li>
-                <Link href="/services">
+                <Link href="/services" onClick={handleNavClick}>
                   <a className="text-slate-300 hover:text-primary transition-colors text-sm">Services</a>
                 </Link>
               </li>
               <li>
-                <Link href="/projects">
+                <Link href="/projects" onClick={handleNavClick}>
                   <a className="text-slate-300 hover:text-primary transition-colors text-sm">Projects</a>
                 </Link>
               </li>
               <li>
-                <Link href="/blog">
+                <Link href="/blog" onClick={handleNavClick}>
                   <a className="text-slate-300 hover:text-primary transition-colors text-sm">Blog</a>
                 </Link>
               </li>
               <li>
-                <Link href="/contact">
+                <Link href="/contact" onClick={handleNavClick}>
                   <a className="text-slate-300 hover:text-primary transition-colors text-sm">Contact</a>
                 </Link>
               </li>

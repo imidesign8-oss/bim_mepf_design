@@ -170,3 +170,6 @@
 ## Critical Issues (Completed)
 - [x] Fix footer copyright duplication - removed hardcoded footer from all pages
 - [x] Fix admin panel 404/access denied errors - admin panel working correctly
+
+## Navigation Issues (Completed)
+- [x] Add scroll-to-top when clicking footer navigation links
