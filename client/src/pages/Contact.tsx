@@ -282,11 +282,6 @@ export default function Contact() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-card border-t border-border py-12">
-        <div className="container text-center text-sm text-muted-foreground">
-          <p>&copy; 2026 BIM & MEPF Design Services. All rights reserved.</p>
-        </div>
-      </footer>
       <Footer />
     </div>
   );

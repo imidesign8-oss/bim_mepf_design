@@ -228,41 +228,6 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-card border-t border-border py-12">
-        <div className="container">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <h4 className="mb-4">BIM & MEPF Design</h4>
-              <p className="text-sm text-muted-foreground">Professional design solutions for modern buildings.</p>
-            </div>
-            <div>
-              <h4 className="mb-4">Quick Links</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link href="/about"><a className="text-muted-foreground hover:text-primary transition-colors">About Us</a></Link></li>
-                <li><Link href="/services"><a className="text-muted-foreground hover:text-primary transition-colors">Our Services</a></Link></li>
-                <li><Link href="/projects"><a className="text-muted-foreground hover:text-primary transition-colors">Portfolio</a></Link></li>
-                <li><Link href="/blog"><a className="text-muted-foreground hover:text-primary transition-colors">Blog</a></Link></li>
-                <li><Link href="/contact"><a className="text-muted-foreground hover:text-primary transition-colors">Contact</a></Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="mb-4">Contact</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                {settings?.email && <li>Email: {settings.email}</li>}
-                {settings?.phone && <li>Phone: {settings.phone}</li>}
-                {settings?.address && <li>Address: {settings.address}</li>}
-              </ul>
-            </div>
-            <div>
-              <h4 className="mb-4">Follow Us</h4>
-              <p className="text-sm text-muted-foreground">Connect with us on social media for updates and insights.</p>
-            </div>
-          </div>
-          <div className="border-t border-border pt-8 text-center text-sm text-muted-foreground">
-            <p>&copy; 2026 BIM & MEPF Design Services. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
       <Footer />
     </div>
   );
