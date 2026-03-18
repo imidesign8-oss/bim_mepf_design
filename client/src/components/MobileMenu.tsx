@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
-import { Link } from "wouter";
+import { useLocation } from "wouter";
 
 export default function MobileMenu() {
   const [isOpen, setIsOpen] = useState(false);
+  const [, navigate] = useLocation();
 
   const menuItems = [
     { label: "Home", href: "/" },
@@ -13,6 +14,11 @@ export default function MobileMenu() {
     { label: "Blog", href: "/blog" },
     { label: "Contact", href: "/contact" },
   ];
+
+  const handleNavigation = (href: string) => {
+    navigate(href);
+    setIsOpen(false);
+  };
 
   return (
     <div className="md:hidden">
@@ -25,17 +31,16 @@ export default function MobileMenu() {
       </button>
 
       {isOpen && (
-        <div className="fixed top-16 left-0 right-0 bottom-0 bg-card border-b border-border shadow-lg z-40 overflow-y-auto">
-          <nav className="flex flex-col">
+        <div className="fixed inset-0 top-16 bg-background z-50 overflow-y-auto">
+          <nav className="flex flex-col w-full">
             {menuItems.map((item) => (
-              <Link key={item.href} href={item.href}>
-                <a
-                  className="px-4 py-4 border-b border-border hover:bg-secondary transition-colors text-foreground text-lg"
-                  onClick={() => setIsOpen(false)}
-                >
-                  {item.label}
-                </a>
-              </Link>
+              <button
+                key={item.href}
+                onClick={() => handleNavigation(item.href)}
+                className="px-6 py-4 border-b border-border hover:bg-secondary transition-colors text-foreground text-base font-medium w-full text-left"
+              >
+                {item.label}
+              </button>
             ))}
           </nav>
         </div>
