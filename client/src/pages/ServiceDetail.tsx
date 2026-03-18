@@ -1,13 +1,13 @@
 import { Link, useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
 import Footer from "@/components/Footer";
-import { ArrowRight, ArrowLeft } from "lucide-react";
-
+import { ArrowRight } from "lucide-react";
 import { useEffect } from "react";
 
 export default function ServiceDetail() {
   const { slug } = useParams<{ slug: string }>();
   const { data: service, isLoading } = trpc.services.getBySlug.useQuery({ slug: slug || "" });
+  const { data: allServices } = trpc.services.list.useQuery();
 
   useEffect(() => {
     if (service) {
@@ -18,6 +18,9 @@ export default function ServiceDetail() {
       }
     }
   }, [service]);
+
+  // Get related services (exclude current service)
+  const relatedServices = allServices?.filter((s: any) => s.id !== service?.id).slice(0, 3) || [];
 
   if (isLoading) {
     return (
@@ -33,9 +36,8 @@ export default function ServiceDetail() {
         <nav className="sticky top-0 z-50 bg-card/95 backdrop-blur border-b border-border">
           <div className="container flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-2">
-            <img src="/logo.svg" alt="IMI DESIGN" className="h-16 w-auto" />
-          </Link>
-
+              <img src="/logo.svg" alt="IMI DESIGN" className="h-16 w-auto" />
+            </Link>
           </div>
         </nav>
         <div className="container py-20 text-center">
@@ -52,7 +54,8 @@ export default function ServiceDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-background">{/* Breadcrumb */}
+    <div className="min-h-screen bg-background">
+      {/* Breadcrumb */}
       <div className="bg-secondary/30 border-b border-border">
         <div className="container py-4 flex items-center gap-2 text-sm">
           <Link href="/"><a className="text-primary hover:underline">Home</a></Link>
@@ -83,7 +86,7 @@ export default function ServiceDetail() {
               className="w-full rounded-lg shadow-lg mb-8"
             />
           )}
-          <div className="prose prose-lg max-w-none mb-8">
+          <div className="prose prose-lg max-w-none mb-8 text-foreground prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-a:text-primary prose-a:underline prose-code:text-primary prose-code:bg-secondary/30 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-pre:bg-secondary/50 prose-blockquote:border-primary prose-blockquote:text-foreground prose-hr:border-border">
             <div dangerouslySetInnerHTML={{ __html: service.description }} />
           </div>
         </div>
@@ -97,16 +100,32 @@ export default function ServiceDetail() {
             <p>Explore more of our offerings</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="card-elegant">
-                <div className="w-full h-32 bg-primary/10 rounded-lg mb-4" />
-                <h3 className="mb-2">Related Service {i}</h3>
-                <p className="text-sm text-muted-foreground mb-4">Description of related service</p>
-                <div className="flex items-center text-primary font-semibold">
-                  Learn More <ArrowRight size={16} className="ml-2" />
-                </div>
+            {relatedServices && relatedServices.length > 0 ? (
+              relatedServices.map((relatedService: any) => (
+                <Link key={relatedService.id} href={`/services/${relatedService.slug}`}>
+                  <a className="card-elegant block hover:shadow-lg transition-shadow">
+                    {relatedService.image && (
+                      <img
+                        src={relatedService.image}
+                        alt={relatedService.title}
+                        className="w-full h-40 object-cover rounded-lg mb-4"
+                      />
+                    )}
+                    <h3 className="mb-2">{relatedService.title}</h3>
+                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                      {relatedService.shortDescription}
+                    </p>
+                    <div className="flex items-center text-primary font-semibold">
+                      Learn More <ArrowRight size={16} className="ml-2" />
+                    </div>
+                  </a>
+                </Link>
+              ))
+            ) : (
+              <div className="col-span-3 text-center text-muted-foreground">
+                <p>No other services available.</p>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </section>
@@ -126,12 +145,7 @@ export default function ServiceDetail() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-card border-t border-border py-12">
-        <div className="container text-center text-sm text-muted-foreground">
-          <p>&copy; 2026 BIM & MEPF Design Services. All rights reserved.</p>
-        </div>
-      </footer>
+      {/* Footer - Single unified footer */}
       <Footer />
     </div>
   );
