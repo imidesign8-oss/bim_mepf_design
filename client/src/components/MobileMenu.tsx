@@ -15,34 +15,34 @@ export default function MobileMenu() {
     { label: "Contact", href: "/contact" },
   ];
 
-  const handleNavigation = (href: string) => {
+  const handleClick = (href: string) => {
     navigate(href);
     setIsOpen(false);
   };
 
   return (
-    <div className="md:hidden">
+    <div className="md:hidden relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="p-2 hover:bg-secondary rounded-lg transition-colors"
+        className="p-2 text-foreground"
         aria-label="Toggle menu"
       >
         {isOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 top-16 bg-background z-50 overflow-y-auto">
-          <nav className="flex flex-col w-full">
+        <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+          <div className="flex flex-col">
             {menuItems.map((item) => (
               <button
                 key={item.href}
-                onClick={() => handleNavigation(item.href)}
-                className="px-6 py-4 border-b border-border hover:bg-secondary transition-colors text-foreground text-base font-medium w-full text-left"
+                onClick={() => handleClick(item.href)}
+                className="px-4 py-3 text-left text-black hover:bg-gray-100 border-b border-gray-100 text-sm font-medium first:rounded-t-lg last:rounded-b-lg last:border-b-0"
               >
                 {item.label}
               </button>
             ))}
-          </nav>
+          </div>
         </div>
       )}
     </div>
