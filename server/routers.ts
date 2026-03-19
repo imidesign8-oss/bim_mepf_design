@@ -3,6 +3,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { chatRouter } from "./routers/chat";
+import { seoRouter } from "./routers/seo";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import {
@@ -444,19 +445,19 @@ export const appRouter = router({
   }),
 
   // ==================== SEO ROUTES ====================
-  seo: router({
-    // Public: Get sitemap data
-    sitemap: publicProcedure.query(async () => {
-      const blogs = await getAllBlogPosts(true);
-      const services = await getAllServices(true);
-      const projects = await getAllProjects(true);
-      
-      return {
-        blogs: blogs.map(b => ({ slug: b.slug, updatedAt: b.updatedAt })),
-        services: services.map(s => ({ slug: s.slug, updatedAt: s.updatedAt })),
-        projects: projects.map(p => ({ slug: p.slug, updatedAt: p.updatedAt })),
-      };
-      }),
+  seo: seoRouter,
+
+  // ==================== SITEMAP ====================
+  sitemap: publicProcedure.query(async () => {
+    const blogs = await getAllBlogPosts(true);
+    const services = await getAllServices(true);
+    const projects = await getAllProjects(true);
+    
+    return {
+      blogs: blogs.map(b => ({ slug: b.slug, updatedAt: b.updatedAt })),
+      services: services.map(s => ({ slug: s.slug, updatedAt: s.updatedAt })),
+      projects: projects.map(p => ({ slug: p.slug, updatedAt: p.updatedAt })),
+    };
   }),
 
   // ==================== CHAT ROUTES ====================

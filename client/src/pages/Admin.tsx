@@ -8,6 +8,7 @@ import AdminServices from "@/components/admin/Services";
 import AdminProjects from "@/components/admin/Projects";
 import AdminContacts from "@/components/admin/Contacts";
 import AdminSettings from "@/components/admin/Settings";
+import AdminSEO from "@/components/admin/SEO";
 
 export default function Admin() {
   const { user } = useAuth();
@@ -35,6 +36,7 @@ export default function Admin() {
     { id: "services", label: "Services", icon: "🔧" },
     { id: "projects", label: "Projects", icon: "🏗️" },
     { id: "contacts", label: "Contacts", icon: "📧" },
+    { id: "seo", label: "SEO", icon: "🔍" },
     { id: "settings", label: "Settings", icon: "⚙️" },
   ];
 
@@ -96,6 +98,7 @@ export default function Admin() {
           {currentTab === "services" && <AdminServices />}
           {currentTab === "projects" && <AdminProjects />}
           {currentTab === "contacts" && <AdminContacts />}
+          {currentTab === "seo" && <AdminSEO />}
           {currentTab === "settings" && <AdminSettings />}
         </main>
       </div>

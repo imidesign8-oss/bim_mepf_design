@@ -259,3 +259,52 @@ export const chatMessages = mysqlTable("chat_messages", {
 
 export type ChatMessage = typeof chatMessages.$inferSelect;
 export type InsertChatMessage = typeof chatMessages.$inferInsert;
+
+/**
+ * SEO Settings table for managing meta tags and code-level SEO
+ */
+export const seoSettings = mysqlTable("seo_settings", {
+  id: int("id").autoincrement().primaryKey(),
+  pageType: mysqlEnum("pageType", ["home", "about", "services", "projects", "blog", "contact", "global"]).notNull(),
+  pageSlug: varchar("pageSlug", { length: 255 }), // For specific pages like blog posts
+  
+  // Meta tags
+  metaTitle: varchar("metaTitle", { length: 255 }),
+  metaDescription: varchar("metaDescription", { length: 255 }),
+  metaKeywords: text("metaKeywords"),
+  
+  // Open Graph
+  ogTitle: varchar("ogTitle", { length: 255 }),
+  ogDescription: varchar("ogDescription", { length: 255 }),
+  ogImage: text("ogImage"),
+  ogType: varchar("ogType", { length: 50 }),
+  
+  // Twitter Card
+  twitterTitle: varchar("twitterTitle", { length: 255 }),
+  twitterDescription: varchar("twitterDescription", { length: 255 }),
+  twitterImage: text("twitterImage"),
+  
+  // Structured Data (JSON-LD)
+  structuredData: longtext("structuredData"), // JSON-LD schema
+  
+  // Custom Code
+  customHeadCode: longtext("customHeadCode"), // Custom code to inject in <head>
+  customBodyCode: longtext("customBodyCode"), // Custom code to inject in <body>
+  
+  // Robots and Crawling
+  robotsIndex: boolean("robotsIndex").default(true).notNull(),
+  robotsFollow: boolean("robotsFollow").default(true).notNull(),
+  canonicalUrl: text("canonicalUrl"),
+  
+  // Status
+  active: boolean("active").default(true).notNull(),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  pageTypeIdx: index("seo_page_type_idx").on(table.pageType),
+  pageSlugIdx: index("seo_page_slug_idx").on(table.pageSlug),
+}));
+
+export type SeoSettings = typeof seoSettings.$inferSelect;
+export type InsertSeoSettings = typeof seoSettings.$inferInsert;
