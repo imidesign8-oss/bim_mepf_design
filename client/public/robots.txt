@@ -1,25 +1,40 @@
-# BIM & MEPF Design Website - Robots.txt
-# Allow all search engines to crawl and index the site
+# Robots.txt for IMI Design - BIM & MEPF Design Services
+# Allow search engines to crawl the entire site
 
 User-agent: *
 Allow: /
 Disallow: /admin
 Disallow: /api
+Disallow: /.env
+Disallow: /.git
+Disallow: /node_modules
 
-# Sitemaps
-Sitemap: https://bim-mepf.manus.space/sitemap.xml
-
-# Crawl delay (optional - adjust based on server capacity)
+# Crawl delay for all bots (in seconds)
 Crawl-delay: 1
 
-# Specific rules for Google
+# Sitemap location
+Sitemap: https://imidesign.in/sitemap.xml
+
+# Google-specific rules
 User-agent: Googlebot
 Allow: /
 Disallow: /admin
 Disallow: /api
+Crawl-delay: 0
 
-# Specific rules for Bing
+# Bing-specific rules
 User-agent: Bingbot
 Allow: /
 Disallow: /admin
 Disallow: /api
+Crawl-delay: 1
+
+# Block bad bots
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
