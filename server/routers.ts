@@ -4,6 +4,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { chatRouter } from "./routers/chat";
 import { seoRouter } from "./routers/seo";
+import { schemaValidatorRouter } from "./routers/schemaValidator";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import {
@@ -462,6 +463,9 @@ export const appRouter = router({
 
   // ==================== CHAT ROUTES ====================
   chat: chatRouter,
+
+  // ==================== SCHEMA VALIDATOR ROUTES ====================
+  schemaValidator: router(schemaValidatorRouter),
 });
 
 export type AppRouter = typeof appRouter;
