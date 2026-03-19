@@ -6,6 +6,7 @@ import { useState } from "react";
 export default function AdminProjects() {
   const { data: projects, refetch } = trpc.projects.listAll.useQuery();
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -33,6 +34,27 @@ export default function AdminProjects() {
       });
       setImageUrl("");
       setShowForm(false);
+      setEditingId(null);
+      refetch();
+    },
+  });
+
+  const updateMutation = trpc.projects.update.useMutation({
+    onSuccess: () => {
+      toast.success("Project updated successfully");
+      setFormData({
+        title: "",
+        description: "",
+        shortDescription: "",
+        client: "",
+        status: "completed",
+        metaTitle: "",
+        metaDescription: "",
+        galleryImages: [],
+      });
+      setImageUrl("");
+      setShowForm(false);
+      setEditingId(null);
       refetch();
     },
   });
@@ -44,13 +66,66 @@ export default function AdminProjects() {
     },
   });
 
+  const handleEdit = (project: any) => {
+    setEditingId(project.id);
+    setFormData({
+      title: project.title,
+      description: project.description,
+      shortDescription: project.shortDescription || "",
+      client: project.client || "",
+      status: project.status || "completed",
+      metaTitle: project.metaTitle || "",
+      metaDescription: project.metaDescription || "",
+      galleryImages: project.galleryImages || [],
+    });
+    setShowForm(true);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title || !formData.description) {
       toast.error("Title and description are required");
       return;
     }
-    createMutation.mutate(formData);
+    
+    if (editingId) {
+      updateMutation.mutate({ id: editingId, ...formData });
+    } else {
+      createMutation.mutate(formData);
+    }
+  };
+
+  const handleCancel = () => {
+    setShowForm(false);
+    setEditingId(null);
+    setFormData({
+      title: "",
+      description: "",
+      shortDescription: "",
+      client: "",
+      status: "completed",
+      metaTitle: "",
+      metaDescription: "",
+      galleryImages: [],
+    });
+    setImageUrl("");
+  };
+
+  const addImage = () => {
+    if (imageUrl.trim()) {
+      setFormData({
+        ...formData,
+        galleryImages: [...formData.galleryImages, imageUrl],
+      });
+      setImageUrl("");
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setFormData({
+      ...formData,
+      galleryImages: formData.galleryImages.filter((_, i) => i !== index),
+    });
   };
 
   return (
@@ -61,7 +136,22 @@ export default function AdminProjects() {
           <p className="text-muted-foreground">Manage your portfolio projects</p>
         </div>
         <button
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => {
+            if (!showForm) {
+              setEditingId(null);
+              setFormData({
+                title: "",
+                description: "",
+                shortDescription: "",
+                client: "",
+                status: "completed",
+                metaTitle: "",
+                metaDescription: "",
+                galleryImages: [],
+              });
+            }
+            setShowForm(!showForm);
+          }}
           className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors"
         >
           <Plus size={20} />
@@ -69,9 +159,18 @@ export default function AdminProjects() {
         </button>
       </div>
 
+      {/* Form */}
       {showForm && (
         <div className="card-elegant">
-          <h3 className="text-xl font-bold mb-4">Create New Project</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-bold">{editingId ? "Edit Project" : "Create New Project"}</h3>
+            <button
+              onClick={handleCancel}
+              className="p-2 hover:bg-secondary rounded-lg"
+            >
+              <X size={20} />
+            </button>
+          </div>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-semibold mb-2">Title *</label>
@@ -84,29 +183,15 @@ export default function AdminProjects() {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-semibold mb-2">Client</label>
-                <input
-                  type="text"
-                  value={formData.client}
-                  onChange={(e) => setFormData({ ...formData, client: e.target.value })}
-                  className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-                  placeholder="Client name"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold mb-2">Status</label>
-                <select
-                  value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                  className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-                >
-                  <option value="completed">Completed</option>
-                  <option value="ongoing">Ongoing</option>
-                  <option value="planned">Planned</option>
-                </select>
-              </div>
+            <div>
+              <label className="block text-sm font-semibold mb-2">Client</label>
+              <input
+                type="text"
+                value={formData.client}
+                onChange={(e) => setFormData({ ...formData, client: e.target.value })}
+                className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="Client name"
+              />
             </div>
 
             <div>
@@ -116,76 +201,32 @@ export default function AdminProjects() {
                 value={formData.shortDescription}
                 onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })}
                 className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="Brief description"
+                placeholder="Brief description for listings"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold mb-2">Full Description *</label>
+              <label className="block text-sm font-semibold mb-2">Description *</label>
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={6}
                 className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-                placeholder="Full description (HTML supported)"
+                placeholder="Detailed project description"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold mb-2">Gallery Images</label>
-              <div className="space-y-3">
-                <div className="flex gap-2">
-                  <input
-                    type="url"
-                    value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                    placeholder="Paste image URL here"
-                    className="flex-1 px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (imageUrl.trim()) {
-                        setFormData({
-                          ...formData,
-                          galleryImages: [...formData.galleryImages, imageUrl],
-                        });
-                        setImageUrl("");
-                        toast.success("Image added");
-                      }
-                    }}
-                    className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors flex items-center gap-2"
-                  >
-                    <Plus size={16} />
-                    Add
-                  </button>
-                </div>
-                {formData.galleryImages.length > 0 && (
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {formData.galleryImages.map((img, idx) => (
-                      <div key={idx} className="relative group">
-                        <img
-                          src={img}
-                          alt={`Gallery ${idx + 1}`}
-                          className="w-full h-24 object-cover rounded-lg border border-border"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setFormData({
-                              ...formData,
-                              galleryImages: formData.galleryImages.filter((_, i) => i !== idx),
-                            });
-                          }}
-                          className="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <X size={14} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <label className="block text-sm font-semibold mb-2">Status</label>
+              <select
+                value={formData.status}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+                className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+                <option value="completed">Completed</option>
+                <option value="ongoing">Ongoing</option>
+                <option value="planned">Planned</option>
+              </select>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -211,17 +252,54 @@ export default function AdminProjects() {
               </div>
             </div>
 
+            <div>
+              <label className="block text-sm font-semibold mb-2">Gallery Images</label>
+              <div className="flex gap-2 mb-3">
+                <input
+                  type="text"
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  className="flex-1 px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="Image URL"
+                />
+                <button
+                  type="button"
+                  onClick={addImage}
+                  className="px-4 py-2 bg-secondary text-foreground rounded-lg font-semibold hover:bg-secondary/90 transition-colors flex items-center gap-2"
+                >
+                  <Image size={16} />
+                  Add
+                </button>
+              </div>
+              {formData.galleryImages.length > 0 && (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {formData.galleryImages.map((img, idx) => (
+                    <div key={idx} className="relative group">
+                      <img src={img} alt={`Gallery ${idx}`} className="w-full h-24 object-cover rounded-lg" />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(idx)}
+                        className="absolute top-1 right-1 p-1 bg-red-600 text-white rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <div className="flex gap-2">
               <button
                 type="submit"
-                disabled={createMutation.isPending}
+                disabled={createMutation.isPending || updateMutation.isPending}
                 className="px-6 py-2 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50"
               >
-                {createMutation.isPending ? "Creating..." : "Create Project"}
+                {updateMutation.isPending ? "Updating..." : createMutation.isPending ? "Creating..." : editingId ? "Update Project" : "Create Project"}
               </button>
               <button
                 type="button"
-                onClick={() => setShowForm(false)}
+                onClick={handleCancel}
                 className="px-6 py-2 border border-border rounded-lg font-semibold hover:bg-secondary transition-colors"
               >
                 Cancel
@@ -231,6 +309,7 @@ export default function AdminProjects() {
         </div>
       )}
 
+      {/* Projects List */}
       <div className="card-elegant">
         <h3 className="text-xl font-bold mb-4">All Projects</h3>
         {projects && projects.length > 0 ? (
@@ -241,7 +320,6 @@ export default function AdminProjects() {
                   <th className="text-left py-3 px-4">Title</th>
                   <th className="text-left py-3 px-4">Client</th>
                   <th className="text-left py-3 px-4">Status</th>
-                  <th className="text-left py-3 px-4">Created</th>
                   <th className="text-left py-3 px-4">Actions</th>
                 </tr>
               </thead>
@@ -251,7 +329,7 @@ export default function AdminProjects() {
                     <td className="py-3 px-4 font-semibold">{project.title}</td>
                     <td className="py-3 px-4 text-muted-foreground">{project.client || "—"}</td>
                     <td className="py-3 px-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-semibold capitalize ${
+                      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
                         project.status === "completed" ? "bg-green-100 text-green-800" :
                         project.status === "ongoing" ? "bg-blue-100 text-blue-800" :
                         "bg-yellow-100 text-yellow-800"
@@ -259,20 +337,16 @@ export default function AdminProjects() {
                         {project.status}
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-muted-foreground">
-                      {new Date(project.createdAt).toLocaleDateString()}
-                    </td>
                     <td className="py-3 px-4">
                       <div className="flex gap-2">
-                        <button className="p-2 hover:bg-secondary rounded-lg transition-colors" title="View project images">
-                          <Image size={16} />
+                        <button 
+                          onClick={() => handleEdit(project)}
+                          className="p-2 hover:bg-secondary rounded-lg transition-colors"
+                        >
+                          <Edit2 size={16} />
                         </button>
                         <button
-                          onClick={() => {
-                            if (confirm("Delete this project?")) {
-                              deleteMutation.mutate({ id: project.id });
-                            }
-                          }}
+                          onClick={() => deleteMutation.mutate({ id: project.id })}
                           className="p-2 hover:bg-red-100 text-red-600 rounded-lg transition-colors"
                         >
                           <Trash2 size={16} />

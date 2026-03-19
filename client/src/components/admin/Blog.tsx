@@ -1,6 +1,6 @@
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
-import { Edit2, Trash2, Plus } from "lucide-react";
+import { Edit2, Trash2, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 
 export default function AdminBlog() {
@@ -20,6 +20,17 @@ export default function AdminBlog() {
       toast.success("Blog post created successfully");
       setFormData({ title: "", excerpt: "", content: "", metaTitle: "", metaDescription: "" });
       setShowForm(false);
+      setEditingId(null);
+      refetch();
+    },
+  });
+
+  const updateMutation = trpc.blog.update.useMutation({
+    onSuccess: () => {
+      toast.success("Blog post updated successfully");
+      setFormData({ title: "", excerpt: "", content: "", metaTitle: "", metaDescription: "" });
+      setShowForm(false);
+      setEditingId(null);
       refetch();
     },
   });
@@ -31,13 +42,36 @@ export default function AdminBlog() {
     },
   });
 
+  const handleEdit = (post: any) => {
+    setEditingId(post.id);
+    setFormData({
+      title: post.title,
+      excerpt: post.excerpt || "",
+      content: post.content,
+      metaTitle: post.metaTitle || "",
+      metaDescription: post.metaDescription || "",
+    });
+    setShowForm(true);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title || !formData.content) {
       toast.error("Title and content are required");
       return;
     }
-    createMutation.mutate(formData);
+    
+    if (editingId) {
+      updateMutation.mutate({ id: editingId, ...formData });
+    } else {
+      createMutation.mutate(formData);
+    }
+  };
+
+  const handleCancel = () => {
+    setShowForm(false);
+    setEditingId(null);
+    setFormData({ title: "", excerpt: "", content: "", metaTitle: "", metaDescription: "" });
   };
 
   return (
@@ -48,7 +82,13 @@ export default function AdminBlog() {
           <p className="text-muted-foreground">Create and manage blog posts</p>
         </div>
         <button
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => {
+            if (!showForm) {
+              setEditingId(null);
+              setFormData({ title: "", excerpt: "", content: "", metaTitle: "", metaDescription: "" });
+            }
+            setShowForm(!showForm);
+          }}
           className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors"
         >
           <Plus size={20} />
@@ -59,7 +99,15 @@ export default function AdminBlog() {
       {/* Form */}
       {showForm && (
         <div className="card-elegant">
-          <h3 className="text-xl font-bold mb-4">Create New Blog Post</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-bold">{editingId ? "Edit Blog Post" : "Create New Blog Post"}</h3>
+            <button
+              onClick={handleCancel}
+              className="p-2 hover:bg-secondary rounded-lg"
+            >
+              <X size={20} />
+            </button>
+          </div>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-semibold mb-2">Title *</label>
@@ -120,14 +168,14 @@ export default function AdminBlog() {
             <div className="flex gap-2">
               <button
                 type="submit"
-                disabled={createMutation.isPending}
+                disabled={createMutation.isPending || updateMutation.isPending}
                 className="px-6 py-2 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50"
               >
-                {createMutation.isPending ? "Creating..." : "Create Post"}
+                {updateMutation.isPending ? "Updating..." : createMutation.isPending ? "Creating..." : editingId ? "Update Post" : "Create Post"}
               </button>
               <button
                 type="button"
-                onClick={() => setShowForm(false)}
+                onClick={handleCancel}
                 className="px-6 py-2 border border-border rounded-lg font-semibold hover:bg-secondary transition-colors"
               >
                 Cancel
@@ -167,7 +215,10 @@ export default function AdminBlog() {
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex gap-2">
-                        <button className="p-2 hover:bg-secondary rounded-lg transition-colors">
+                        <button 
+                          onClick={() => handleEdit(post)}
+                          className="p-2 hover:bg-secondary rounded-lg transition-colors"
+                        >
                           <Edit2 size={16} />
                         </button>
                         <button

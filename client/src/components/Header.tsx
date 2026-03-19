@@ -81,11 +81,12 @@ export default function Header() {
         
         <div className="flex gap-2 md:gap-4 items-center">
           {user?.role === "admin" && (
-            <Link href="/admin">
-              <a className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors text-sm md:text-base">
-                Admin
-              </a>
-            </Link>
+            <button
+              onClick={() => window.location.href = "/admin"}
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors text-sm md:text-base"
+            >
+              Admin
+            </button>
           )}
           {user ? (
             <LogoutButton />
