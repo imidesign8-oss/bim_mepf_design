@@ -1,12 +1,7 @@
-import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { BarChart3, Users, FileText, Mail, Settings } from "lucide-react";
-import HomePageCMSEditor from "@/components/HomePageCMSEditor";
-import AboutPageCMSEditor from "@/components/AboutPageCMSEditor";
+import { BarChart3, Users, FileText, Mail } from "lucide-react";
 
 export default function AdminDashboard() {
-  const [showHomeEditor, setShowHomeEditor] = useState(false);
-  const [showAboutEditor, setShowAboutEditor] = useState(false);
   const { data: contacts } = trpc.contacts.list.useQuery();
   const { data: blogs } = trpc.blog.listAll.useQuery();
   const { data: projects } = trpc.projects.listAll.useQuery();
@@ -101,35 +96,6 @@ export default function AdminDashboard() {
           </button>
         </div>
       </div>
-
-      {/* CMS Editors */}
-      <div className="card-elegant">
-        <div className="flex items-center gap-2 mb-4">
-          <Settings size={24} className="text-primary" />
-          <h3 className="text-xl font-bold">Content Management</h3>
-        </div>
-        <p className="text-sm text-muted-foreground mb-4">Edit key pages without code changes</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <button
-            onClick={() => setShowHomeEditor(true)}
-            className="px-4 py-3 bg-secondary hover:bg-secondary/80 border border-border rounded-lg font-semibold transition-colors text-left"
-          >
-            <div className="font-bold mb-1">Edit Home Page</div>
-            <div className="text-xs text-muted-foreground">Hero section, services, projects</div>
-          </button>
-          <button
-            onClick={() => setShowAboutEditor(true)}
-            className="px-4 py-3 bg-secondary hover:bg-secondary/80 border border-border rounded-lg font-semibold transition-colors text-left"
-          >
-            <div className="font-bold mb-1">Edit About Page</div>
-            <div className="text-xs text-muted-foreground">Mission, vision, company info</div>
-          </button>
-        </div>
-      </div>
-
-      {/* Modals */}
-      {showHomeEditor && <HomePageCMSEditor onClose={() => setShowHomeEditor(false)} />}
-      {showAboutEditor && <AboutPageCMSEditor onClose={() => setShowAboutEditor(false)} />}
     </div>
   );
 }
