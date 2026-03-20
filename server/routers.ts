@@ -95,7 +95,8 @@ export const appRouter = router({
         return createBlogPost({
           ...input,
           slug,
-          published: false,
+          published: true,
+          publishedAt: new Date(),
           canonicalUrl: `/blog/${slug}`,
         });
       }),
