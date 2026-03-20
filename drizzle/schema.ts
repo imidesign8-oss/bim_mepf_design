@@ -308,3 +308,52 @@ export const seoSettings = mysqlTable("seo_settings", {
 
 export type SeoSettings = typeof seoSettings.$inferSelect;
 export type InsertSeoSettings = typeof seoSettings.$inferInsert;
+
+
+/**
+ * Email Settings table for SMTP configuration
+ */
+export const emailSettings = mysqlTable("email_settings", {
+  id: int("id").autoincrement().primaryKey(),
+  smtpHost: varchar("smtpHost", { length: 255 }).notNull(),
+  smtpPort: int("smtpPort").notNull(),
+  smtpUser: varchar("smtpUser", { length: 255 }).notNull(),
+  smtpPassword: text("smtpPassword").notNull(),
+  fromEmail: varchar("fromEmail", { length: 320 }).notNull(),
+  fromName: varchar("fromName", { length: 255 }).notNull(),
+  replyTo: varchar("replyTo", { length: 320 }),
+  enableTLS: boolean("enableTLS").default(true).notNull(),
+  enableSSL: boolean("enableSSL").default(false).notNull(),
+  notifyOnContactSubmission: boolean("notifyOnContactSubmission").default(true).notNull(),
+  notifyOnHighScoreLead: boolean("notifyOnHighScoreLead").default(true).notNull(),
+  highScoreThreshold: int("highScoreThreshold").default(80).notNull(),
+  notificationEmails: longtext("notificationEmails").notNull(), // JSON array of emails
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type EmailSettings = typeof emailSettings.$inferSelect;
+export type InsertEmailSettings = typeof emailSettings.$inferInsert;
+
+/**
+ * Email Logs table for tracking sent emails
+ */
+export const emailLogs = mysqlTable("email_logs", {
+  id: int("id").autoincrement().primaryKey(),
+  recipientEmail: varchar("recipientEmail", { length: 320 }).notNull(),
+  subject: varchar("subject", { length: 255 }).notNull(),
+  emailType: varchar("emailType", { length: 50 }).notNull(), // 'contact_submission', 'high_score_lead', 'custom'
+  status: mysqlEnum("status", ["sent", "failed", "pending"]).default("pending").notNull(),
+  errorMessage: text("errorMessage"),
+  sentAt: timestamp("sentAt"),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  statusIdx: index("email_log_status_idx").on(table.status),
+  emailTypeIdx: index("email_log_type_idx").on(table.emailType),
+  recipientIdx: index("email_log_recipient_idx").on(table.recipientEmail),
+}));
+
+export type EmailLog = typeof emailLogs.$inferSelect;
+export type InsertEmailLog = typeof emailLogs.$inferInsert;

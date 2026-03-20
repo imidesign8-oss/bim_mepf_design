@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import { ArrowRight } from "lucide-react";
 
 import { useAuth } from "@/_core/hooks/useAuth";
+import Breadcrumb from "@/components/Breadcrumb";
 import {
   setPageTitle,
   setPageDescription,
@@ -40,6 +41,11 @@ export default function Services() {
 
   return (
     <div className="min-h-screen bg-background">
+
+      {/* Breadcrumb */}
+      <div className="container py-4">
+        <Breadcrumb items={[{ label: "Services" }]} />
+      </div>
 
       {/* Hero */}
       <section className="py-20 md:py-32 bg-gradient-to-br from-primary/5 to-accent/5">

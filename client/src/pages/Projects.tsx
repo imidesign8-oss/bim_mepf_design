@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import { ArrowRight } from "lucide-react";
 
 import { useState, useEffect } from "react";
+import Breadcrumb from "@/components/Breadcrumb";
 import { setPageTitle, setPageDescription, setOpenGraphImage, setCanonicalUrl, addJsonLd, createBreadcrumbSchema, getFullUrl } from "@/lib/seoHelpers";
 
 export default function Projects() {
@@ -22,7 +23,13 @@ export default function Projects() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background">{/* Hero */}
+    <div className="min-h-screen bg-background">
+      {/* Breadcrumb */}
+      <div className="container py-4">
+        <Breadcrumb items={[{ label: "Projects" }]} />
+      </div>
+
+      {/* Hero */}
       <section className="py-20 md:py-32 bg-gradient-to-br from-primary/5 to-accent/5">
         <div className="container">
           <div className="max-w-3xl">

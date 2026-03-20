@@ -1,8 +1,8 @@
-import { useEffect } from "react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import Footer from "@/components/Footer";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Breadcrumb from "@/components/Breadcrumb";
 import { Phone, Mail, MapPin, Send } from "lucide-react";
 
 import { toast } from "sonner";
@@ -95,7 +95,13 @@ export default function Contact() {
   };
 
   return (
-    <div className="min-h-screen bg-background">{/* Hero */}
+    <div className="min-h-screen bg-background">
+      {/* Breadcrumb */}
+      <div className="container py-4">
+        <Breadcrumb items={[{ label: "Contact" }]} />
+      </div>
+
+      {/* Hero */}
       <section className="py-20 md:py-32 bg-gradient-to-br from-primary/5 to-accent/5">
         <div className="container">
           <div className="max-w-3xl">

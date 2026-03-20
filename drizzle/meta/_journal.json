@@ -29,6 +29,13 @@
       "when": 1773896834666,
       "tag": "0003_fresh_vivisector",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1773899303330,
+      "tag": "0004_natural_zodiak",
+      "breakpoints": true
     }
   ]
 }

@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import Footer from "@/components/Footer";
@@ -13,6 +12,8 @@ import {
   createBreadcrumbSchema,
   getFullUrl,
 } from "@/lib/seoHelpers";
+import Breadcrumb from "@/components/Breadcrumb";
+import { useEffect } from "react";
 
 export default function About() {
   const { data: content } = trpc.pages.getContent.useQuery({ pageKey: "about" });
@@ -39,7 +40,13 @@ export default function About() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background">{/* Hero */}
+    <div className="min-h-screen bg-background">
+      {/* Breadcrumb */}
+      <div className="container py-4">
+        <Breadcrumb items={[{ label: "About" }]} />
+      </div>
+
+      {/* Hero */}
       <section className="py-20 md:py-32 bg-gradient-to-br from-primary/5 to-accent/5">
         <div className="container">
           <div className="max-w-3xl">

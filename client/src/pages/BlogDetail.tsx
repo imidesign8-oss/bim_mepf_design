@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import { ArrowRight, Calendar, User, Share2 } from "lucide-react";
 import { Streamdown } from "streamdown";
 import { useEffect } from "react";
+import { addJsonLd, createArticleSchema, createBreadcrumbSchema, getFullUrl } from "@/lib/seoHelpers";
 
 export default function BlogDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -17,6 +18,27 @@ export default function BlogDetail() {
       if (metaDescription) {
         metaDescription.setAttribute("content", post.metaDescription || "");
       }
+
+      // Add Article schema
+      const articleSchema = createArticleSchema({
+        headline: post.title,
+        description: post.metaDescription || post.excerpt || "",
+        image: post.featuredImage || undefined,
+        datePublished: post.publishedAt ? new Date(post.publishedAt).toISOString() : new Date().toISOString(),
+        dateModified: post.updatedAt ? new Date(post.updatedAt).toISOString() : undefined,
+        author: "IMI Design",
+        articleBody: post.content,
+        url: getFullUrl(`/blog/${post.slug}`),
+      });
+      addJsonLd(articleSchema);
+
+      // Add breadcrumb schema
+      const breadcrumbSchema = createBreadcrumbSchema([
+        { name: "Home", url: getFullUrl("/") },
+        { name: "Blog", url: getFullUrl("/blog") },
+        { name: post.title, url: getFullUrl(`/blog/${post.slug}`) },
+      ]);
+      addJsonLd(breadcrumbSchema);
     }
   }, [post]);
 

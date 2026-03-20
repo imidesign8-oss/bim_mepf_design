@@ -208,6 +208,36 @@ export function createFAQSchema(faqs: Array<{ question: string; answer: string }
 }
 
 /**
+ * Create Article schema for blog posts
+ */
+export function createArticleSchema(article: {
+  headline: string;
+  description: string;
+  image?: string;
+  datePublished: string;
+  dateModified?: string;
+  author?: string;
+  articleBody?: string;
+  url: string;
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: article.headline,
+    description: article.description,
+    image: article.image,
+    datePublished: article.datePublished,
+    dateModified: article.dateModified || article.datePublished,
+    author: article.author ? {
+      '@type': 'Person',
+      name: article.author,
+    } : undefined,
+    articleBody: article.articleBody,
+    url: article.url,
+  };
+}
+
+/**
  * Get full URL for a path
  */
 export function getFullUrl(path: string): string {

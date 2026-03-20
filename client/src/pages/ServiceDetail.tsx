@@ -3,6 +3,7 @@ import { trpc } from "@/lib/trpc";
 import Footer from "@/components/Footer";
 import { ArrowRight } from "lucide-react";
 import { useEffect } from "react";
+import { addJsonLd, createServiceSchema, createBreadcrumbSchema, getFullUrl, createOrganizationSchema } from "@/lib/seoHelpers";
 
 export default function ServiceDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -16,6 +17,45 @@ export default function ServiceDetail() {
       if (metaDescription) {
         metaDescription.setAttribute("content", service.metaDescription || "");
       }
+
+      // Add Service schema
+      const orgInfo = {
+        name: "IMI Design - BIM & MEPF Design Services",
+        description: "Professional BIM and MEPF design services",
+        url: getFullUrl("/"),
+        logo: getFullUrl("/favicon.svg"),
+        email: "projects@imidesign.in",
+        phone: "+91-9876543210",
+        address: {
+          streetAddress: "123 Design Street",
+          addressLocality: "Bangalore",
+          addressRegion: "Karnataka",
+          postalCode: "560001",
+          addressCountry: "IN",
+        },
+        sameAs: [],
+      };
+
+      const serviceSchema = createServiceSchema(
+        {
+          name: service.title,
+          description: service.shortDescription || service.description || "",
+          url: getFullUrl(`/services/${service.slug}`),
+          image: service.image || undefined,
+          areaServed: "India",
+          serviceType: service.title,
+        },
+        orgInfo
+      );
+      addJsonLd(serviceSchema);
+
+      // Add breadcrumb schema
+      const breadcrumbSchema = createBreadcrumbSchema([
+        { name: "Home", url: getFullUrl("/") },
+        { name: "Services", url: getFullUrl("/services") },
+        { name: service.title, url: getFullUrl(`/services/${service.slug}`) },
+      ]);
+      addJsonLd(breadcrumbSchema);
     }
   }, [service]);
 

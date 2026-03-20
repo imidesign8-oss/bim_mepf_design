@@ -13,8 +13,11 @@ import {
   addJsonLd,
   createOrganizationSchema,
   createLocalBusinessSchema,
+  createFAQSchema,
   getFullUrl,
 } from "@/lib/seoHelpers";
+import { faqData, convertFAQToSchema } from "@/lib/faqData";
+import FAQSection from "@/components/FAQSection";
 
 export default function Home() {
   const { user } = useAuth();
@@ -83,6 +86,10 @@ export default function Home() {
       ],
     });
     addJsonLd(localBusinessSchema);
+
+    // Add FAQ schema
+    const faqSchema = createFAQSchema(convertFAQToSchema(faqData));
+    addJsonLd(faqSchema);
   }, []);
 
   return (
@@ -211,6 +218,12 @@ export default function Home() {
           </div>
         </section>
       )}
+
+      {/* FAQ Section */}
+      <FAQSection
+        title="Frequently Asked Questions"
+        description="Get answers to common questions about our BIM and MEPF design services."
+      />
 
       {/* CTA Section */}
       <section className="py-16 md:py-24 bg-gradient-to-r from-primary/10 to-accent/10">
