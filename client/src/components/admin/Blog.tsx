@@ -1,7 +1,8 @@
-import { trpc } from "@/lib/trpc";
 import { useState } from "react";
 import { Edit2, Trash2, Plus, X } from "lucide-react";
 import { toast } from "sonner";
+import RichTextEditor from "@/components/RichTextEditor";
+import { trpc } from "@/lib/trpc";
 
 export default function AdminBlog() {
   const { data: posts, refetch } = trpc.blog.listAll.useQuery();
@@ -133,12 +134,10 @@ export default function AdminBlog() {
 
             <div>
               <label className="block text-sm font-semibold mb-2">Content *</label>
-              <textarea
+              <RichTextEditor
                 value={formData.content}
-                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                rows={6}
-                className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-                placeholder="Post content (HTML supported)"
+                onChange={(content) => setFormData({ ...formData, content })}
+                placeholder="Write your blog post content here..."
               />
             </div>
 

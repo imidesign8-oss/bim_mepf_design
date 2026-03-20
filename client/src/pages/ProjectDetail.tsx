@@ -1,8 +1,8 @@
 import { Link, useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
 import Footer from "@/components/Footer";
+import ImageCarousel from "@/components/ImageCarousel";
 import { ArrowRight } from "lucide-react";
-
 import { useEffect } from "react";
 
 export default function ProjectDetail() {
@@ -140,16 +140,11 @@ export default function ProjectDetail() {
         <section className="section-padding bg-secondary/30">
           <div className="container">
             <h2 className="mb-8 text-center">Project Gallery</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {galleryImages.map((image: string, i: number) => (
-                <img 
-                  key={i}
-                  src={image} 
-                  alt={`${project.title} - Image ${i + 1}`} 
-                  className="w-full h-48 object-cover rounded-lg shadow-lg hover:shadow-xl transition-shadow"
-                />
-              ))}
-            </div>
+            <ImageCarousel
+              images={galleryImages}
+              autoRotateInterval={3000}
+              editable={false}
+            />
           </div>
         </section>
       )}
