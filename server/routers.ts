@@ -18,6 +18,7 @@ import {
   upsertCompanySettings, getCompanySettings,
 } from "./db";
 import { validateContactForm } from "./contact-service";
+import { autoEmailService } from "./services/autoEmailService";
 
 // Utility function to generate slug from title
 function generateSlug(title: string): string {
@@ -334,7 +335,35 @@ export const appRouter = router({
         }
         
         // Save contact to database
-        return createContact(input);
+        const contact = await createContact(input);
+        
+        // Send auto-reply and admin notification
+        try {
+          const autoEmailConfig = {
+            clientEmail: "projects@imidesign.in",
+            clientName: input.name,
+            subject: input.subject,
+            message: input.message,
+            phone: "+91 9405707777",
+            servicesUrl: "https://imidesign.in/services",
+            faqUrl: "https://imidesign.in/#faq",
+            responseTime: "24 hours",
+            companyName: "IMI DESIGN TEAM",
+            adminEmail: "projects@imidesign.in",
+          };
+          
+          await autoEmailService.sendAutoReply({
+            name: input.name,
+            email: input.email,
+            phone: input.phone,
+            subject: input.subject,
+            message: input.message,
+          }, autoEmailConfig);
+        } catch (emailError) {
+          console.error("Error sending auto-reply emails:", emailError);
+        }
+        
+        return contact;
       }),
 
     // Admin: Get all contacts
