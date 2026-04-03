@@ -10,6 +10,7 @@ import AdminContacts from "@/components/admin/Contacts";
 import AdminSettings from "@/components/admin/Settings";
 import AdminSEO from "@/components/admin/SEO";
 import { SchemaValidator } from "@/components/admin/SchemaValidator";
+import EmailManagement from "@/pages/admin/EmailManagement";
 
 export default function Admin() {
   const { user } = useAuth();
@@ -37,6 +38,7 @@ export default function Admin() {
     { id: "services", label: "Services", icon: "🔧" },
     { id: "projects", label: "Projects", icon: "🏗️" },
     { id: "contacts", label: "Contacts", icon: "📧" },
+    { id: "email", label: "Email Management", icon: "✉️" },
     { id: "seo", label: "SEO", icon: "🔍" },
     { id: "schema-validator", label: "Schema Validator", icon: "✓" },
     { id: "settings", label: "Settings", icon: "⚙️" },
@@ -100,6 +102,7 @@ export default function Admin() {
           {currentTab === "services" && <AdminServices />}
           {currentTab === "projects" && <AdminProjects />}
           {currentTab === "contacts" && <AdminContacts />}
+          {currentTab === "email" && <EmailManagement />}
           {currentTab === "seo" && <AdminSEO />}
           {currentTab === "schema-validator" && <SchemaValidator />}
           {currentTab === "settings" && <AdminSettings />}
