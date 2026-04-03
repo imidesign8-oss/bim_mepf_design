@@ -13,12 +13,13 @@ export default function AdminBlog() {
     content: "",
     metaTitle: "",
     metaDescription: "",
+    published: false,
   });
 
   const createMutation = trpc.blog.create.useMutation({
     onSuccess: () => {
       toast.success("Blog post created successfully");
-      setFormData({ title: "", excerpt: "", content: "", metaTitle: "", metaDescription: "" });
+      setFormData({ title: "", excerpt: "", content: "", metaTitle: "", metaDescription: "", published: false });
       setShowForm(false);
       setEditingId(null);
       refetch();
@@ -28,7 +29,7 @@ export default function AdminBlog() {
   const updateMutation = trpc.blog.update.useMutation({
     onSuccess: () => {
       toast.success("Blog post updated successfully");
-      setFormData({ title: "", excerpt: "", content: "", metaTitle: "", metaDescription: "" });
+      setFormData({ title: "", excerpt: "", content: "", metaTitle: "", metaDescription: "", published: false });
       setShowForm(false);
       setEditingId(null);
       refetch();
@@ -50,6 +51,7 @@ export default function AdminBlog() {
       content: post.content,
       metaTitle: post.metaTitle || "",
       metaDescription: post.metaDescription || "",
+      published: post.published || false,
     });
     setShowForm(true);
   };
@@ -71,7 +73,7 @@ export default function AdminBlog() {
   const handleCancel = () => {
     setShowForm(false);
     setEditingId(null);
-    setFormData({ title: "", excerpt: "", content: "", metaTitle: "", metaDescription: "" });
+    setFormData({ title: "", excerpt: "", content: "", metaTitle: "", metaDescription: "", published: false });
   };
 
   return (
@@ -85,7 +87,7 @@ export default function AdminBlog() {
           onClick={() => {
             if (!showForm) {
               setEditingId(null);
-              setFormData({ title: "", excerpt: "", content: "", metaTitle: "", metaDescription: "" });
+              setFormData({ title: "", excerpt: "", content: "", metaTitle: "", metaDescription: "", published: false });
             }
             setShowForm(!showForm);
           }}
@@ -165,6 +167,19 @@ export default function AdminBlog() {
               </div>
             </div>
 
+            <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+              <input
+                type="checkbox"
+                id="published"
+                checked={formData.published}
+                onChange={(e) => setFormData({ ...formData, published: e.target.checked })}
+                className="w-4 h-4 rounded border-border"
+              />
+              <label htmlFor="published" className="text-sm font-semibold cursor-pointer">
+                {formData.published ? "✓ Published" : "○ Draft"} - {formData.published ? "This post is live" : "This post is not visible"}
+              </label>
+            </div>
+
             <div className="flex gap-2">
               <button
                 type="submit"
@@ -173,6 +188,15 @@ export default function AdminBlog() {
               >
                 {updateMutation.isPending ? "Updating..." : createMutation.isPending ? "Creating..." : editingId ? "Update Post" : "Create Post"}
               </button>
+              {editingId && formData.published && (
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, published: false })}
+                  className="px-6 py-2 border border-red-300 text-red-600 rounded-lg font-semibold hover:bg-red-50 transition-colors"
+                >
+                  Unpublish
+                </button>
+              )}
               <button
                 type="button"
                 onClick={handleCancel}

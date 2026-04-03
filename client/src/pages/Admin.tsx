@@ -11,6 +11,10 @@ import AdminSettings from "@/components/admin/Settings";
 import AdminSEO from "@/components/admin/SEO";
 import { SchemaValidator } from "@/components/admin/SchemaValidator";
 import EmailManagement from "@/pages/admin/EmailManagement";
+import HomePageCMS from "@/components/admin/HomePageCMS";
+import AboutPageCMS from "@/components/admin/AboutPageCMS";
+import ServicesPageCMS from "@/components/admin/ServicesPageCMS";
+import ProjectsPageCMS from "@/components/admin/ProjectsPageCMS";
 
 export default function Admin() {
   const { user } = useAuth();
@@ -39,6 +43,10 @@ export default function Admin() {
     { id: "projects", label: "Projects", icon: "🏗️" },
     { id: "contacts", label: "Contacts", icon: "📧" },
     { id: "email", label: "Email Management", icon: "✉️" },
+    { id: "cms-home", label: "CMS: Home", icon: "🏠" },
+    { id: "cms-about", label: "CMS: About", icon: "📄" },
+    { id: "cms-services", label: "CMS: Services", icon: "📚" },
+    { id: "cms-projects", label: "CMS: Projects", icon: "🖼️" },
     { id: "seo", label: "SEO", icon: "🔍" },
     { id: "schema-validator", label: "Schema Validator", icon: "✓" },
     { id: "settings", label: "Settings", icon: "⚙️" },
@@ -103,6 +111,10 @@ export default function Admin() {
           {currentTab === "projects" && <AdminProjects />}
           {currentTab === "contacts" && <AdminContacts />}
           {currentTab === "email" && <EmailManagement />}
+          {currentTab === "cms-home" && <HomePageCMS />}
+          {currentTab === "cms-about" && <AboutPageCMS />}
+          {currentTab === "cms-services" && <ServicesPageCMS />}
+          {currentTab === "cms-projects" && <ProjectsPageCMS />}
           {currentTab === "seo" && <AdminSEO />}
           {currentTab === "schema-validator" && <SchemaValidator />}
           {currentTab === "settings" && <AdminSettings />}
