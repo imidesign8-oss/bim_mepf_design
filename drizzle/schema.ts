@@ -357,3 +357,26 @@ export const emailLogs = mysqlTable("email_logs", {
 
 export type EmailLog = typeof emailLogs.$inferSelect;
 export type InsertEmailLog = typeof emailLogs.$inferInsert;
+
+
+/**
+ * Email Bounces - Track bounced and suppressed email addresses
+ */
+export const emailBounces = mysqlTable("email_bounces", {
+  id: varchar("id", { length: 100 }).primaryKey(),
+  email: varchar("email", { length: 320 }).notNull().unique(),
+  bounceType: mysqlEnum("bounceType", ["permanent", "temporary", "complaint"]).notNull(),
+  reason: text("reason"),
+  bounceCount: int("bounceCount").default(1).notNull(),
+  lastBounceAt: timestamp("lastBounceAt").notNull(),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  emailIdx: index("email_bounce_email_idx").on(table.email),
+  bounceTypeIdx: index("email_bounce_type_idx").on(table.bounceType),
+  lastBounceIdx: index("email_bounce_last_bounce_idx").on(table.lastBounceAt),
+}));
+
+export type EmailBounce = typeof emailBounces.$inferSelect;
+export type InsertEmailBounce = typeof emailBounces.$inferInsert;

@@ -36,6 +36,13 @@
       "when": 1773899303330,
       "tag": "0004_natural_zodiak",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1775320040990,
+      "tag": "0005_magical_dreadnoughts",
+      "breakpoints": true
     }
   ]
 }
