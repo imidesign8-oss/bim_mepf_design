@@ -15,11 +15,13 @@ export default function AdminServices() {
     metaTitle: "",
     metaDescription: "",
   });
+  const [subServices, setSubServices] = useState<string[]>([]);
 
   const createMutation = trpc.services.create.useMutation({
     onSuccess: () => {
       toast.success("Service created successfully");
       setFormData({ title: "", description: "", shortDescription: "", category: "BIM", metaTitle: "", metaDescription: "" });
+      setSubServices([]);
       setShowForm(false);
       setEditingId(null);
       refetch();
@@ -30,6 +32,7 @@ export default function AdminServices() {
     onSuccess: () => {
       toast.success("Service updated successfully");
       setFormData({ title: "", description: "", shortDescription: "", category: "BIM", metaTitle: "", metaDescription: "" });
+      setSubServices([]);
       setShowForm(false);
       setEditingId(null);
       refetch();
@@ -53,6 +56,12 @@ export default function AdminServices() {
       metaTitle: service.metaTitle || "",
       metaDescription: service.metaDescription || "",
     });
+    // Parse existing sub-services
+    const parsed = (service.shortDescription || "")
+      .split(/[·•\n]/)
+      .map((item: string) => item.trim())
+      .filter((item: string) => item.length > 0);
+    setSubServices(parsed);
     setShowForm(true);
   };
 
@@ -63,10 +72,13 @@ export default function AdminServices() {
       return;
     }
     
+    // Join sub-services with · separator
+    const shortDesc = subServices.filter(s => s.length > 0).join(" · ");
+    
     if (editingId) {
-      updateMutation.mutate({ id: editingId, ...formData });
+      updateMutation.mutate({ id: editingId, ...formData, shortDescription: shortDesc });
     } else {
-      createMutation.mutate(formData);
+      createMutation.mutate({ ...formData, shortDescription: shortDesc });
     }
   };
 
@@ -74,6 +86,7 @@ export default function AdminServices() {
     setShowForm(false);
     setEditingId(null);
     setFormData({ title: "", description: "", shortDescription: "", category: "BIM", metaTitle: "", metaDescription: "" });
+    setSubServices([]);
   };
 
   return (
@@ -136,14 +149,39 @@ export default function AdminServices() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold mb-2">Short Description</label>
-              <input
-                type="text"
-                value={formData.shortDescription}
-                onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })}
-                className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="Brief description for listings"
-              />
+              <label className="block text-sm font-semibold mb-2">Sub-Services (Bullet Points)</label>
+              <div className="space-y-2">
+                {subServices.map((service, idx) => (
+                  <div key={idx} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={service}
+                      onChange={(e) => {
+                        const updated = [...subServices];
+                        updated[idx] = e.target.value;
+                        setSubServices(updated);
+                      }}
+                      className="flex-1 px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                      placeholder="Sub-service item"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setSubServices(subServices.filter((_, i) => i !== idx))}
+                      className="px-3 py-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500/20 transition-colors"
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setSubServices([...subServices, ""])}
+                  className="w-full px-4 py-2 border border-dashed border-primary text-primary rounded-lg font-semibold hover:bg-primary/5 transition-colors flex items-center justify-center gap-2"
+                >
+                  <Plus size={18} />
+                  Add Sub-Service
+                </button>
+              </div>
             </div>
 
             <div>

@@ -52,6 +52,15 @@ export default function Services() {
   const categoryOrder = ["BIM", "MEPF", "Quantities & Estimation"];
   const orderedCategories = categoryOrder.filter(cat => (groupedServices[cat]?.length ?? 0) > 0);
 
+  // Parse sub-services from shortDescription (separated by · or bullet points)
+  const parseSubServices = (description: string | null | undefined): string[] => {
+    if (!description) return [];
+    return description
+      .split(/[·•\n]/)
+      .map(item => item.trim())
+      .filter(item => item.length > 0);
+  };
+
   return (
     <div className="min-h-screen bg-background">
 
@@ -80,7 +89,7 @@ export default function Services() {
               <p className="text-muted-foreground">Loading services...</p>
             </div>
           ) : orderedCategories.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
               {orderedCategories.map((category) => (
                 <div key={category} className="space-y-6">
                   {/* Category Header */}
@@ -89,32 +98,51 @@ export default function Services() {
                   </div>
 
                   {/* Services in Category */}
-                  <div className="space-y-4">
-                    {groupedServices[category]?.map((service: any) => (
-                      <Link key={service.id} href={`/services/${service.slug}`}>
-                        <a className="group block p-4 rounded-lg border border-border hover:border-primary hover:bg-primary/5 transition-all duration-300">
-                          <div className="flex items-start gap-3">
-                            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center mt-0.5">
-                              <Check size={16} className="text-primary" />
-                            </div>
-                            <div className="flex-grow min-w-0">
-                              <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors leading-tight mb-1">
+                  <div className="space-y-8">
+                    {groupedServices[category]?.map((service: any) => {
+                      const subServices = parseSubServices(service.shortDescription);
+                      
+                      return (
+                        <div key={service.id} className="space-y-3">
+                          {/* Service Title */}
+                          <Link href={`/services/${service.slug}`}>
+                            <a className="group inline-block">
+                              <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
                                 {service.title}
                               </h3>
-                              <p className="text-sm text-muted-foreground group-hover:text-foreground transition-colors leading-relaxed">
-                                {service.shortDescription}
-                              </p>
-                            </div>
-                          </div>
-                        </a>
-                      </Link>
-                    ))}
+                            </a>
+                          </Link>
+
+                          {/* Sub-services as Bullet Points */}
+                          {subServices.length > 0 && (
+                            <ul className="space-y-2 pl-6">
+                              {subServices.map((subService, idx) => (
+                                <li key={idx} className="flex items-start gap-3">
+                                  <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-primary mt-2" />
+                                  <span className="text-sm text-muted-foreground leading-relaxed">
+                                    {subService}
+                                  </span>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+
+                          {/* Learn More Link */}
+                          <Link href={`/services/${service.slug}`}>
+                            <a className="inline-flex items-center text-primary font-medium text-sm hover:gap-2 transition-all group pt-2">
+                              Learn More
+                              <ArrowRight size={14} className="ml-1 group-hover:translate-x-0.5 transition-transform" />
+                            </a>
+                          </Link>
+                        </div>
+                      );
+                    })}
                   </div>
 
                   {/* View All Link */}
                   <Link href={`/services/${category.toLowerCase().replace(/[&\s]+/g, '-')}`}>
-                    <a className="inline-flex items-center text-primary font-semibold hover:gap-2 transition-all group">
-                      Learn More <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                    <a className="inline-flex items-center text-primary font-semibold hover:gap-2 transition-all group pt-4 border-t border-border">
+                      View All <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform" />
                     </a>
                   </Link>
                 </div>
