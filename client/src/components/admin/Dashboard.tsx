@@ -1,7 +1,13 @@
 import { trpc } from "@/lib/trpc";
 import { BarChart3, Users, FileText, Mail } from "lucide-react";
+import { useLocation } from "wouter";
 
-export default function AdminDashboard() {
+interface AdminDashboardProps {
+  onNavigate?: (tab: string) => void;
+}
+
+export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
+  const [, setLocation] = useLocation();
   const { data: contacts } = trpc.contacts.list.useQuery();
   const { data: blogs } = trpc.blog.listAll.useQuery();
   const { data: projects } = trpc.projects.listAll.useQuery();
@@ -77,21 +83,30 @@ export default function AdminDashboard() {
         <div className="card-elegant">
           <h4 className="font-bold mb-2">Create New Blog Post</h4>
           <p className="text-sm text-muted-foreground mb-4">Write and publish new content</p>
-          <button className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors">
+          <button 
+            onClick={() => onNavigate ? onNavigate('blog') : setLocation('/admin?tab=blog')}
+            className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors cursor-pointer"
+          >
             New Post
           </button>
         </div>
         <div className="card-elegant">
           <h4 className="font-bold mb-2">Add New Project</h4>
           <p className="text-sm text-muted-foreground mb-4">Showcase your latest project</p>
-          <button className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors">
+          <button 
+            onClick={() => onNavigate ? onNavigate('projects') : setLocation('/admin?tab=projects')}
+            className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors cursor-pointer"
+          >
             New Project
           </button>
         </div>
         <div className="card-elegant">
           <h4 className="font-bold mb-2">View All Contacts</h4>
           <p className="text-sm text-muted-foreground mb-4">Manage contact submissions</p>
-          <button className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors">
+          <button 
+            onClick={() => onNavigate ? onNavigate('contacts') : setLocation('/admin?tab=contacts')}
+            className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors cursor-pointer"
+          >
             View Contacts
           </button>
         </div>

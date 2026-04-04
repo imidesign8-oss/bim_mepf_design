@@ -51,7 +51,9 @@ export default function ProjectDetail() {
     );
   }
 
-  const galleryImages = project.galleryImages ? JSON.parse(project.galleryImages) : [];
+  const galleryImages = Array.isArray(project.galleryImages) 
+    ? project.galleryImages 
+    : project.galleryImages ? JSON.parse(project.galleryImages) : [];
 
   return (
     <div className="min-h-screen bg-background">{/* Breadcrumb */}
@@ -141,7 +143,7 @@ export default function ProjectDetail() {
           <div className="container">
             <h2 className="mb-8 text-center">Project Gallery</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {galleryImages.map((image: string, i: number) => (
+              {galleryImages && galleryImages.length > 0 && galleryImages.map((image: string, i: number) => (
                 <img 
                   key={i}
                   src={image} 
