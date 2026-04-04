@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { Mail, Phone, MapPin, Linkedin, Twitter, Facebook, Instagram } from "lucide-react";
+import { SubscriptionForm } from "./SubscriptionForm";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -157,19 +158,7 @@ export default function Footer() {
             </div>
 
             {/* Newsletter Signup */}
-            <form className="space-y-2">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="w-full px-4 py-2 rounded-lg bg-slate-800 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary text-sm"
-              />
-              <button
-                type="submit"
-                className="w-full px-4 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors text-sm"
-              >
-                Subscribe
-              </button>
-            </form>
+            <SubscriptionForm />
           </div>
         </div>
 

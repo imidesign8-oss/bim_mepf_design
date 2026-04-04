@@ -560,3 +560,26 @@ export const caseStudies = mysqlTable("case_studies", {
 
 export type CaseStudy = typeof caseStudies.$inferSelect;
 export type InsertCaseStudy = typeof caseStudies.$inferInsert;
+
+
+/**
+ * Email subscriptions table for newsletter/updates
+ */
+export const subscriptions = mysqlTable("subscriptions", {
+  id: int("id").autoincrement().primaryKey(),
+  email: varchar("email", { length: 320 }).notNull().unique(),
+  subscribedAt: timestamp("subscribedAt").defaultNow().notNull(),
+  unsubscribedAt: timestamp("unsubscribedAt"),
+  isActive: boolean("isActive").default(true).notNull(),
+  unsubscribeToken: varchar("unsubscribeToken", { length: 255 }).unique(),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  emailIdx: index("subscription_email_idx").on(table.email),
+  activeIdx: index("subscription_active_idx").on(table.isActive),
+  tokenIdx: index("subscription_token_idx").on(table.unsubscribeToken),
+}));
+
+export type Subscription = typeof subscriptions.$inferSelect;
+export type InsertSubscription = typeof subscriptions.$inferInsert;

@@ -490,3 +490,14 @@
 - [x] Add service process/workflow information
 - [x] Remove case studies section from service detail pages
 - [x] Test all service navigation and page loads
+
+
+## Remove View All Links & Implement Subscriptions (Completed)
+- [x] Remove View All links from Services page
+- [x] Delete ServiceCategoryDetail pages
+- [x] Create subscriptions database table
+- [x] Add subscription admin management interface
+- [x] Create subscription form component for website
+- [x] Add subscription form to footer
+- [x] Create unsubscribe page with token validation
+- [x] Test subscription flow end-to-end

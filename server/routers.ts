@@ -21,13 +21,14 @@ import {
   upsertPageContent, getPageContent,
   upsertCompanySettings, getCompanySettings,
   createCaseStudy, updateCaseStudy, deleteCaseStudy, getCaseStudyById, getCaseStudyBySlug, getCaseStudiesByCategory, getAllCaseStudies,
+  createSubscription, getSubscriptionByEmail, getSubscriptionByToken, listSubscriptions, unsubscribeEmail, deleteSubscription, getDb,
 } from "./db";
 import { validateContactForm } from "./contact-service";
 import { autoEmailService } from "./services/autoEmailService";
 import { emailService } from "./services/emailService";
 import { checkRateLimit, getClientIp } from "./services/rateLimitService";
 import { verifyCaptcha } from "./services/captchaService";
-import { emailSettings } from "../drizzle/schema";
+import { emailSettings, subscriptions } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 
 // Utility function to generate slug from title
@@ -663,6 +664,63 @@ export const appRouter = router({
 
   // ==================== SCHEMA VALIDATOR ROUTES ====================
   schemaValidator: router(schemaValidatorRouter),
+  
+  // ==================== SUBSCRIPTIONS ROUTES ====================
+  subscriptions: router({
+    subscribe: publicProcedure
+      .input(z.object({ email: z.string().email() }))
+      .mutation(async ({ input }) => {
+        const existing = await getSubscriptionByEmail(input.email);
+        if (existing && existing.isActive) {
+          throw new TRPCError({
+            code: 'CONFLICT',
+            message: 'Email already subscribed',
+          });
+        }
+        if (existing && !existing.isActive) {
+          await unsubscribeEmail(input.email);
+        } else {
+          await createSubscription({ email: input.email });
+        }
+        return { success: true, message: 'Subscribed successfully' };
+      }),
+    
+    unsubscribe: publicProcedure
+      .input(z.object({ token: z.string() }))
+      .mutation(async ({ input }) => {
+        const subscription = await getSubscriptionByToken(input.token);
+        if (!subscription) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Invalid unsubscribe token',
+          });
+        }
+        await unsubscribeEmail(subscription.email);
+        return { success: true, message: 'Unsubscribed successfully' };
+      }),
+    
+    list: protectedProcedure
+      .input(z.object({ limit: z.number().default(50), offset: z.number().default(0) }))
+      .query(async ({ input, ctx }) => {
+        ensureAdmin(ctx);
+        return await listSubscriptions(input.limit, input.offset);
+      }),
+    
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        ensureAdmin(ctx);
+        const success = await deleteSubscription(input.id);
+        if (!success) {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Failed to delete subscription',
+          });
+        }
+        return { success: true, message: 'Subscription deleted' };
+      }),
+  }),
+  
   email: router({
     configureSettings: protectedProcedure
       .input(z.object({

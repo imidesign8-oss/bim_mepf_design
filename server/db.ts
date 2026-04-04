@@ -9,7 +9,8 @@ import {
   contactReplies, InsertContactReply, ContactReply,
   pageContent, InsertPageContent, PageContent,
   companySettings, InsertCompanySettings, CompanySettings,
-  caseStudies, InsertCaseStudy, CaseStudy
+  caseStudies, InsertCaseStudy, CaseStudy,
+  subscriptions, InsertSubscription, Subscription
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -434,4 +435,94 @@ export async function getAllCaseStudies(published: boolean = true) {
   }
   return db.select().from(caseStudies)
     .orderBy(desc(caseStudies.order), desc(caseStudies.createdAt));
+}
+
+
+// ==================== SUBSCRIPTIONS ====================
+
+export async function createSubscription(data: InsertSubscription): Promise<Subscription | null> {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  
+  try {
+    const result = await db.insert(subscriptions).values({
+      ...data,
+      unsubscribeToken: token,
+      isActive: true
+    });
+    
+    const [subscription] = await db.select().from(subscriptions).where(eq(subscriptions.email, data.email));
+    return subscription || null;
+  } catch (error) {
+    console.error("[DB] Failed to create subscription:", error);
+    return null;
+  }
+}
+
+export async function getSubscriptionByEmail(email: string): Promise<Subscription | null> {
+  const db = await getDb();
+  if (!db) return null;
+  
+  try {
+    const [subscription] = await db.select().from(subscriptions).where(eq(subscriptions.email, email));
+    return subscription || null;
+  } catch (error) {
+    console.error("[DB] Failed to get subscription:", error);
+    return null;
+  }
+}
+
+export async function getSubscriptionByToken(token: string): Promise<Subscription | null> {
+  const db = await getDb();
+  if (!db) return null;
+  
+  try {
+    const [subscription] = await db.select().from(subscriptions).where(eq(subscriptions.unsubscribeToken, token));
+    return subscription || null;
+  } catch (error) {
+    console.error("[DB] Failed to get subscription by token:", error);
+    return null;
+  }
+}
+
+export async function listSubscriptions(limit = 50, offset = 0): Promise<Subscription[]> {
+  const db = await getDb();
+  if (!db) return [];
+  
+  try {
+    return await db.select().from(subscriptions).limit(limit).offset(offset).orderBy(desc(subscriptions.subscribedAt));
+  } catch (error) {
+    console.error("[DB] Failed to list subscriptions:", error);
+    return [];
+  }
+}
+
+export async function unsubscribeEmail(email: string): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+  
+  try {
+    await db.update(subscriptions)
+      .set({ isActive: false, unsubscribedAt: new Date() })
+      .where(eq(subscriptions.email, email));
+    return true;
+  } catch (error) {
+    console.error("[DB] Failed to unsubscribe:", error);
+    return false;
+  }
+}
+
+export async function deleteSubscription(id: number): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+  
+  try {
+    await db.delete(subscriptions).where(eq(subscriptions.id, id));
+    return true;
+  } catch (error) {
+    console.error("[DB] Failed to delete subscription:", error);
+    return false;
+  }
 }

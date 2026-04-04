@@ -20,6 +20,7 @@ import { ContactDashboard } from "@/components/admin/ContactDashboard";
 import { EmailMarketingEnhanced } from "@/components/admin/EmailMarketingEnhanced";
 import { CampaignPerformanceDashboard } from "@/components/admin/CampaignPerformanceDashboard";
 import { UnsubscribeManagement } from "@/components/admin/UnsubscribeManagement";
+import { SubscriptionsAdmin } from "@/components/admin/Subscriptions";
 
 export default function Admin() {
   const { user } = useAuth();
@@ -53,6 +54,7 @@ export default function Admin() {
     { id: "email-marketing", label: "Email Marketing", icon: "📢" },
     { id: "campaign-analytics", label: "Campaign Analytics", icon: "📈" },
     { id: "unsubscribe", label: "Unsubscribe Management", icon: "🚫" },
+    { id: "subscriptions", label: "Subscriptions", icon: "📧" },
     { id: "cms-home", label: "CMS: Home", icon: "🏠" },
     { id: "cms-about", label: "CMS: About", icon: "📄" },
     { id: "cms-services", label: "CMS: Services", icon: "📚" },
@@ -126,6 +128,7 @@ export default function Admin() {
           {currentTab === "email-marketing" && <EmailMarketingEnhanced />}
           {currentTab === "campaign-analytics" && <CampaignPerformanceDashboard />}
           {currentTab === "unsubscribe" && <UnsubscribeManagement />}
+          {currentTab === "subscriptions" && <SubscriptionsAdmin />}
           {currentTab === "cms-home" && <HomePageCMS />}
           {currentTab === "cms-about" && <AboutPageCMS />}
           {currentTab === "cms-services" && <ServicesPageCMS />}

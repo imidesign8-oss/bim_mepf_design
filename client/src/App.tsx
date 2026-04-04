@@ -11,13 +11,14 @@ import Home from "./pages/Home";
 import About from "./pages/About";
 import Services from "./pages/Services";
 import ServiceDetail from "./pages/ServiceDetail";
-import ServiceCategoryDetail from "./pages/ServiceCategoryDetail";
+
 import Projects from "./pages/Projects";
 import ProjectDetail from "./pages/ProjectDetail";
 import Blog from "./pages/Blog";
 import BlogDetail from "./pages/BlogDetail";
 import Contact from "./pages/Contact";
 import Admin from "./pages/Admin";
+import Unsubscribe from "./pages/Unsubscribe";
 import { AIChatWidget } from "./components/AIChatWidget";
 import Analytics from "./components/Analytics";
 import Header from "./components/Header";
@@ -28,10 +29,9 @@ function Router() {
       <Route path={"/"} component={Home} />
       <Route path={"/about"} component={About} />
        <Route path={"services"} component={Services} />
-      <Route path={"services/bim"} component={ServiceCategoryDetail} />
-      <Route path={"services/mepf"} component={ServiceCategoryDetail} />
-      <Route path={"services/quantities-estimation"} component={ServiceCategoryDetail} />
+
       <Route path={"services/:slug"} component={ServiceDetail} />
+      <Route path={"/unsubscribe"} component={Unsubscribe} />
       <Route path={"/projects"} component={Projects} />
       <Route path={"/projects/:slug"} component={ProjectDetail} />
       <Route path={"/blog"} component={Blog} />
