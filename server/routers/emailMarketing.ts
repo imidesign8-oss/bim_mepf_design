@@ -10,7 +10,7 @@ import {
   InsertEmailRecipient,
   InsertCampaignRecipient,
 } from '../../drizzle/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 import { sendBulkEmailCampaign, getCampaignStats, parseEmailCSV } from '../services/bulkEmailService';
 import { getTemplate, getTemplateList } from '../services/emailMarketingTemplates';
 
@@ -236,21 +236,12 @@ export const emailMarketingRouter = router({
               .where(eq(emailRecipients.id, recipientId));
 
             if (recipient.length > 0) {
-              const now = new Date();
-              await db.insert(campaignRecipients).values({
-                campaignId,
-                recipientId,
-                email: recipient[0].email,
-                status: 'pending',
-                sentAt: null,
-                errorMessage: null,
-                opened: false,
-                openedAt: null,
-                clicked: false,
-                clickedAt: null,
-                createdAt: now,
-                updatedAt: now,
-              });
+              // Use raw SQL to avoid schema mismatch issues
+              await db.execute(sql`
+                INSERT INTO campaign_recipients 
+                (campaignId, recipientId, email, status) 
+                VALUES (${campaignId}, ${recipientId}, ${recipient[0].email}, 'pending')
+              `);
             }
           }
 

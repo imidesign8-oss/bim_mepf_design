@@ -1,6 +1,6 @@
 import { getDb } from '../db';
 import { rateLimits } from '../../drizzle/schema';
-import { eq, and, gt } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 
 /**
  * Rate Limiting Service
@@ -31,17 +31,15 @@ export async function checkRateLimit(ipAddress: string, endpoint: string = '/api
 
     const now = new Date();
     const oneHourAgo = new Date(now.getTime() - RATE_LIMIT_WINDOW);
+    const nowString = now.toISOString();
+    const oneHourAgoString = oneHourAgo.toISOString();
 
     // Find existing rate limit record
     const existingLimits = await db
       .select()
       .from(rateLimits)
       .where(
-        and(
-          eq(rateLimits.ipAddress, ipAddress),
-          eq(rateLimits.endpoint, endpoint),
-          gt(rateLimits.lastSubmissionAt, oneHourAgo)
-        )
+        sql`${rateLimits.ipAddress} = ${ipAddress} AND ${rateLimits.endpoint} = ${endpoint} AND ${rateLimits.lastSubmissionAt} > ${oneHourAgoString}`
       );
 
     if (existingLimits.length === 0) {
@@ -50,8 +48,6 @@ export async function checkRateLimit(ipAddress: string, endpoint: string = '/api
         ipAddress,
         endpoint,
         submissionCount: 1,
-        firstSubmissionAt: now,
-        lastSubmissionAt: now,
       });
 
       return {
@@ -66,7 +62,10 @@ export async function checkRateLimit(ipAddress: string, endpoint: string = '/api
 
     if (submissionCount >= MAX_SUBMISSIONS_PER_HOUR) {
       // Rate limit exceeded
-      const resetTime = new Date(record.firstSubmissionAt.getTime() + RATE_LIMIT_WINDOW);
+      const firstSubmissionTime = typeof record.firstSubmissionAt === 'string' 
+        ? new Date(record.firstSubmissionAt).getTime() 
+        : (record.firstSubmissionAt as any).getTime?.() || new Date(record.firstSubmissionAt as any).getTime();
+      const resetTime = new Date(firstSubmissionTime + RATE_LIMIT_WINDOW);
       return {
         allowed: false,
         remaining: 0,
@@ -80,11 +79,13 @@ export async function checkRateLimit(ipAddress: string, endpoint: string = '/api
       .update(rateLimits)
       .set({
         submissionCount: submissionCount + 1,
-        lastSubmissionAt: now,
       })
       .where(eq(rateLimits.id, record.id));
 
-    const resetTime = new Date(record.firstSubmissionAt.getTime() + RATE_LIMIT_WINDOW);
+    const firstSubmissionTime = typeof record.firstSubmissionAt === 'string' 
+      ? new Date(record.firstSubmissionAt).getTime() 
+      : (record.firstSubmissionAt as any).getTime?.() || new Date(record.firstSubmissionAt as any).getTime();
+    const resetTime = new Date(firstSubmissionTime + RATE_LIMIT_WINDOW);
     return {
       allowed: true,
       remaining: MAX_SUBMISSIONS_PER_HOUR - (submissionCount + 1),
@@ -125,9 +126,10 @@ export async function cleanupOldRateLimits(): Promise<number> {
 
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
+    const oneDayAgoString = oneDayAgo.toISOString();
     await db
       .delete(rateLimits)
-      .where(gt(rateLimits.lastSubmissionAt, oneDayAgo));
+      .where(sql`${rateLimits.lastSubmissionAt} < ${oneDayAgoString}`);
 
     return 0;
   } catch (error) {
