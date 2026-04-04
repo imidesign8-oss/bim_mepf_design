@@ -7,6 +7,7 @@ import { seoRouter } from "./routers/seo";
 import { schemaValidatorRouter } from "./routers/schemaValidator";
 import { emailMarketingRouter } from "./routers/emailMarketing";
 import { campaignAnalyticsRouter } from "./routers/campaignAnalytics";
+import { unsubscribeRouter } from "./routers/unsubscribe";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import {
@@ -48,6 +49,7 @@ export const appRouter = router({
   system: systemRouter,
   emailMarketing: emailMarketingRouter,
   campaignAnalytics: campaignAnalyticsRouter,
+  unsubscribe: unsubscribeRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

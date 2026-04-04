@@ -1,7 +1,9 @@
 /**
  * Email Marketing Templates
- * Professional HTML templates for architects and builders
+ * Professional HTML templates for architects and builders with logo and unsubscribe support
  */
+
+const LOGO_URL = process.env.VITE_APP_LOGO || 'https://imidesign.in/logo.png';
 
 export const emailTemplates = {
   architect: {
@@ -18,6 +20,7 @@ export const emailTemplates = {
     body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
     .container { max-width: 600px; margin: 0 auto; padding: 20px; }
     .header { background-color: #ED1C24; color: white; padding: 30px; text-align: center; border-radius: 5px 5px 0 0; }
+    .header img { max-width: 100px; height: auto; margin-bottom: 15px; }
     .header h1 { margin: 0; font-size: 28px; }
     .header p { margin: 10px 0 0 0; font-size: 14px; }
     .content { background-color: #f9f9f9; padding: 30px; border: 1px solid #ddd; }
@@ -31,11 +34,13 @@ export const emailTemplates = {
     .cta-button:hover { background-color: #c41620; }
     .footer { background-color: #f0f0f0; padding: 20px; text-align: center; font-size: 12px; color: #666; border-radius: 0 0 5px 5px; }
     .footer a { color: #ED1C24; text-decoration: none; }
+    .unsubscribe { margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd; }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
+      <img src="${LOGO_URL}" alt="IMI DESIGN Logo">
       <h1>IMI DESIGN</h1>
       <p>BIM & MEPF Design Excellence</p>
     </div>
@@ -92,7 +97,9 @@ export const emailTemplates = {
 
     <div class="footer">
       <p>© 2026 IMI DESIGN. All rights reserved.</p>
-      <p><a href="https://imidesign.in/#unsubscribe">Unsubscribe</a> | <a href="https://imidesign.in">Visit Our Website</a></p>
+      <div class="unsubscribe">
+        <p><a href="{unsubscribeLink}">Unsubscribe from this mailing list</a></p>
+      </div>
     </div>
   </div>
 </body>
@@ -114,6 +121,7 @@ export const emailTemplates = {
     body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
     .container { max-width: 600px; margin: 0 auto; padding: 20px; }
     .header { background-color: #ED1C24; color: white; padding: 30px; text-align: center; border-radius: 5px 5px 0 0; }
+    .header img { max-width: 100px; height: auto; margin-bottom: 15px; }
     .header h1 { margin: 0; font-size: 28px; }
     .header p { margin: 10px 0 0 0; font-size: 14px; }
     .content { background-color: #f9f9f9; padding: 30px; border: 1px solid #ddd; }
@@ -127,11 +135,13 @@ export const emailTemplates = {
     .cta-button:hover { background-color: #c41620; }
     .footer { background-color: #f0f0f0; padding: 20px; text-align: center; font-size: 12px; color: #666; border-radius: 0 0 5px 5px; }
     .footer a { color: #ED1C24; text-decoration: none; }
+    .unsubscribe { margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd; }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
+      <img src="${LOGO_URL}" alt="IMI DESIGN Logo">
       <h1>IMI DESIGN</h1>
       <p>Construction Excellence Through BIM & MEPF Design</p>
     </div>
@@ -199,7 +209,9 @@ export const emailTemplates = {
 
     <div class="footer">
       <p>© 2026 IMI DESIGN. All rights reserved.</p>
-      <p><a href="https://imidesign.in/#unsubscribe">Unsubscribe</a> | <a href="https://imidesign.in">Visit Our Website</a></p>
+      <div class="unsubscribe">
+        <p><a href="{unsubscribeLink}">Unsubscribe from this mailing list</a></p>
+      </div>
     </div>
   </div>
 </body>
@@ -221,17 +233,21 @@ export const emailTemplates = {
     body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
     .container { max-width: 600px; margin: 0 auto; padding: 20px; }
     .header { background-color: #ED1C24; color: white; padding: 30px; text-align: center; border-radius: 5px 5px 0 0; }
+    .header img { max-width: 100px; height: auto; margin-bottom: 15px; }
     .header h1 { margin: 0; font-size: 28px; }
     .content { background-color: #f9f9f9; padding: 30px; border: 1px solid #ddd; }
     .section { margin-bottom: 20px; }
     .section h2 { color: #ED1C24; font-size: 20px; margin-top: 0; }
     .cta-button { display: inline-block; background-color: #ED1C24; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; font-weight: bold; }
     .footer { background-color: #f0f0f0; padding: 20px; text-align: center; font-size: 12px; color: #666; border-radius: 0 0 5px 5px; }
+    .footer a { color: #ED1C24; text-decoration: none; }
+    .unsubscribe { margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd; }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
+      <img src="${LOGO_URL}" alt="IMI DESIGN Logo">
       <h1>IMI DESIGN</h1>
       <p>BIM & MEPF Design Services</p>
     </div>
@@ -260,6 +276,9 @@ export const emailTemplates = {
 
     <div class="footer">
       <p>© 2026 IMI DESIGN. All rights reserved.</p>
+      <div class="unsubscribe">
+        <p><a href="{unsubscribeLink}">Unsubscribe from this mailing list</a></p>
+      </div>
     </div>
   </div>
 </body>
