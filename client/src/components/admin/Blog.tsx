@@ -1,7 +1,9 @@
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
-import { Edit2, Trash2, Plus, X } from "lucide-react";
+import { Edit2, Trash2, Plus, X, Eye } from "lucide-react";
 import { toast } from "sonner";
+import RichTextEditor from "@/components/RichTextEditor";
+import BlogPreviewModal from "./BlogPreviewModal";
 
 export default function AdminBlog() {
   const { data: posts, refetch } = trpc.blog.listAll.useQuery();
@@ -11,15 +13,17 @@ export default function AdminBlog() {
     title: "",
     excerpt: "",
     content: "",
+    keywords: "",
     metaTitle: "",
     metaDescription: "",
     published: false,
   });
+  const [showPreview, setShowPreview] = useState(false);
 
   const createMutation = trpc.blog.create.useMutation({
     onSuccess: () => {
       toast.success("Blog post created successfully");
-      setFormData({ title: "", excerpt: "", content: "", metaTitle: "", metaDescription: "", published: false });
+      setFormData({ title: "", excerpt: "", content: "", keywords: "", metaTitle: "", metaDescription: "", published: false });
       setShowForm(false);
       setEditingId(null);
       refetch();
@@ -29,7 +33,7 @@ export default function AdminBlog() {
   const updateMutation = trpc.blog.update.useMutation({
     onSuccess: () => {
       toast.success("Blog post updated successfully");
-      setFormData({ title: "", excerpt: "", content: "", metaTitle: "", metaDescription: "", published: false });
+      setFormData({ title: "", excerpt: "", content: "", keywords: "", metaTitle: "", metaDescription: "", published: false });
       setShowForm(false);
       setEditingId(null);
       refetch();
@@ -49,6 +53,7 @@ export default function AdminBlog() {
       title: post.title,
       excerpt: post.excerpt || "",
       content: post.content,
+      keywords: post.keywords || "",
       metaTitle: post.metaTitle || "",
       metaDescription: post.metaDescription || "",
       published: post.published || false,
@@ -73,7 +78,7 @@ export default function AdminBlog() {
   const handleCancel = () => {
     setShowForm(false);
     setEditingId(null);
-    setFormData({ title: "", excerpt: "", content: "", metaTitle: "", metaDescription: "", published: false });
+    setFormData({ title: "", excerpt: "", content: "", keywords: "", metaTitle: "", metaDescription: "", published: false });
   };
 
   return (
@@ -87,7 +92,7 @@ export default function AdminBlog() {
           onClick={() => {
             if (!showForm) {
               setEditingId(null);
-              setFormData({ title: "", excerpt: "", content: "", metaTitle: "", metaDescription: "", published: false });
+              setFormData({ title: "", excerpt: "", content: "", keywords: "", metaTitle: "", metaDescription: "", published: false });
             }
             setShowForm(!showForm);
           }}
@@ -135,12 +140,21 @@ export default function AdminBlog() {
 
             <div>
               <label className="block text-sm font-semibold mb-2">Content *</label>
-              <textarea
+              <RichTextEditor
                 value={formData.content}
-                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                rows={6}
-                className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-                placeholder="Post content (HTML supported)"
+                onChange={(content: string) => setFormData({ ...formData, content })}
+                placeholder="Write your blog post content here..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold mb-2">Keywords (SEO)</label>
+              <input
+                type="text"
+                value={formData.keywords}
+                onChange={(e) => setFormData({ ...formData, keywords: e.target.value })}
+                className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="Enter keywords separated by commas (e.g., BIM, MEP, design)"
               />
             </div>
 
@@ -181,6 +195,14 @@ export default function AdminBlog() {
             </div>
 
             <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setShowPreview(true)}
+                className="flex items-center gap-2 px-6 py-2 border border-primary text-primary rounded-lg font-semibold hover:bg-primary/10 transition-colors"
+              >
+                <Eye size={18} />
+                Preview
+              </button>
               <button
                 type="submit"
                 disabled={createMutation.isPending || updateMutation.isPending}
@@ -264,6 +286,14 @@ export default function AdminBlog() {
           <p className="text-muted-foreground text-center py-8">No blog posts yet</p>
         )}
       </div>
+
+      {/* Preview Modal */}
+      {showPreview && (
+        <BlogPreviewModal
+          post={formData}
+          onClose={() => setShowPreview(false)}
+        />
+      )}
     </div>
   );
 }
