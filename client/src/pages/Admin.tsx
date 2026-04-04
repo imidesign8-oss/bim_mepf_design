@@ -105,7 +105,7 @@ export default function Admin() {
 
         {/* Main Content */}
         <main className="flex-1 p-6">
-          {currentTab === "dashboard" && <AdminDashboard />}
+          {currentTab === "dashboard" && <AdminDashboard onNavigate={setCurrentTab} />}
           {currentTab === "blog" && <AdminBlog />}
           {currentTab === "services" && <AdminServices />}
           {currentTab === "projects" && <AdminProjects />}
