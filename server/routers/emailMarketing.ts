@@ -241,6 +241,8 @@ export const emailMarketingRouter = router({
                 recipientId,
                 email: recipient[0].email,
                 status: 'pending',
+                opened: false,
+                clicked: false,
               });
             }
           }
