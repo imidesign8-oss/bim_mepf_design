@@ -63,6 +63,7 @@ export const services = mysqlTable("services", {
   shortDescription: varchar("shortDescription", { length: 500 }),
   icon: text("icon"),
   image: text("image"),
+  category: mysqlEnum("category", ["BIM", "MEPF", "Quantities & Estimation"]).notNull(),
   order: int("order").default(0).notNull(),
   published: boolean("published").default(true).notNull(),
   

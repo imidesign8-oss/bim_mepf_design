@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import Footer from "@/components/Footer";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 
 import { useAuth } from "@/_core/hooks/useAuth";
 import Breadcrumb from "@/components/Breadcrumb";
@@ -39,6 +39,19 @@ export default function Services() {
     addJsonLd(breadcrumbSchema);
   }, []);
 
+  // Group services by category
+  const groupedServices = services?.reduce((acc, service) => {
+    const category = service.category || "Other";
+    if (!acc[category]) {
+      acc[category] = [];
+    }
+    acc[category].push(service);
+    return acc;
+  }, {} as Record<string, any>) || {};
+
+  const categoryOrder = ["BIM", "MEPF", "Quantities & Estimation"];
+  const orderedCategories = categoryOrder.filter(cat => (groupedServices[cat]?.length ?? 0) > 0);
+
   return (
     <div className="min-h-screen bg-background">
 
@@ -59,41 +72,52 @@ export default function Services() {
         </div>
       </section>
 
-      {/* Services Grid */}
+      {/* Services by Category */}
       <section className="section-padding">
         <div className="container">
           {isLoading ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground">Loading services...</p>
             </div>
-          ) : services && services.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {services.map((service) => (
-                <Link key={service.id} href={`/services/${service.slug}`}>
-                  <a className="card-elegant group h-full flex flex-col overflow-hidden hover:shadow-lg transition-shadow">
-                    {service.image && (
-                      <div className="relative w-full h-40 overflow-hidden rounded-lg mb-4 flex-shrink-0">
-                        <img 
-                          src={service.image} 
-                          alt={service.title} 
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                        />
-                      </div>
-                    )}
-                    <div className="flex flex-col flex-grow">
-                      {service.icon && (
-                        <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-primary/10 mb-3">
-                          <span className="text-2xl">{service.icon}</span>
-                        </div>
-                      )}
-                      <h3 className="mb-2 group-hover:text-primary transition-colors text-lg font-semibold leading-tight">{service.title}</h3>
-                      <p className="text-sm text-muted-foreground mb-4 flex-grow leading-relaxed">{service.shortDescription}</p>
-                      <div className="flex items-center text-primary font-semibold mt-auto pt-4 border-t border-border/50 group-hover:gap-2 transition-all">
-                        Learn More <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform flex-shrink-0" />
-                      </div>
-                    </div>
-                  </a>
-                </Link>
+          ) : orderedCategories.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {orderedCategories.map((category) => (
+                <div key={category} className="space-y-6">
+                  {/* Category Header */}
+                  <div className="border-b-2 border-primary pb-4">
+                    <h2 className="text-2xl font-bold text-primary">{category}</h2>
+                  </div>
+
+                  {/* Services in Category */}
+                  <div className="space-y-4">
+                    {groupedServices[category]?.map((service: any) => (
+                      <Link key={service.id} href={`/services/${service.slug}`}>
+                        <a className="group block p-4 rounded-lg border border-border hover:border-primary hover:bg-primary/5 transition-all duration-300">
+                          <div className="flex items-start gap-3">
+                            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center mt-0.5">
+                              <Check size={16} className="text-primary" />
+                            </div>
+                            <div className="flex-grow min-w-0">
+                              <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors leading-tight mb-1">
+                                {service.title}
+                              </h3>
+                              <p className="text-sm text-muted-foreground group-hover:text-foreground transition-colors leading-relaxed">
+                                {service.shortDescription}
+                              </p>
+                            </div>
+                          </div>
+                        </a>
+                      </Link>
+                    ))}
+                  </div>
+
+                  {/* View All Link */}
+                  <Link href={`/services?category=${encodeURIComponent(category)}`}>
+                    <a className="inline-flex items-center text-primary font-semibold hover:gap-2 transition-all group">
+                      Learn More <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                    </a>
+                  </Link>
+                </div>
               ))}
             </div>
           ) : (

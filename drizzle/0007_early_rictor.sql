@@ -1,0 +1,1 @@
+ALTER TABLE `services` ADD `category` enum('BIM','MEPF','Quantities & Estimation') NOT NULL;

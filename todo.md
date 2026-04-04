@@ -427,3 +427,19 @@
 - [ ] Create drag-and-drop email template builder
 - [ ] Implement template block library (text, image, button, etc.)
 - [ ] Add template preview and save functionality
+
+
+## Services Page Redesign (Completed)
+- [x] Add category field to services database schema
+- [x] Update services router to support category field (BIM, MEPF, Quantities & Estimation)
+- [x] Update Services admin component with category dropdown
+- [x] Redesign Services page with three-column category layout
+- [x] Remove all existing services from database
+- [x] Add three new main services with detailed descriptions:
+  - [x] BIM Services - Building Information Modeling (3D Modeling, Coordination, Clash Detection, 4D & 5D)
+  - [x] MEPF Services - MEPF Design, Modeling & Coordination (Mechanical, Electrical, Plumbing, Fire Protection)
+  - [x] Quantities & Estimating - MTO & BOQ Preparation (Material Take-Off, Bill of Quantities, Variation Quantification)
+- [x] Implement column-based layout with category headers
+- [x] Add service cards with check icons and descriptions
+- [x] Verify admin panel can add/edit/delete services with categories
+- [x] Test all functionality with 36 passing tests

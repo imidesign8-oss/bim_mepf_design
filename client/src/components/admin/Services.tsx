@@ -11,6 +11,7 @@ export default function AdminServices() {
     title: "",
     description: "",
     shortDescription: "",
+    category: "BIM" as "BIM" | "MEPF" | "Quantities & Estimation",
     metaTitle: "",
     metaDescription: "",
   });
@@ -18,7 +19,7 @@ export default function AdminServices() {
   const createMutation = trpc.services.create.useMutation({
     onSuccess: () => {
       toast.success("Service created successfully");
-      setFormData({ title: "", description: "", shortDescription: "", metaTitle: "", metaDescription: "" });
+      setFormData({ title: "", description: "", shortDescription: "", category: "BIM", metaTitle: "", metaDescription: "" });
       setShowForm(false);
       setEditingId(null);
       refetch();
@@ -28,7 +29,7 @@ export default function AdminServices() {
   const updateMutation = trpc.services.update.useMutation({
     onSuccess: () => {
       toast.success("Service updated successfully");
-      setFormData({ title: "", description: "", shortDescription: "", metaTitle: "", metaDescription: "" });
+      setFormData({ title: "", description: "", shortDescription: "", category: "BIM", metaTitle: "", metaDescription: "" });
       setShowForm(false);
       setEditingId(null);
       refetch();
@@ -48,6 +49,7 @@ export default function AdminServices() {
       title: service.title,
       description: service.description,
       shortDescription: service.shortDescription || "",
+      category: service.category || "BIM",
       metaTitle: service.metaTitle || "",
       metaDescription: service.metaDescription || "",
     });
@@ -56,8 +58,8 @@ export default function AdminServices() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title || !formData.description) {
-      toast.error("Title and description are required");
+    if (!formData.title || !formData.description || !formData.category) {
+      toast.error("Title, description, and category are required");
       return;
     }
     
@@ -71,7 +73,7 @@ export default function AdminServices() {
   const handleCancel = () => {
     setShowForm(false);
     setEditingId(null);
-    setFormData({ title: "", description: "", shortDescription: "", metaTitle: "", metaDescription: "" });
+    setFormData({ title: "", description: "", shortDescription: "", category: "BIM", metaTitle: "", metaDescription: "" });
   };
 
   return (
@@ -85,7 +87,7 @@ export default function AdminServices() {
           onClick={() => {
             if (!showForm) {
               setEditingId(null);
-              setFormData({ title: "", description: "", shortDescription: "", metaTitle: "", metaDescription: "" });
+              setFormData({ title: "", description: "", shortDescription: "", category: "BIM", metaTitle: "", metaDescription: "" });
             }
             setShowForm(!showForm);
           }}
@@ -109,6 +111,19 @@ export default function AdminServices() {
             </button>
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold mb-2">Category *</label>
+              <select
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value as "BIM" | "MEPF" | "Quantities & Estimation" })}
+                className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+                <option value="BIM">BIM</option>
+                <option value="MEPF">MEPF</option>
+                <option value="Quantities & Estimation">Quantities & Estimation</option>
+              </select>
+            </div>
+
             <div>
               <label className="block text-sm font-semibold mb-2">Title *</label>
               <input
@@ -193,6 +208,7 @@ export default function AdminServices() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border">
+                  <th className="text-left py-3 px-4">Category</th>
                   <th className="text-left py-3 px-4">Title</th>
                   <th className="text-left py-3 px-4">Short Description</th>
                   <th className="text-left py-3 px-4">Actions</th>
@@ -200,20 +216,29 @@ export default function AdminServices() {
               </thead>
               <tbody>
                 {services.map((service) => (
-                  <tr key={service.id} className="border-b border-border hover:bg-secondary/50">
+                  <tr key={service.id} className="border-b border-border hover:bg-secondary/30">
+                    <td className="py-3 px-4">
+                      <span className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-semibold">
+                        {service.category}
+                      </span>
+                    </td>
                     <td className="py-3 px-4 font-semibold">{service.title}</td>
-                    <td className="py-3 px-4 text-muted-foreground line-clamp-2">{service.shortDescription || "—"}</td>
+                    <td className="py-3 px-4 text-muted-foreground">{service.shortDescription || "-"}</td>
                     <td className="py-3 px-4">
                       <div className="flex gap-2">
-                        <button 
+                        <button
                           onClick={() => handleEdit(service)}
-                          className="p-2 hover:bg-secondary rounded-lg transition-colors"
+                          className="p-2 hover:bg-secondary rounded-lg text-muted-foreground hover:text-foreground transition-colors"
                         >
                           <Edit2 size={16} />
                         </button>
                         <button
-                          onClick={() => deleteMutation.mutate({ id: service.id })}
-                          className="p-2 hover:bg-red-100 text-red-600 rounded-lg transition-colors"
+                          onClick={() => {
+                            if (confirm("Are you sure?")) {
+                              deleteMutation.mutate({ id: service.id });
+                            }
+                          }}
+                          className="p-2 hover:bg-red-500/10 rounded-lg text-muted-foreground hover:text-red-500 transition-colors"
                         >
                           <Trash2 size={16} />
                         </button>
@@ -225,7 +250,7 @@ export default function AdminServices() {
             </table>
           </div>
         ) : (
-          <p className="text-muted-foreground text-center py-8">No services yet</p>
+          <p className="text-muted-foreground text-center py-8">No services yet. Create one to get started!</p>
         )}
       </div>
     </div>
