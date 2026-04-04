@@ -43,6 +43,13 @@
       "when": 1775320040990,
       "tag": "0005_magical_dreadnoughts",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1775322386469,
+      "tag": "0006_far_smiling_tiger",
+      "breakpoints": true
     }
   ]
 }

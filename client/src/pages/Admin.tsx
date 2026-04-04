@@ -15,6 +15,8 @@ import HomePageCMS from "@/components/admin/HomePageCMS";
 import AboutPageCMS from "@/components/admin/AboutPageCMS";
 import ServicesPageCMS from "@/components/admin/ServicesPageCMS";
 import ProjectsPageCMS from "@/components/admin/ProjectsPageCMS";
+import { ContactDashboard } from "@/components/admin/ContactDashboard";
+import { EmailMarketing } from "@/components/admin/EmailMarketing";
 
 export default function Admin() {
   const { user } = useAuth();
@@ -28,7 +30,7 @@ export default function Admin() {
     }
   }, [user, navigate]);
 
-  if (!user || user.role !== "admin") {
+  if (!user || user?.role !== "admin") {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <p className="text-muted-foreground">Access denied. Admin privileges required.</p>
@@ -41,8 +43,10 @@ export default function Admin() {
     { id: "blog", label: "Blog", icon: "📝" },
     { id: "services", label: "Services", icon: "🔧" },
     { id: "projects", label: "Projects", icon: "🏗️" },
-    { id: "contacts", label: "Contacts", icon: "📧" },
+    { id: "contacts", label: "Contact Submissions", icon: "📋" },
+    { id: "contact-dashboard", label: "Contact Dashboard", icon: "📊" },
     { id: "email", label: "Email Management", icon: "✉️" },
+    { id: "email-marketing", label: "Email Marketing", icon: "📢" },
     { id: "cms-home", label: "CMS: Home", icon: "🏠" },
     { id: "cms-about", label: "CMS: About", icon: "📄" },
     { id: "cms-services", label: "CMS: Services", icon: "📚" },
@@ -110,7 +114,9 @@ export default function Admin() {
           {currentTab === "services" && <AdminServices />}
           {currentTab === "projects" && <AdminProjects />}
           {currentTab === "contacts" && <AdminContacts />}
+          {currentTab === "contact-dashboard" && <ContactDashboard />}
           {currentTab === "email" && <EmailManagement />}
+          {currentTab === "email-marketing" && <EmailMarketing />}
           {currentTab === "cms-home" && <HomePageCMS />}
           {currentTab === "cms-about" && <AboutPageCMS />}
           {currentTab === "cms-services" && <ServicesPageCMS />}

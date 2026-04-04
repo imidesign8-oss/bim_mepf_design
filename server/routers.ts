@@ -5,6 +5,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { chatRouter } from "./routers/chat";
 import { seoRouter } from "./routers/seo";
 import { schemaValidatorRouter } from "./routers/schemaValidator";
+import { emailMarketingRouter } from "./routers/emailMarketing";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import {
@@ -20,6 +21,8 @@ import {
 import { validateContactForm } from "./contact-service";
 import { autoEmailService } from "./services/autoEmailService";
 import { emailService } from "./services/emailService";
+import { checkRateLimit, getClientIp } from "./services/rateLimitService";
+import { verifyCaptcha } from "./services/captchaService";
 import { emailSettings } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 
@@ -42,6 +45,7 @@ function ensureAdmin(ctx: any) {
 
 export const appRouter = router({
   system: systemRouter,
+  emailMarketing: emailMarketingRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
@@ -326,8 +330,31 @@ export const appRouter = router({
         phone: z.string().optional(),
         subject: z.string().min(1),
         message: z.string().min(1),
+        captchaToken: z.string().optional(),
       }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        // Check rate limiting
+        const clientIp = getClientIp(ctx.req);
+        const rateLimitResult = await checkRateLimit(clientIp, '/api/contact');
+        
+        if (!rateLimitResult.allowed) {
+          throw new TRPCError({
+            code: "TOO_MANY_REQUESTS",
+            message: `Rate limit exceeded. ${rateLimitResult.message}`,
+          });
+        }
+        
+        // Verify CAPTCHA if token provided
+        if (input.captchaToken) {
+          const captchaResult = await verifyCaptcha(input.captchaToken, clientIp);
+          if (!captchaResult.success) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "CAPTCHA verification failed. Please try again.",
+            });
+          }
+        }
+        
         // Validate input
         const validation = validateContactForm(input);
         if (!validation.valid) {

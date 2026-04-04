@@ -380,3 +380,126 @@ export const emailBounces = mysqlTable("email_bounces", {
 
 export type EmailBounce = typeof emailBounces.$inferSelect;
 export type InsertEmailBounce = typeof emailBounces.$inferInsert;
+
+
+/**
+ * Rate Limiting table - Track contact form submissions by IP
+ */
+export const rateLimits = mysqlTable("rate_limits", {
+  id: int("id").autoincrement().primaryKey(),
+  ipAddress: varchar("ipAddress", { length: 45 }).notNull(), // IPv4 or IPv6
+  endpoint: varchar("endpoint", { length: 255 }).notNull(), // e.g., '/api/contact'
+  submissionCount: int("submissionCount").default(1).notNull(),
+  firstSubmissionAt: timestamp("firstSubmissionAt").defaultNow().notNull(),
+  lastSubmissionAt: timestamp("lastSubmissionAt").defaultNow().onUpdateNow().notNull(),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  ipEndpointIdx: index("rate_limit_ip_endpoint_idx").on(table.ipAddress, table.endpoint),
+  lastSubmissionIdx: index("rate_limit_last_submission_idx").on(table.lastSubmissionAt),
+}));
+
+export type RateLimit = typeof rateLimits.$inferSelect;
+export type InsertRateLimit = typeof rateLimits.$inferInsert;
+
+/**
+ * Email Marketing Campaigns table
+ */
+export const emailCampaigns = mysqlTable("email_campaigns", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  subject: varchar("subject", { length: 255 }).notNull(),
+  content: longtext("content").notNull(),
+  templateType: mysqlEnum("templateType", ["architect", "builder", "custom"]).default("custom").notNull(),
+  
+  // Campaign status
+  status: mysqlEnum("status", ["draft", "scheduled", "sending", "completed", "paused"]).default("draft").notNull(),
+  scheduledAt: timestamp("scheduledAt"),
+  startedAt: timestamp("startedAt"),
+  completedAt: timestamp("completedAt"),
+  
+  // Statistics
+  totalRecipients: int("totalRecipients").default(0).notNull(),
+  sentCount: int("sentCount").default(0).notNull(),
+  failedCount: int("failedCount").default(0).notNull(),
+  openCount: int("openCount").default(0).notNull(),
+  clickCount: int("clickCount").default(0).notNull(),
+  
+  // Settings
+  sendAsTest: boolean("sendAsTest").default(false).notNull(),
+  testEmails: longtext("testEmails"), // JSON array of test emails
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  statusIdx: index("campaign_status_idx").on(table.status),
+  createdAtIdx: index("campaign_created_idx").on(table.createdAt),
+}));
+
+export type EmailCampaign = typeof emailCampaigns.$inferSelect;
+export type InsertEmailCampaign = typeof emailCampaigns.$inferInsert;
+
+/**
+ * Email Recipients list - Architects and Builders
+ */
+export const emailRecipients = mysqlTable("email_recipients", {
+  id: int("id").autoincrement().primaryKey(),
+  email: varchar("email", { length: 320 }).notNull().unique(),
+  name: varchar("name", { length: 255 }),
+  recipientType: mysqlEnum("recipientType", ["architect", "builder", "other"]).notNull(),
+  company: varchar("company", { length: 255 }),
+  phone: varchar("phone", { length: 20 }),
+  city: varchar("city", { length: 100 }),
+  state: varchar("state", { length: 100 }),
+  
+  // Subscription status
+  subscribed: boolean("subscribed").default(true).notNull(),
+  unsubscribedAt: timestamp("unsubscribedAt"),
+  unsubscribeReason: text("unsubscribeReason"),
+  
+  // Tracking
+  lastEmailSentAt: timestamp("lastEmailSentAt"),
+  totalEmailsReceived: int("totalEmailsReceived").default(0).notNull(),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  emailIdx: index("recipient_email_idx").on(table.email),
+  typeIdx: index("recipient_type_idx").on(table.recipientType),
+  subscribedIdx: index("recipient_subscribed_idx").on(table.subscribed),
+}));
+
+export type EmailRecipient = typeof emailRecipients.$inferSelect;
+export type InsertEmailRecipient = typeof emailRecipients.$inferInsert;
+
+/**
+ * Campaign Recipients tracking - Which recipients received which campaigns
+ */
+export const campaignRecipients = mysqlTable("campaign_recipients", {
+  id: int("id").autoincrement().primaryKey(),
+  campaignId: int("campaignId").notNull(),
+  recipientId: int("recipientId").notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  
+  // Delivery status
+  status: mysqlEnum("status", ["pending", "sent", "failed", "bounced"]).default("pending").notNull(),
+  sentAt: timestamp("sentAt"),
+  errorMessage: text("errorMessage"),
+  
+  // Tracking
+  opened: boolean("opened").default(false).notNull(),
+  openedAt: timestamp("openedAt"),
+  clicked: boolean("clicked").default(false).notNull(),
+  clickedAt: timestamp("clickedAt"),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  campaignIdx: index("campaign_recipient_campaign_idx").on(table.campaignId),
+  recipientIdx: index("campaign_recipient_recipient_idx").on(table.recipientId),
+  statusIdx: index("campaign_recipient_status_idx").on(table.status),
+}));
+
+export type CampaignRecipient = typeof campaignRecipients.$inferSelect;
+export type InsertCampaignRecipient = typeof campaignRecipients.$inferInsert;
