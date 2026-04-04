@@ -127,6 +127,55 @@ export const emailMarketingRouter = router({
         }
       }),
 
+    // Add single recipient manually
+    add: protectedProcedure
+      .input(z.object({
+        email: z.string().email(),
+        name: z.string().optional(),
+        recipientType: z.enum(['architect', 'builder', 'other']),
+        company: z.string().optional(),
+        city: z.string().optional(),
+        state: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        ensureAdmin(ctx);
+
+        try {
+          const db = await getDb();
+          if (!db) throw new Error('Database not available');
+
+          const existing = await db
+            .select()
+            .from(emailRecipients)
+            .where(eq(emailRecipients.email, input.email)) as any;
+
+          if (existing && existing.length > 0) {
+            throw new TRPCError({
+              code: 'BAD_REQUEST',
+              message: 'Email already exists',
+            });
+          }
+
+          await db.insert(emailRecipients).values({
+            email: input.email,
+            name: input.name || '',
+            recipientType: input.recipientType,
+            company: input.company || '',
+            city: input.city || '',
+            state: input.state || '',
+            subscribed: true,
+          });
+
+          return { success: true, message: 'Recipient added' };
+        } catch (error) {
+          if (error instanceof TRPCError) throw error;
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: error instanceof Error ? error.message : 'Failed to add recipient',
+          });
+        }
+      }),
+
     // Delete recipient
     delete: protectedProcedure
       .input(z.object({ id: z.number() }))

@@ -16,7 +16,7 @@ import AboutPageCMS from "@/components/admin/AboutPageCMS";
 import ServicesPageCMS from "@/components/admin/ServicesPageCMS";
 import ProjectsPageCMS from "@/components/admin/ProjectsPageCMS";
 import { ContactDashboard } from "@/components/admin/ContactDashboard";
-import { EmailMarketing } from "@/components/admin/EmailMarketing";
+import { EmailMarketingEnhanced } from "@/components/admin/EmailMarketingEnhanced";
 
 export default function Admin() {
   const { user } = useAuth();
@@ -116,7 +116,7 @@ export default function Admin() {
           {currentTab === "contacts" && <AdminContacts />}
           {currentTab === "contact-dashboard" && <ContactDashboard />}
           {currentTab === "email" && <EmailManagement />}
-          {currentTab === "email-marketing" && <EmailMarketing />}
+          {currentTab === "email-marketing" && <EmailMarketingEnhanced />}
           {currentTab === "cms-home" && <HomePageCMS />}
           {currentTab === "cms-about" && <AboutPageCMS />}
           {currentTab === "cms-services" && <ServicesPageCMS />}

@@ -388,3 +388,19 @@
 - [x] Document best practices for email marketing
 - [x] Document troubleshooting guide
 - [x] Document future enhancements
+
+
+## Manual Email Addition & Service Promotion Campaigns (Completed)
+- [x] Add manual email entry form to email marketing module
+- [x] Create form fields for name, email, company, recipient type, city, state
+- [x] Implement add/edit/delete functionality for individual emails
+- [x] Add recipients.add tRPC procedure to email marketing router
+- [x] Create service promotion campaign templates
+- [x] Build service selector for campaign creation
+- [x] Auto-populate campaign content with service details
+- [x] Create "Promote Service" tab in email marketing interface
+- [x] Generate service-specific email templates with benefits and CTA
+- [x] Create EmailMarketingEnhanced component with all features
+- [x] Integrate enhanced component into admin panel
+- [x] Test manual email addition workflow
+- [x] Test service promotion campaign creation and sending
