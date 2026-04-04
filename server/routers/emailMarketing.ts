@@ -216,8 +216,8 @@ export const emailMarketingRouter = router({
           const db = await getDb();
           if (!db) throw new Error('Database not available');
 
-          // Create campaign
-          const campaign = await db.insert(emailCampaigns).values({
+          // Create campaign using Drizzle ORM to get proper ID
+          const insertResult = await db.insert(emailCampaigns).values({
             name: input.name,
             subject: input.subject,
             content: input.content,
@@ -226,22 +226,42 @@ export const emailMarketingRouter = router({
             totalRecipients: input.recipientIds.length,
           });
 
-          const campaignId = (campaign as any).insertId || (campaign as any)[0]?.id;
+          // Get the campaign ID from the insert result
+          let campaignId: number;
+          if (Array.isArray(insertResult) && insertResult.length > 0) {
+            campaignId = (insertResult[0] as any).id;
+          } else if ((insertResult as any).insertId) {
+            campaignId = (insertResult as any).insertId;
+          } else {
+            throw new Error('Failed to get campaign ID from insert result');
+          }
+
+          if (!campaignId) {
+            throw new Error('Campaign ID is undefined after insert');
+          }
+
+          console.log('Created campaign with ID:', campaignId);
 
           // Add recipients to campaign
           for (const recipientId of input.recipientIds) {
-            const recipient = await db
-              .select()
-              .from(emailRecipients)
-              .where(eq(emailRecipients.id, recipientId));
+            try {
+              const recipient = await db
+                .select()
+                .from(emailRecipients)
+                .where(eq(emailRecipients.id, recipientId));
 
-            if (recipient.length > 0) {
-              // Use raw SQL to avoid schema mismatch issues
-              await db.execute(sql`
-                INSERT INTO campaign_recipients 
-                (campaignId, recipientId, email, status) 
-                VALUES (${campaignId}, ${recipientId}, ${recipient[0].email}, 'pending')
-              `);
+              if (recipient.length > 0) {
+                // Insert campaign recipient
+                await db.insert(campaignRecipients).values({
+                  campaignId,
+                  recipientId,
+                  email: recipient[0].email,
+                  status: 'pending',
+                });
+              }
+            } catch (recipientError) {
+              console.error(`Failed to add recipient ${recipientId} to campaign:`, recipientError);
+              // Continue with next recipient instead of failing
             }
           }
 
@@ -344,6 +364,8 @@ export const emailMarketingRouter = router({
           }));
 
           // Send campaign
+          console.log(`Starting to send campaign ${input.campaignId} to ${recipientData.length} recipients`);
+          
           const result = await sendBulkEmailCampaign({
             campaignId: input.campaignId,
             subject: campaign[0].subject,
@@ -353,14 +375,7 @@ export const emailMarketingRouter = router({
             fromName: input.fromName,
           });
 
-          // Update campaign status
-          await db
-            .update(emailCampaigns)
-            .set({
-              status: 'sending',
-              startedAt: new Date(),
-            })
-            .where(eq(emailCampaigns.id, input.campaignId));
+          console.log(`Campaign ${input.campaignId} send result:`, result);
 
           return result;
         } catch (error) {
