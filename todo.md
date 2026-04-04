@@ -414,3 +414,16 @@
 - [ ] Integrate dashboard into admin panel with real-time updates
 - [ ] Add engagement metrics (open rate, click rate, conversion rate)
 - [ ] Test and save checkpoint
+
+
+## Email Webhook Integration & Advanced Features (Current)
+- [ ] Implement Gmail/SendGrid webhook endpoints for tracking opens and clicks
+- [ ] Create webhook payload parsers for different email providers
+- [ ] Add real-time event tracking and campaign metrics updates
+- [ ] Build webhook management UI in admin panel
+- [ ] Create recipient segmentation module with group management
+- [ ] Build segment filtering and targeting interface
+- [ ] Add segment-based campaign analytics
+- [ ] Create drag-and-drop email template builder
+- [ ] Implement template block library (text, image, button, etc.)
+- [ ] Add template preview and save functionality
