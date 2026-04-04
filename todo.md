@@ -443,3 +443,32 @@
 - [x] Add service cards with check icons and descriptions
 - [x] Verify admin panel can add/edit/delete services with categories
 - [x] Test all functionality with 36 passing tests
+
+
+## Service Detail Pages (In Progress)
+- [ ] Create service detail page components for BIM, MEPF, Quantities & Estimation
+- [ ] Add case studies database schema
+- [ ] Create case study management in admin panel
+- [ ] Implement case study display on service detail pages
+- [ ] Add related projects section to service detail pages
+- [ ] Implement SEO optimization for service detail pages (schema, meta tags)
+- [ ] Test service detail pages with real data
+- [ ] Verify responsive design on mobile devices
+
+
+## Service Detail Pages with Case Studies (Completed)
+- [x] Create case_studies database table with all required fields
+- [x] Add case study helper functions in server/db.ts
+- [x] Create tRPC procedures for case study management (CRUD)
+- [x] Create ServiceCategoryDetail page component for BIM, MEPF, Quantities & Estimation
+- [x] Add service category routes to App.tsx
+- [x] Update Services page to link to category detail pages
+- [x] Create CaseStudiesAdmin component for admin panel
+- [x] Add Case Studies tab to admin panel
+- [x] Implement case study form with all fields (title, category, client, location, challenge, solution, results, SEO)
+- [x] Display case studies on service category detail pages
+- [x] Display related projects on service category detail pages
+- [x] Add breadcrumb navigation to service detail pages
+- [x] Implement SEO optimization for service detail pages
+- [x] Test all functionality end-to-end
+- [x] All 36 tests passing

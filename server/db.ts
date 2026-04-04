@@ -8,7 +8,8 @@ import {
   contacts, InsertContact, Contact,
   contactReplies, InsertContactReply, ContactReply,
   pageContent, InsertPageContent, PageContent,
-  companySettings, InsertCompanySettings, CompanySettings
+  companySettings, InsertCompanySettings, CompanySettings,
+  caseStudies, InsertCaseStudy, CaseStudy
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -368,4 +369,69 @@ export async function getCompanySettings() {
   
   const result = await db.select().from(companySettings).limit(1);
   return result.length > 0 ? result[0] : null;
+}
+
+// ==================== CASE STUDIES ====================
+
+export async function createCaseStudy(data: InsertCaseStudy) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db.insert(caseStudies).values(data);
+}
+
+export async function updateCaseStudy(id: number, data: Partial<InsertCaseStudy>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db.update(caseStudies).set(data).where(eq(caseStudies.id, id));
+}
+
+export async function deleteCaseStudy(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db.delete(caseStudies).where(eq(caseStudies.id, id));
+}
+
+export async function getCaseStudyById(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.select().from(caseStudies).where(eq(caseStudies.id, id)).limit(1);
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function getCaseStudyBySlug(slug: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.select().from(caseStudies).where(eq(caseStudies.slug, slug)).limit(1);
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function getCaseStudiesByCategory(category: "BIM" | "MEPF" | "Quantities & Estimation", published: boolean = true) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const conditions = [eq(caseStudies.serviceCategory, category)];
+  if (published) {
+    conditions.push(eq(caseStudies.published, true));
+  }
+  return db.select().from(caseStudies)
+    .where(and(...conditions))
+    .orderBy(desc(caseStudies.order), desc(caseStudies.createdAt));
+}
+
+export async function getAllCaseStudies(published: boolean = true) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  if (published) {
+    return db.select().from(caseStudies)
+      .where(eq(caseStudies.published, true))
+      .orderBy(desc(caseStudies.order), desc(caseStudies.createdAt));
+  }
+  return db.select().from(caseStudies)
+    .orderBy(desc(caseStudies.order), desc(caseStudies.createdAt));
 }

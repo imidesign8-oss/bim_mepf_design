@@ -112,7 +112,7 @@ export default function Services() {
                   </div>
 
                   {/* View All Link */}
-                  <Link href={`/services?category=${encodeURIComponent(category)}`}>
+                  <Link href={`/services/${category.toLowerCase().replace(/[&\s]+/g, '-')}`}>
                     <a className="inline-flex items-center text-primary font-semibold hover:gap-2 transition-all group">
                       Learn More <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform" />
                     </a>

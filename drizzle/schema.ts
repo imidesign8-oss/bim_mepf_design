@@ -504,3 +504,59 @@ export const campaignRecipients = mysqlTable("campaign_recipients", {
 
 export type CampaignRecipient = typeof campaignRecipients.$inferSelect;
 export type InsertCampaignRecipient = typeof campaignRecipients.$inferInsert;
+
+/**
+ * Case Studies table for service detail pages
+ */
+export const caseStudies = mysqlTable("case_studies", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  description: longtext("description").notNull(),
+  shortDescription: varchar("shortDescription", { length: 500 }),
+  
+  // Service category this case study belongs to
+  serviceCategory: mysqlEnum("serviceCategory", ["BIM", "MEPF", "Quantities & Estimation"]).notNull(),
+  
+  // Project details
+  clientName: varchar("clientName", { length: 255 }),
+  projectName: varchar("projectName", { length: 255 }),
+  location: varchar("location", { length: 255 }),
+  completionDate: varchar("completionDate", { length: 50 }),
+  budget: varchar("budget", { length: 100 }),
+  
+  // Media
+  featuredImage: text("featuredImage"),
+  galleryImages: longtext("galleryImages"), // JSON array of image URLs
+  
+  // Challenge, Solution, Results
+  challenge: longtext("challenge"),
+  solution: longtext("solution"),
+  results: longtext("results"),
+  
+  // Related project ID (optional)
+  relatedProjectId: int("relatedProjectId"),
+  
+  // Publishing
+  published: boolean("published").default(true).notNull(),
+  order: int("order").default(0).notNull(),
+  
+  // SEO fields
+  metaTitle: varchar("metaTitle", { length: 255 }),
+  metaDescription: varchar("metaDescription", { length: 255 }),
+  metaKeywords: text("metaKeywords"),
+  canonicalUrl: text("canonicalUrl"),
+  ogImage: text("ogImage"),
+  ogTitle: varchar("ogTitle", { length: 255 }),
+  ogDescription: varchar("ogDescription", { length: 255 }),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  slugIdx: index("case_study_slug_idx").on(table.slug),
+  categoryIdx: index("case_study_category_idx").on(table.serviceCategory),
+  publishedIdx: index("case_study_published_idx").on(table.published),
+}));
+
+export type CaseStudy = typeof caseStudies.$inferSelect;
+export type InsertCaseStudy = typeof caseStudies.$inferInsert;

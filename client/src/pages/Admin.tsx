@@ -5,6 +5,7 @@ import { Menu, X } from "lucide-react";
 import AdminDashboard from "@/components/admin/Dashboard";
 import AdminBlog from "@/components/admin/Blog";
 import AdminServices from "@/components/admin/Services";
+import { CaseStudiesAdmin } from "@/components/admin/CaseStudies";
 import AdminProjects from "@/components/admin/Projects";
 import AdminContacts from "@/components/admin/Contacts";
 import AdminSettings from "@/components/admin/Settings";
@@ -44,6 +45,7 @@ export default function Admin() {
     { id: "dashboard", label: "Dashboard", icon: "📊" },
     { id: "blog", label: "Blog", icon: "📝" },
     { id: "services", label: "Services", icon: "🔧" },
+    { id: "case-studies", label: "Case Studies", icon: "📸" },
     { id: "projects", label: "Projects", icon: "🏗️" },
     { id: "contacts", label: "Contact Submissions", icon: "📋" },
     { id: "contact-dashboard", label: "Contact Dashboard", icon: "📊" },
@@ -116,6 +118,7 @@ export default function Admin() {
           {currentTab === "dashboard" && <AdminDashboard onNavigate={setCurrentTab} />}
           {currentTab === "blog" && <AdminBlog />}
           {currentTab === "services" && <AdminServices />}
+          {currentTab === "case-studies" && <CaseStudiesAdmin />}
           {currentTab === "projects" && <AdminProjects />}
           {currentTab === "contacts" && <AdminContacts />}
           {currentTab === "contact-dashboard" && <ContactDashboard />}

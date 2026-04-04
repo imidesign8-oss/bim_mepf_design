@@ -20,6 +20,7 @@ import {
   createContactReply, getContactRepliesByContactId,
   upsertPageContent, getPageContent,
   upsertCompanySettings, getCompanySettings,
+  createCaseStudy, updateCaseStudy, deleteCaseStudy, getCaseStudyById, getCaseStudyBySlug, getCaseStudiesByCategory, getAllCaseStudies,
 } from "./db";
 import { validateContactForm } from "./contact-service";
 import { autoEmailService } from "./services/autoEmailService";
@@ -228,6 +229,120 @@ export const appRouter = router({
       .mutation(async ({ input, ctx }) => {
         ensureAdmin(ctx);
         return deleteService(input.id);
+      }),
+  }),
+
+  // ==================== CASE STUDIES ROUTES ====================
+  caseStudies: router({
+    // Public: Get case studies by category
+    getByCategory: publicProcedure
+      .input(z.object({ category: z.enum(["BIM", "MEPF", "Quantities & Estimation"]) }))
+      .query(async ({ input }) => {
+        return getCaseStudiesByCategory(input.category, true);
+      }),
+
+    // Public: Get single case study by slug
+    getBySlug: publicProcedure
+      .input(z.object({ slug: z.string() }))
+      .query(async ({ input }) => {
+        const caseStudy = await getCaseStudyBySlug(input.slug);
+        if (!caseStudy) throw new TRPCError({ code: "NOT_FOUND" });
+        return caseStudy;
+      }),
+
+    // Public: Get all case studies
+    list: publicProcedure.query(async () => {
+      return getAllCaseStudies(true);
+    }),
+
+    // Admin: Get all case studies
+    listAll: protectedProcedure
+      .query(async ({ ctx }) => {
+        ensureAdmin(ctx);
+        return getAllCaseStudies();
+      }),
+
+    // Admin: Create case study
+    create: protectedProcedure
+      .input(z.object({
+        title: z.string().min(1),
+        description: z.string().min(1),
+        shortDescription: z.string().optional(),
+        serviceCategory: z.enum(["BIM", "MEPF", "Quantities & Estimation"]),
+        clientName: z.string().optional(),
+        projectName: z.string().optional(),
+        location: z.string().optional(),
+        completionDate: z.string().optional(),
+        budget: z.string().optional(),
+        featuredImage: z.string().optional(),
+        galleryImages: z.array(z.string()).optional(),
+        challenge: z.string().optional(),
+        solution: z.string().optional(),
+        results: z.string().optional(),
+        relatedProjectId: z.number().optional(),
+        order: z.number().default(0),
+        metaTitle: z.string().optional(),
+        metaDescription: z.string().optional(),
+        metaKeywords: z.string().optional(),
+        ogImage: z.string().optional(),
+        ogTitle: z.string().optional(),
+        ogDescription: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        ensureAdmin(ctx);
+        const slug = generateSlug(input.title);
+        return createCaseStudy({
+          ...input,
+          slug,
+          galleryImages: input.galleryImages ? JSON.stringify(input.galleryImages) : null,
+          canonicalUrl: `/services/case-studies/${slug}`,
+        });
+      }),
+
+    // Admin: Update case study
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        title: z.string().optional(),
+        description: z.string().optional(),
+        shortDescription: z.string().optional(),
+        serviceCategory: z.enum(["BIM", "MEPF", "Quantities & Estimation"]).optional(),
+        clientName: z.string().optional(),
+        projectName: z.string().optional(),
+        location: z.string().optional(),
+        completionDate: z.string().optional(),
+        budget: z.string().optional(),
+        featuredImage: z.string().optional(),
+        galleryImages: z.array(z.string()).optional(),
+        challenge: z.string().optional(),
+        solution: z.string().optional(),
+        results: z.string().optional(),
+        relatedProjectId: z.number().optional(),
+        order: z.number().optional(),
+        published: z.boolean().optional(),
+        metaTitle: z.string().optional(),
+        metaDescription: z.string().optional(),
+        metaKeywords: z.string().optional(),
+        ogImage: z.string().optional(),
+        ogTitle: z.string().optional(),
+        ogDescription: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        ensureAdmin(ctx);
+        const { id, galleryImages, ...data } = input;
+        const updateData = {
+          ...data,
+          galleryImages: galleryImages ? JSON.stringify(galleryImages) : undefined,
+        };
+        return updateCaseStudy(id, updateData);
+      }),
+
+    // Admin: Delete case study
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        ensureAdmin(ctx);
+        return deleteCaseStudy(input.id);
       }),
   }),
 

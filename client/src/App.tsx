@@ -11,6 +11,7 @@ import Home from "./pages/Home";
 import About from "./pages/About";
 import Services from "./pages/Services";
 import ServiceDetail from "./pages/ServiceDetail";
+import ServiceCategoryDetail from "./pages/ServiceCategoryDetail";
 import Projects from "./pages/Projects";
 import ProjectDetail from "./pages/ProjectDetail";
 import Blog from "./pages/Blog";
@@ -27,6 +28,7 @@ function Router() {
       <Route path={"/"} component={Home} />
       <Route path={"/about"} component={About} />
       <Route path={"/services"} component={Services} />
+      <Route path={"/services/:categorySlug"} component={ServiceCategoryDetail} />
       <Route path={"/services/:slug"} component={ServiceDetail} />
       <Route path={"/projects"} component={Projects} />
       <Route path={"/projects/:slug"} component={ProjectDetail} />
