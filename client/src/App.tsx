@@ -27,9 +27,11 @@ function Router() {
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/about"} component={About} />
-      <Route path={"/services"} component={Services} />
-      <Route path={"/services/:categorySlug"} component={ServiceCategoryDetail} />
-      <Route path={"/services/:slug"} component={ServiceDetail} />
+       <Route path={"services"} component={Services} />
+      <Route path={"services/bim"} component={ServiceCategoryDetail} />
+      <Route path={"services/mepf"} component={ServiceCategoryDetail} />
+      <Route path={"services/quantities-estimation"} component={ServiceCategoryDetail} />
+      <Route path={"services/:slug"} component={ServiceDetail} />
       <Route path={"/projects"} component={Projects} />
       <Route path={"/projects/:slug"} component={ProjectDetail} />
       <Route path={"/blog"} component={Blog} />

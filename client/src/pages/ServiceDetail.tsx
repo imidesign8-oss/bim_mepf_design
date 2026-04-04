@@ -1,9 +1,106 @@
 import { Link, useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
 import Footer from "@/components/Footer";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, CheckCircle, Zap, Layers } from "lucide-react";
 import { useEffect } from "react";
 import { addJsonLd, createServiceSchema, createBreadcrumbSchema, getFullUrl, createOrganizationSchema } from "@/lib/seoHelpers";
+
+// Service vertical insights data
+const serviceInsights: Record<string, any> = {
+  "building-information-modeling": {
+    title: "Building Information Modeling (BIM)",
+    capabilities: [
+      "3D Modeling & Visualization",
+      "Coordination & Clash Detection",
+      "4D & 5D Analysis",
+      "Model Coordination",
+      "Design Optimization",
+    ],
+    benefits: [
+      "Reduce project delays through early clash detection",
+      "Improve coordination between design disciplines",
+      "Enhance visualization for stakeholder communication",
+      "Optimize design decisions with 4D/5D analysis",
+      "Streamline construction planning and execution",
+    ],
+    technologies: [
+      "Revit & BIM 360",
+      "Navisworks",
+      "Solibri",
+      "3ds Max",
+      "Lumion",
+    ],
+    process: [
+      "Project Requirements Analysis",
+      "BIM Model Development",
+      "Coordination & Clash Detection",
+      "Visualization & Rendering",
+      "Model Delivery & Documentation",
+    ],
+  },
+  "mepf-design-modeling-coordination": {
+    title: "MEPF Design, Modeling & Coordination",
+    capabilities: [
+      "Mechanical System Design",
+      "Electrical System Design",
+      "Plumbing System Design",
+      "Fire Protection Design",
+      "MEP Coordination & Integration",
+    ],
+    benefits: [
+      "Optimize building systems for efficiency",
+      "Ensure code compliance for all MEP systems",
+      "Reduce construction conflicts and rework",
+      "Improve system performance and reliability",
+      "Facilitate seamless handover to contractors",
+    ],
+    technologies: [
+      "Revit MEP",
+      "AutoCAD",
+      "HVAC Design Software",
+      "Electrical Load Calculation Tools",
+      "Navisworks for Coordination",
+    ],
+    process: [
+      "System Requirements & Load Calculations",
+      "Individual System Design",
+      "3D Model Development",
+      "Coordination & Clash Resolution",
+      "Documentation & Specifications",
+    ],
+  },
+  "quantities-estimating": {
+    title: "Quantities & Estimating",
+    capabilities: [
+      "Material Take-Off (MTO)",
+      "Bill of Quantities (BOQ) Preparation",
+      "Variation Quantification",
+      "Cost Estimation",
+      "Schedule Analysis",
+    ],
+    benefits: [
+      "Accurate project cost estimation",
+      "Streamline procurement planning",
+      "Reduce material waste and cost overruns",
+      "Facilitate competitive bidding",
+      "Enable precise project budgeting",
+    ],
+    technologies: [
+      "Revit & Dynamo",
+      "Excel & Specialized MTO Tools",
+      "Cost Estimation Software",
+      "Project Management Tools",
+      "Database Management Systems",
+    ],
+    process: [
+      "Design Document Review",
+      "Quantity Extraction",
+      "BOQ Compilation",
+      "Cost Analysis & Estimation",
+      "Report Generation & Delivery",
+    ],
+  },
+};
 
 export default function ServiceDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -62,6 +159,9 @@ export default function ServiceDetail() {
   // Get related services (exclude current service)
   const relatedServices = allServices?.filter((s: any) => s.id !== service?.id).slice(0, 3) || [];
 
+  // Get service insights based on slug
+  const insights = slug ? serviceInsights[slug] : null;
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -116,7 +216,7 @@ export default function ServiceDetail() {
         </div>
       </section>
 
-      {/* Content */}
+      {/* Overview */}
       <section className="section-padding">
         <div className="container max-w-4xl">
           {service.image && (
@@ -131,6 +231,87 @@ export default function ServiceDetail() {
           </div>
         </div>
       </section>
+
+      {/* Service Insights */}
+      {insights && (
+        <>
+          {/* Capabilities */}
+          <section className="section-padding bg-secondary/30">
+            <div className="container">
+              <div className="max-w-4xl">
+                <h2 className="text-3xl font-bold mb-8">Key Capabilities</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {insights.capabilities.map((capability: string, idx: number) => (
+                    <div key={idx} className="flex gap-3 items-start">
+                      <CheckCircle className="w-6 h-6 text-primary flex-shrink-0 mt-0.5" />
+                      <span className="text-foreground">{capability}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Benefits */}
+          <section className="section-padding">
+            <div className="container">
+              <div className="max-w-4xl">
+                <h2 className="text-3xl font-bold mb-8">Why Choose Our {insights.title} Services?</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {insights.benefits.map((benefit: string, idx: number) => (
+                    <div key={idx} className="flex gap-4">
+                      <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Zap className="w-5 h-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-foreground">{benefit}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Technologies & Tools */}
+          <section className="section-padding bg-secondary/30">
+            <div className="container">
+              <div className="max-w-4xl">
+                <h2 className="text-3xl font-bold mb-8">Technologies & Tools</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {insights.technologies.map((tech: string, idx: number) => (
+                    <div key={idx} className="flex gap-3 items-center p-4 rounded-lg border border-border hover:border-primary transition-colors">
+                      <Layers className="w-5 h-5 text-primary flex-shrink-0" />
+                      <span className="text-foreground font-medium">{tech}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Process */}
+          <section className="section-padding">
+            <div className="container">
+              <div className="max-w-4xl">
+                <h2 className="text-3xl font-bold mb-8">Our Process</h2>
+                <div className="space-y-4">
+                  {insights.process.map((step: string, idx: number) => (
+                    <div key={idx} className="flex gap-4 items-start">
+                      <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">
+                        {idx + 1}
+                      </div>
+                      <div className="pt-1">
+                        <p className="text-foreground font-medium">{step}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+        </>
+      )}
 
       {/* Related Services */}
       <section className="section-padding bg-secondary/30">
@@ -173,9 +354,9 @@ export default function ServiceDetail() {
       {/* CTA */}
       <section className="py-16 md:py-24 bg-gradient-to-r from-primary/10 to-accent/10">
         <div className="container text-center">
-          <h2 className="mb-6">Interested in This Service?</h2>
+          <h2 className="mb-6">Ready to Get Started?</h2>
           <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Get in touch with us to discuss how we can help with your project.
+            Let's discuss how our {service.title} services can help optimize your project.
           </p>
           <Link href="/contact">
             <a className="inline-flex items-center px-8 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors">

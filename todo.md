@@ -479,3 +479,14 @@
 - [x] Improve sub-services alignment and spacing
 - [x] Update admin panel to manage sub-services as list items
 - [x] Test and verify layout on all screen sizes
+
+
+## Service Detail Pages - Content & Navigation Fixes (Completed)
+- [x] Fix service title click navigation to service detail pages
+- [x] Update ServiceDetail page to show service vertical insights instead of case studies
+- [x] Create BIM vertical insights section with capabilities, benefits, technologies
+- [x] Create MEPF vertical insights section with capabilities, benefits, technologies
+- [x] Create Quantities & Estimation vertical insights section with capabilities, benefits, technologies
+- [x] Add service process/workflow information
+- [x] Remove case studies section from service detail pages
+- [x] Test all service navigation and page loads
