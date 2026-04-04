@@ -1,23 +1,25 @@
-import React, { useState, useEffect } from "react";
+"use client";
+
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { AlertCircle, CheckCircle2, Mail } from "lucide-react";
+import { AlertCircle, CheckCircle2, Mail, Loader2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
 export function EmailSettings() {
   const [formData, setFormData] = useState({
     smtpHost: "",
-    smtpPort: 587,
+    smtpPort: 465,
     smtpUser: "",
     smtpPassword: "",
     fromEmail: "",
     fromName: "",
     replyTo: "",
-    enableSSL: false,
-    enableTLS: true,
+    enableSSL: true,
+    enableTLS: false,
     notifyOnContactSubmission: true,
     notifyOnHighScoreLead: true,
     notificationEmails: "",
@@ -27,41 +29,53 @@ export function EmailSettings() {
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [testLoading, setTestLoading] = useState(false);
 
+  // tRPC mutations and queries
+  const configureSettings = trpc.email.configureSettings.useMutation();
+  const testConnection = trpc.email.testConnection.useMutation();
+  const getSettings = trpc.email.getSettings.useQuery();
+
   // Load settings on mount
   useEffect(() => {
-    loadSettings();
-  }, []);
-
-  const loadSettings = async () => {
-    try {
-      // In a real app, you'd fetch from your backend
-      // For now, we'll use localStorage as a fallback
-      const saved = localStorage.getItem("emailSettings");
-      if (saved) {
-        setFormData(JSON.parse(saved));
-      }
-    } catch (error) {
-      console.error("Failed to load settings:", error);
+    if (getSettings.data) {
+      setFormData({
+        smtpHost: getSettings.data.smtpHost || "",
+        smtpPort: getSettings.data.smtpPort || 465,
+        smtpUser: getSettings.data.smtpUser || "",
+        smtpPassword: getSettings.data.smtpPassword || "",
+        fromEmail: getSettings.data.fromEmail || "",
+        fromName: getSettings.data.fromName || "",
+        replyTo: getSettings.data.replyTo || "",
+        enableSSL: getSettings.data.enableSSL || true,
+        enableTLS: getSettings.data.enableTLS || false,
+        notifyOnContactSubmission: getSettings.data.notifyOnContactSubmission || true,
+        notifyOnHighScoreLead: getSettings.data.notifyOnHighScoreLead || true,
+        notificationEmails: getSettings.data.notificationEmails || "",
+      });
     }
-  };
+  }, [getSettings.data]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: type === "checkbox" ? checked : type === "number" ? parseInt(value) : value,
     }));
   };
 
   const handleSave = async () => {
     setLoading(true);
     try {
-      // Save to localStorage for now
-      localStorage.setItem("emailSettings", JSON.stringify(formData));
+      await configureSettings.mutateAsync({
+        ...formData,
+        notificationEmails: formData.notificationEmails || JSON.stringify([formData.fromEmail]),
+      });
       setMessage({ type: "success", text: "Email settings saved successfully!" });
       setTimeout(() => setMessage(null), 3000);
     } catch (error) {
-      setMessage({ type: "error", text: "Failed to save settings" });
+      setMessage({ 
+        type: "error", 
+        text: error instanceof Error ? error.message : "Failed to save settings" 
+      });
     } finally {
       setLoading(false);
     }
@@ -70,12 +84,18 @@ export function EmailSettings() {
   const handleTestConnection = async () => {
     setTestLoading(true);
     try {
-      // In a real app, call your backend test endpoint
-      // For now, just show success
-      setMessage({ type: "success", text: "SMTP connection test successful!" });
+      const result = await testConnection.mutateAsync();
+      if (result.success) {
+        setMessage({ type: "success", text: "SMTP connection test successful!" });
+      } else {
+        setMessage({ type: "error", text: result.message });
+      }
       setTimeout(() => setMessage(null), 3000);
     } catch (error) {
-      setMessage({ type: "error", text: "SMTP connection failed. Please check your settings." });
+      setMessage({ 
+        type: "error", 
+        text: "SMTP connection failed. Please check your settings." 
+      });
     } finally {
       setTestLoading(false);
     }
@@ -105,7 +125,7 @@ export function EmailSettings() {
               <Input
                 id="smtpHost"
                 name="smtpHost"
-                placeholder="smtp.gmail.com"
+                placeholder="smtpout.secureserver.net"
                 value={formData.smtpHost}
                 onChange={handleChange}
                 className="mt-1"
@@ -126,11 +146,12 @@ export function EmailSettings() {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="smtpUser">SMTP Username</Label>
+              <Label htmlFor="smtpUser">SMTP User (Email)</Label>
               <Input
                 id="smtpUser"
                 name="smtpUser"
-                placeholder="your-email@gmail.com"
+                type="email"
+                placeholder="projects@imidesign.in"
                 value={formData.smtpUser}
                 onChange={handleChange}
                 className="mt-1"
@@ -142,7 +163,7 @@ export function EmailSettings() {
                 id="smtpPassword"
                 name="smtpPassword"
                 type="password"
-                placeholder="Your app password"
+                placeholder="Your SMTP password"
                 value={formData.smtpPassword}
                 onChange={handleChange}
                 className="mt-1"
@@ -152,12 +173,12 @@ export function EmailSettings() {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="fromEmail">From Email</Label>
+              <Label htmlFor="fromEmail">From Email Address</Label>
               <Input
                 id="fromEmail"
                 name="fromEmail"
                 type="email"
-                placeholder="noreply@imidesign.in"
+                placeholder="projects@imidesign.in"
                 value={formData.fromEmail}
                 onChange={handleChange}
                 className="mt-1"
@@ -177,20 +198,20 @@ export function EmailSettings() {
           </div>
 
           <div>
-            <Label htmlFor="replyTo">Reply-To Email</Label>
+            <Label htmlFor="replyTo">Reply-To Email Address</Label>
             <Input
               id="replyTo"
               name="replyTo"
               type="email"
-              placeholder="support@imidesign.in"
+              placeholder="projects@imidesign.in"
               value={formData.replyTo}
               onChange={handleChange}
               className="mt-1"
             />
           </div>
 
-          <div className="flex gap-4">
-            <div className="flex items-center gap-2">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex items-center space-x-2">
               <Checkbox
                 id="enableSSL"
                 name="enableSSL"
@@ -203,7 +224,7 @@ export function EmailSettings() {
                 Enable SSL
               </Label>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center space-x-2">
               <Checkbox
                 id="enableTLS"
                 name="enableTLS"
@@ -218,65 +239,80 @@ export function EmailSettings() {
             </div>
           </div>
 
-          <div className="flex gap-2">
-            <Button onClick={handleTestConnection} variant="outline" disabled={testLoading}>
-              {testLoading ? "Testing..." : "Test Connection"}
-            </Button>
-            <Button onClick={handleSave} disabled={loading}>
-              {loading ? "Saving..." : "Save Settings"}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Notification Settings</CardTitle>
-          <CardDescription>Configure which events trigger email notifications</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id="notifyOnContactSubmission"
-              checked={formData.notifyOnContactSubmission}
-              onCheckedChange={(checked) =>
-                setFormData((prev) => ({ ...prev, notifyOnContactSubmission: checked as boolean }))
-              }
-            />
-            <Label htmlFor="notifyOnContactSubmission" className="cursor-pointer">
-              Notify on contact form submissions
-            </Label>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id="notifyOnHighScoreLead"
-              checked={formData.notifyOnHighScoreLead}
-              onCheckedChange={(checked) =>
-                setFormData((prev) => ({ ...prev, notifyOnHighScoreLead: checked as boolean }))
-              }
-            />
-            <Label htmlFor="notifyOnHighScoreLead" className="cursor-pointer">
-              Notify on high-scoring chat leads (80+)
-            </Label>
+          <div className="border-t pt-6">
+            <h3 className="font-semibold mb-4">Notification Settings</h3>
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="notifyOnContactSubmission"
+                  name="notifyOnContactSubmission"
+                  checked={formData.notifyOnContactSubmission}
+                  onCheckedChange={(checked) =>
+                    setFormData((prev) => ({ ...prev, notifyOnContactSubmission: checked as boolean }))
+                  }
+                />
+                <Label htmlFor="notifyOnContactSubmission" className="cursor-pointer">
+                  Notify on contact form submission
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="notifyOnHighScoreLead"
+                  name="notifyOnHighScoreLead"
+                  checked={formData.notifyOnHighScoreLead}
+                  onCheckedChange={(checked) =>
+                    setFormData((prev) => ({ ...prev, notifyOnHighScoreLead: checked as boolean }))
+                  }
+                />
+                <Label htmlFor="notifyOnHighScoreLead" className="cursor-pointer">
+                  Notify on high-score leads (80+)
+                </Label>
+              </div>
+            </div>
           </div>
 
           <div>
-            <Label htmlFor="notificationEmails">Notification Email Addresses</Label>
+            <Label htmlFor="notificationEmails">Notification Email Addresses (comma-separated)</Label>
             <Input
               id="notificationEmails"
               name="notificationEmails"
-              placeholder="admin@imidesign.in, support@imidesign.in"
+              placeholder="projects@imidesign.in, admin@imidesign.in"
               value={formData.notificationEmails}
               onChange={handleChange}
               className="mt-1"
             />
-            <p className="text-sm text-gray-500 mt-1">Comma-separated list of emails to receive notifications</p>
           </div>
 
-          <Button onClick={handleSave} disabled={loading}>
-            {loading ? "Saving..." : "Save Notification Settings"}
-          </Button>
+          <div className="flex gap-3 pt-4">
+            <Button
+              onClick={handleSave}
+              disabled={loading || configureSettings.isPending}
+              className="flex-1"
+            >
+              {loading || configureSettings.isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save Settings"
+              )}
+            </Button>
+            <Button
+              onClick={handleTestConnection}
+              disabled={testLoading || testConnection.isPending}
+              variant="outline"
+            >
+              {testLoading || testConnection.isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Testing...
+                </>
+              ) : (
+                "Test Connection"
+              )}
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

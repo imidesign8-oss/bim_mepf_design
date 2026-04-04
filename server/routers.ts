@@ -19,6 +19,9 @@ import {
 } from "./db";
 import { validateContactForm } from "./contact-service";
 import { autoEmailService } from "./services/autoEmailService";
+import { emailService } from "./services/emailService";
+import { emailSettings } from "../drizzle/schema";
+import { eq } from "drizzle-orm";
 
 // Utility function to generate slug from title
 function generateSlug(title: string): string {
@@ -495,6 +498,42 @@ export const appRouter = router({
 
   // ==================== SCHEMA VALIDATOR ROUTES ====================
   schemaValidator: router(schemaValidatorRouter),
+  email: router({
+    configureSettings: protectedProcedure
+      .input(z.object({
+        smtpHost: z.string(),
+        smtpPort: z.number(),
+        smtpUser: z.string(),
+        smtpPassword: z.string(),
+        fromEmail: z.string().email(),
+        fromName: z.string(),
+        replyTo: z.string().email(),
+        enableSSL: z.boolean(),
+        enableTLS: z.boolean(),
+        notifyOnContactSubmission: z.boolean(),
+        notifyOnHighScoreLead: z.boolean(),
+        notificationEmails: z.string(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        ensureAdmin(ctx);
+        const success = await emailService.updateSettings(input);
+        if (!success) {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Failed to configure email settings',
+          });
+        }
+        return { success: true, message: 'Email settings configured' };
+      }),
+    testConnection: protectedProcedure.mutation(async ({ ctx }) => {
+      ensureAdmin(ctx);
+      return emailService.testConnection();
+    }),
+    getSettings: protectedProcedure.query(async ({ ctx }) => {
+      ensureAdmin(ctx);
+      return emailService.getSettings();
+    }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;
