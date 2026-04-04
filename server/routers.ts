@@ -411,12 +411,27 @@ export const appRouter = router({
       }))
       .mutation(async ({ input, ctx }) => {
         ensureAdmin(ctx);
+        const contact = await getContactById(input.contactId);
+        if (!contact) throw new TRPCError({ code: "NOT_FOUND" });
         // Create reply
         await createContactReply({
           contactId: input.contactId,
           adminId: ctx.user!.id,
           reply: input.reply,
         });
+        
+        // Send reply email to client
+        try {
+          const { emailService } = await import("./services/emailService");
+          await emailService.sendEmail({
+            to: contact.email,
+            subject: `Re: ${contact.subject} - IMI DESIGN`,
+            html: `<div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;"><p>Dear ${contact.name},</p><p>Thank you for your inquiry. Here is our response:</p><div style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #ED1C24; margin: 20px 0;"><p style="white-space: pre-wrap;">${input.reply}</p></div><p>If you have any further questions, please don't hesitate to contact us:</p><p><strong>Phone:</strong> +91 9405707777<br><strong>Email:</strong> projects@imidesign.in</p><p>Best regards,<br>IMI DESIGN TEAM<br>BIM & MEPF Design Services</p></div>`,
+          });
+        } catch (emailError) {
+          console.error("Error sending reply email:", emailError);
+        }
+        
         // Mark contact as replied
         return updateContact(input.contactId, { status: "replied" });
       }),
@@ -533,6 +548,16 @@ export const appRouter = router({
       ensureAdmin(ctx);
       return emailService.getSettings();
     }),
+    getAnalytics: protectedProcedure.query(async ({ ctx }) => {
+      ensureAdmin(ctx);
+      return emailService.getAnalytics();
+    }),
+    getLogs: protectedProcedure
+      .input(z.object({ limit: z.number().default(100) }))
+      .query(async ({ input, ctx }) => {
+        ensureAdmin(ctx);
+        return emailService.getLogs(input.limit);
+      }),
   }),
 });
 

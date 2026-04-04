@@ -236,6 +236,72 @@ class EmailService {
       };
     }
   }
+
+  async getAnalytics() {
+    try {
+      const db = await getDb();
+      if (!db) throw new Error('Database not available');
+      
+      const logs = await db.select().from(emailLogs);
+      const sent = logs.filter((l: any) => l.status === 'sent').length;
+      const failed = logs.filter((l: any) => l.status === 'failed').length;
+      const total = sent + failed;
+      const successRate = total > 0 ? (sent / total) * 100 : 0;
+
+      // Group by date for daily stats
+      const dailyStats: Record<string, { sent: number; failed: number }> = {};
+      logs.forEach((log: any) => {
+        const date = new Date(log.sentAt).toISOString().split('T')[0];
+        if (!dailyStats[date]) {
+          dailyStats[date] = { sent: 0, failed: 0 };
+        }
+        if (log.status === 'sent') {
+          dailyStats[date].sent++;
+        } else if (log.status === 'failed') {
+          dailyStats[date].failed++;
+        }
+      });
+
+      return {
+        totalSent: sent,
+        totalFailed: failed,
+        successRate,
+        dailyStats: Object.entries(dailyStats).map(([date, stats]) => ({
+          date,
+          ...stats,
+        })),
+      };
+    } catch (error) {
+      console.error('Failed to get email analytics:', error);
+      return {
+        totalSent: 0,
+        totalFailed: 0,
+        successRate: 0,
+        dailyStats: [],
+      };
+    }
+  }
+
+  async getLogs(limit: number = 100) {
+    try {
+      const db = await getDb();
+      if (!db) throw new Error('Database not available');
+      
+      const logs = await db.select().from(emailLogs).limit(limit);
+      return logs.map((log: any) => ({
+        id: log.id,
+        recipientEmail: log.recipientEmail,
+        subject: log.subject,
+        emailType: log.emailType,
+        status: log.status as 'sent' | 'failed' | 'pending',
+        sentAt: log.sentAt,
+        errorMessage: log.errorMessage || undefined,
+      }));
+    } catch (error) {
+      console.error('Failed to get email logs:', error);
+      return [];
+    }
+  }
 }
 
 // Export singleton instance
