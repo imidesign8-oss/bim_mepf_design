@@ -343,7 +343,7 @@ export const appRouter = router({
         // Send auto-reply and admin notification
         try {
           const autoEmailConfig = {
-            clientEmail: "projects@imidesign.in",
+            clientEmail: input.email,
             clientName: input.name,
             subject: input.subject,
             message: input.message,
