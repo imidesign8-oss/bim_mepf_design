@@ -226,7 +226,7 @@ export const emailMarketingRouter = router({
             totalRecipients: input.recipientIds.length,
           });
 
-          const campaignId = (campaign as any)[0];
+          const campaignId = (campaign as any).insertId || (campaign as any)[0]?.id;
 
           // Add recipients to campaign
           for (const recipientId of input.recipientIds) {
@@ -236,13 +236,20 @@ export const emailMarketingRouter = router({
               .where(eq(emailRecipients.id, recipientId));
 
             if (recipient.length > 0) {
+              const now = new Date();
               await db.insert(campaignRecipients).values({
                 campaignId,
                 recipientId,
                 email: recipient[0].email,
                 status: 'pending',
+                sentAt: null,
+                errorMessage: null,
                 opened: false,
+                openedAt: null,
                 clicked: false,
+                clickedAt: null,
+                createdAt: now,
+                updatedAt: now,
               });
             }
           }
