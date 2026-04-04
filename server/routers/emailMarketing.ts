@@ -10,7 +10,7 @@ import {
   InsertEmailRecipient,
   InsertCampaignRecipient,
 } from '../../drizzle/schema';
-import { eq, and, sql } from 'drizzle-orm';
+import { eq, and, sql, desc } from 'drizzle-orm';
 import { sendBulkEmailCampaign, getCampaignStats, parseEmailCSV } from '../services/bulkEmailService';
 import { getTemplate, getTemplateList } from '../services/emailMarketingTemplates';
 
@@ -216,8 +216,8 @@ export const emailMarketingRouter = router({
           const db = await getDb();
           if (!db) throw new Error('Database not available');
 
-          // Create campaign using Drizzle ORM to get proper ID
-          const insertResult = await db.insert(emailCampaigns).values({
+          // Create campaign using Drizzle ORM
+          await db.insert(emailCampaigns).values({
             name: input.name,
             subject: input.subject,
             content: input.content,
@@ -226,20 +226,19 @@ export const emailMarketingRouter = router({
             totalRecipients: input.recipientIds.length,
           });
 
-          // Get the campaign ID from the insert result
-          let campaignId: number;
-          if (Array.isArray(insertResult) && insertResult.length > 0) {
-            campaignId = (insertResult[0] as any).id;
-          } else if ((insertResult as any).insertId) {
-            campaignId = (insertResult as any).insertId;
-          } else {
-            throw new Error('Failed to get campaign ID from insert result');
+          // Get the campaign ID by querying the most recent campaign
+          const campaigns = await db
+            .select()
+            .from(emailCampaigns)
+            .where(eq(emailCampaigns.name, input.name))
+            .orderBy(desc(emailCampaigns.id))
+            .limit(1);
+          
+          if (campaigns.length === 0) {
+            throw new Error('Failed to create campaign');
           }
 
-          if (!campaignId) {
-            throw new Error('Campaign ID is undefined after insert');
-          }
-
+          const campaignId = campaigns[0].id;
           console.log('Created campaign with ID:', campaignId);
 
           // Add recipients to campaign

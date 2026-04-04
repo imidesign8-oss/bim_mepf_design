@@ -160,30 +160,46 @@ export async function sendBulkEmailCampaign(options: BulkEmailOptions): Promise<
  */
 async function getEmailTransporter(): Promise<nodemailer.Transporter | null> {
   try {
+    // First try to get settings from database
     const db = await getDb();
-    if (!db) return null;
-
-    const settings = await db.select().from(emailSettings).limit(1);
-    if (!settings || settings.length === 0) {
-      console.error('Email settings not configured in database');
-      return null;
+    if (db) {
+      const settings = await db.select().from(emailSettings).limit(1);
+      if (settings && settings.length > 0) {
+        const config = settings[0];
+        console.log('Creating email transporter from DB with host:', config.smtpHost);
+        
+        return nodemailer.createTransport({
+          host: config.smtpHost,
+          port: config.smtpPort,
+          secure: config.enableSSL || config.smtpPort === 465,
+          auth: {
+            user: config.smtpUser,
+            pass: config.smtpPassword,
+          },
+          tls: {
+            rejectUnauthorized: !config.enableTLS,
+          },
+        });
+      }
     }
 
-    const config = settings[0];
-    console.log('Creating email transporter with host:', config.smtpHost, 'port:', config.smtpPort);
+    // Fallback to environment variables
+    const gmailUser = process.env.GMAIL_USER;
+    const gmailPassword = process.env.GMAIL_APP_PASSWORD;
     
-    return nodemailer.createTransport({
-      host: config.smtpHost,
-      port: config.smtpPort,
-      secure: config.enableSSL || config.smtpPort === 465,
-      auth: {
-        user: config.smtpUser,
-        pass: config.smtpPassword,
-      },
-      tls: {
-        rejectUnauthorized: !config.enableTLS,
-      },
-    });
+    if (gmailUser && gmailPassword) {
+      console.log('Creating email transporter from environment variables (Gmail)');
+      return nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: gmailUser,
+          pass: gmailPassword,
+        },
+      });
+    }
+
+    console.error('No email configuration found in database or environment variables');
+    return null;
   } catch (error) {
     console.error('Failed to get email transporter:', error);
     return null;
