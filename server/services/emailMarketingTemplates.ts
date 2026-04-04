@@ -3,7 +3,7 @@
  * Professional HTML templates for architects and builders with logo and unsubscribe support
  */
 
-const LOGO_URL = process.env.VITE_APP_LOGO || 'https://imidesign.in/logo.png';
+const LOGO_URL = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663379809910/dQGMwfPzENE9oJMqbRVUVv/logo_8f0b7eeb.svg';
 
 export const emailTemplates = {
   architect: {

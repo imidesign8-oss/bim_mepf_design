@@ -501,3 +501,16 @@
 - [x] Add subscription form to footer
 - [x] Create unsubscribe page with token validation
 - [x] Test subscription flow end-to-end
+
+## Email Logo & Campaign Template Fixes (Completed)
+- [x] Fix email logo display in campaign email templates
+- [x] Use CDN URL for logo in email templates instead of local path
+- [x] Test email delivery with logo rendering
+- [x] Verify logo displays correctly in Gmail, Outlook, Apple Mail
+- [x] Update all email templates with proper logo configuration
+
+## WhatsApp Marketing Integration (Evaluation)
+- [ ] Research WhatsApp Business API integration options
+- [ ] Evaluate WhatsApp marketing benefits vs implementation complexity
+- [ ] Document WhatsApp strategy recommendations
+- [ ] Create implementation roadmap if approved
