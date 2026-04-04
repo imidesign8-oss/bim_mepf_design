@@ -241,13 +241,15 @@ export default function AdminBlog() {
                       <div className="flex gap-2">
                         <button 
                           onClick={() => handleEdit(post)}
-                          className="p-2 hover:bg-secondary rounded-lg transition-colors"
+                          className="p-2 hover:bg-secondary rounded-lg transition-colors cursor-pointer"
+                          title="Edit blog post"
                         >
                           <Edit2 size={16} />
                         </button>
                         <button
                           onClick={() => deleteMutation.mutate({ id: post.id })}
-                          className="p-2 hover:bg-red-100 text-red-600 rounded-lg transition-colors"
+                          className="p-2 hover:bg-red-100 text-red-600 rounded-lg transition-colors cursor-pointer"
+                          title="Delete blog post"
                         >
                           <Trash2 size={16} />
                         </button>
