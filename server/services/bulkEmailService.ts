@@ -1,5 +1,5 @@
 import { getDb } from '../db';
-import { emailCampaigns, campaignRecipients, emailRecipients, emailLogs } from '../../drizzle/schema';
+import { emailCampaigns, campaignRecipients, emailRecipients, emailLogs, emailSettings } from '../../drizzle/schema';
 import { eq, and, sql } from 'drizzle-orm';
 import nodemailer from 'nodemailer';
 import { emailService } from './emailService';
@@ -163,32 +163,27 @@ async function getEmailTransporter(): Promise<nodemailer.Transporter | null> {
     const db = await getDb();
     if (!db) return null;
 
-    const settings = await db.select().from(emailCampaigns).limit(1);
+    const settings = await db.select().from(emailSettings).limit(1);
     if (!settings || settings.length === 0) {
-      // Try to get settings from email settings table
-      const { emailSettings } = await import('../../drizzle/schema');
-      const emailSettingsData = await db.select().from(emailSettings).limit(1);
-      
-      if (!emailSettingsData || emailSettingsData.length === 0) {
-        return null;
-      }
-
-      const config = emailSettingsData[0];
-      return nodemailer.createTransport({
-        host: config.smtpHost,
-        port: config.smtpPort,
-        secure: config.enableSSL || config.smtpPort === 465,
-        auth: {
-          user: config.smtpUser,
-          pass: config.smtpPassword,
-        },
-        tls: {
-          rejectUnauthorized: !config.enableTLS,
-        },
-      });
+      console.error('Email settings not configured in database');
+      return null;
     }
 
-    return null;
+    const config = settings[0];
+    console.log('Creating email transporter with host:', config.smtpHost, 'port:', config.smtpPort);
+    
+    return nodemailer.createTransport({
+      host: config.smtpHost,
+      port: config.smtpPort,
+      secure: config.enableSSL || config.smtpPort === 465,
+      auth: {
+        user: config.smtpUser,
+        pass: config.smtpPassword,
+      },
+      tls: {
+        rejectUnauthorized: !config.enableTLS,
+      },
+    });
   } catch (error) {
     console.error('Failed to get email transporter:', error);
     return null;
