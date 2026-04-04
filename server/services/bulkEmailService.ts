@@ -1,6 +1,6 @@
 import { getDb } from '../db';
 import { emailCampaigns, campaignRecipients, emailRecipients, emailLogs } from '../../drizzle/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 import nodemailer from 'nodemailer';
 import { emailService } from './emailService';
 
@@ -80,68 +80,50 @@ export async function sendBulkEmailCampaign(options: BulkEmailOptions): Promise<
 
         // Update campaign recipients status to 'sent'
         for (const recipient of batch) {
-          await db
-            .update(campaignRecipients)
-            .set({
-              status: 'sent',
-              sentAt: new Date(),
-            })
-            .where(
-              and(
-                eq(campaignRecipients.campaignId, campaignId),
-                eq(campaignRecipients.recipientId, recipient.id)
-              )
-            );
+          await db.execute(sql`
+            UPDATE campaign_recipients 
+            SET status = 'sent', sentAt = NOW() 
+            WHERE campaignId = ${campaignId} AND recipientId = ${recipient.id}
+          `);
 
           // Update recipient's last email sent timestamp
-          await db
-            .update(emailRecipients)
-            .set({
-              lastEmailSentAt: new Date(),
-              totalEmailsReceived: (await db.select().from(emailRecipients).where(eq(emailRecipients.id, recipient.id)))[0]?.totalEmailsReceived + 1 || 1,
-            })
-            .where(eq(emailRecipients.id, recipient.id));
+          const currentRecipient = (await db.select().from(emailRecipients).where(eq(emailRecipients.id, recipient.id)))[0];
+          const newCount = (currentRecipient?.totalEmailsReceived || 0) + 1;
+          await db.execute(sql`
+            UPDATE email_recipients 
+            SET lastEmailSentAt = NOW(), totalEmailsReceived = ${newCount} 
+            WHERE id = ${recipient.id}
+          `);
 
           sentCount++;
         }
 
         // Log successful batch
-        await db.insert(emailLogs).values({
-          recipientEmail: bccEmails.join(', '),
-          subject,
-          emailType: 'marketing_campaign',
-          status: 'sent',
-          sentAt: new Date(),
-        });
+        await db.execute(sql`
+          INSERT INTO email_logs (recipientEmail, subject, emailType, status, sentAt) 
+          VALUES (${bccEmails.join(', ')}, ${subject}, 'marketing_campaign', 'sent', NOW())
+        `);
       } catch (batchError) {
         console.error(`Failed to send batch starting at index ${i}:`, batchError);
 
         // Mark batch as failed
         for (const recipient of batch) {
-          await db
-            .update(campaignRecipients)
-            .set({
-              status: 'failed',
-              errorMessage: batchError instanceof Error ? batchError.message : 'Unknown error',
-            })
-            .where(
-              and(
-                eq(campaignRecipients.campaignId, campaignId),
-                eq(campaignRecipients.recipientId, recipient.id)
-              )
-            );
+          const errorMsg = batchError instanceof Error ? batchError.message : 'Unknown error';
+          await db.execute(sql`
+            UPDATE campaign_recipients 
+            SET status = 'failed', errorMessage = ${errorMsg} 
+            WHERE campaignId = ${campaignId} AND recipientId = ${recipient.id}
+          `);
 
           failedCount++;
         }
 
         // Log failed batch
-        await db.insert(emailLogs).values({
-          recipientEmail: bccEmails.join(', '),
-          subject,
-          emailType: 'marketing_campaign',
-          status: 'failed',
-          errorMessage: batchError instanceof Error ? batchError.message : 'Unknown error',
-        });
+        const errorMsg = batchError instanceof Error ? batchError.message : 'Unknown error';
+        await db.execute(sql`
+          INSERT INTO email_logs (recipientEmail, subject, emailType, status, errorMessage, sentAt) 
+          VALUES (${bccEmails.join(', ')}, ${subject}, 'marketing_campaign', 'failed', ${errorMsg}, NOW())
+        `);
       }
     }
 
