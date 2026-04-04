@@ -404,3 +404,13 @@
 - [x] Integrate enhanced component into admin panel
 - [x] Test manual email addition workflow
 - [x] Test service promotion campaign creation and sending
+
+
+## Campaign Performance Dashboard (Current)
+- [ ] Extend database schema to track email opens and clicks
+- [ ] Create email tracking pixel and click tracking endpoints
+- [ ] Build campaign analytics queries and statistics functions
+- [ ] Create Campaign Performance Dashboard component with charts
+- [ ] Integrate dashboard into admin panel with real-time updates
+- [ ] Add engagement metrics (open rate, click rate, conversion rate)
+- [ ] Test and save checkpoint

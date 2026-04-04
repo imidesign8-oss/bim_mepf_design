@@ -17,6 +17,7 @@ import ServicesPageCMS from "@/components/admin/ServicesPageCMS";
 import ProjectsPageCMS from "@/components/admin/ProjectsPageCMS";
 import { ContactDashboard } from "@/components/admin/ContactDashboard";
 import { EmailMarketingEnhanced } from "@/components/admin/EmailMarketingEnhanced";
+import { CampaignPerformanceDashboard } from "@/components/admin/CampaignPerformanceDashboard";
 
 export default function Admin() {
   const { user } = useAuth();
@@ -47,6 +48,7 @@ export default function Admin() {
     { id: "contact-dashboard", label: "Contact Dashboard", icon: "📊" },
     { id: "email", label: "Email Management", icon: "✉️" },
     { id: "email-marketing", label: "Email Marketing", icon: "📢" },
+    { id: "campaign-analytics", label: "Campaign Analytics", icon: "📈" },
     { id: "cms-home", label: "CMS: Home", icon: "🏠" },
     { id: "cms-about", label: "CMS: About", icon: "📄" },
     { id: "cms-services", label: "CMS: Services", icon: "📚" },
@@ -117,6 +119,7 @@ export default function Admin() {
           {currentTab === "contact-dashboard" && <ContactDashboard />}
           {currentTab === "email" && <EmailManagement />}
           {currentTab === "email-marketing" && <EmailMarketingEnhanced />}
+          {currentTab === "campaign-analytics" && <CampaignPerformanceDashboard />}
           {currentTab === "cms-home" && <HomePageCMS />}
           {currentTab === "cms-about" && <AboutPageCMS />}
           {currentTab === "cms-services" && <ServicesPageCMS />}
