@@ -3,7 +3,7 @@
  * Professional HTML templates for architects and builders with logo and unsubscribe support
  */
 
-const LOGO_URL = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663379809910/dQGMwfPzENE9oJMqbRVUVv/logo_8f0b7eeb.svg';
+const LOGO_URL = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663379809910/dQGMwfPzENE9oJMqbRVUVv/logo_230a91c4.png';
 
 export const emailTemplates = {
   architect: {
@@ -20,7 +20,7 @@ export const emailTemplates = {
     body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
     .container { max-width: 600px; margin: 0 auto; padding: 20px; }
     .header { background-color: #ED1C24; color: white; padding: 30px; text-align: center; border-radius: 5px 5px 0 0; }
-    .header img { max-width: 100px; height: auto; margin-bottom: 15px; }
+    .header img { max-width: 100px; width: 100px; height: 100px; margin-bottom: 15px; display: block; border: none; }
     .header h1 { margin: 0; font-size: 28px; }
     .header p { margin: 10px 0 0 0; font-size: 14px; }
     .content { background-color: #f9f9f9; padding: 30px; border: 1px solid #ddd; }
@@ -40,7 +40,7 @@ export const emailTemplates = {
 <body>
   <div class="container">
     <div class="header">
-      <img src="${LOGO_URL}" alt="IMI DESIGN Logo">
+      <img src="${LOGO_URL}" alt="IMI DESIGN Logo" width="100" height="100" style="max-width: 100px; width: 100px; height: 100px; display: block; margin: 0 auto; border: none; background-color: transparent;" />
       <h1>IMI DESIGN</h1>
       <p>BIM & MEPF Design Excellence</p>
     </div>
@@ -121,7 +121,7 @@ export const emailTemplates = {
     body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
     .container { max-width: 600px; margin: 0 auto; padding: 20px; }
     .header { background-color: #ED1C24; color: white; padding: 30px; text-align: center; border-radius: 5px 5px 0 0; }
-    .header img { max-width: 100px; height: auto; margin-bottom: 15px; }
+    .header img { max-width: 100px; width: 100px; height: 100px; margin-bottom: 15px; display: block; border: none; }
     .header h1 { margin: 0; font-size: 28px; }
     .header p { margin: 10px 0 0 0; font-size: 14px; }
     .content { background-color: #f9f9f9; padding: 30px; border: 1px solid #ddd; }
@@ -141,7 +141,7 @@ export const emailTemplates = {
 <body>
   <div class="container">
     <div class="header">
-      <img src="${LOGO_URL}" alt="IMI DESIGN Logo">
+      <img src="${LOGO_URL}" alt="IMI DESIGN Logo" width="100" height="100" style="max-width: 100px; width: 100px; height: 100px; display: block; margin: 0 auto; border: none; background-color: transparent;" />
       <h1>IMI DESIGN</h1>
       <p>Construction Excellence Through BIM & MEPF Design</p>
     </div>
@@ -233,7 +233,7 @@ export const emailTemplates = {
     body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
     .container { max-width: 600px; margin: 0 auto; padding: 20px; }
     .header { background-color: #ED1C24; color: white; padding: 30px; text-align: center; border-radius: 5px 5px 0 0; }
-    .header img { max-width: 100px; height: auto; margin-bottom: 15px; }
+    .header img { max-width: 100px; width: 100px; height: 100px; margin-bottom: 15px; display: block; border: none; }
     .header h1 { margin: 0; font-size: 28px; }
     .content { background-color: #f9f9f9; padding: 30px; border: 1px solid #ddd; }
     .section { margin-bottom: 20px; }
@@ -247,7 +247,7 @@ export const emailTemplates = {
 <body>
   <div class="container">
     <div class="header">
-      <img src="${LOGO_URL}" alt="IMI DESIGN Logo">
+      <img src="${LOGO_URL}" alt="IMI DESIGN Logo" width="100" height="100" style="max-width: 100px; width: 100px; height: 100px; display: block; margin: 0 auto; border: none; background-color: transparent;" />
       <h1>IMI DESIGN</h1>
       <p>BIM & MEPF Design Services</p>
     </div>
