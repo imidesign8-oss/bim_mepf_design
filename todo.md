@@ -608,3 +608,14 @@
 - [x] Add MEP calculator CTA section to Services page
 - [ ] Test MEP calculator with various project types and locations
 - [ ] Create user documentation for MEP calculator
+
+
+## MEP Calculator Enhancement - Discipline-Based Selection
+- [x] Update database schema to add discipline costs table
+- [x] Add discipline cost data for Fire System, Plumbing, Electrical, HVAC (88 records seeded)
+- [x] Update backend API to calculate costs by individual disciplines
+- [x] Support discipline combinations (e.g., Electrical + Plumbing)
+- [ ] Redesign calculator UI with discipline checkboxes
+- [ ] Update cost breakdown to show per-discipline costs
+- [ ] Add discipline-specific LOD adjustments
+- [ ] Test discipline combinations and cost calculations

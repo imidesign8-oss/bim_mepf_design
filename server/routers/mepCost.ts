@@ -24,6 +24,9 @@ import {
   updateMepEstimate,
   calculateMepCost,
   generateEstimateCode,
+  getDisciplineCostsByCity,
+  getDisciplineCost,
+  calculateDisciplineCost,
 } from "../db/mepCostDb";
 
 // Helper to ensure admin access
@@ -292,6 +295,45 @@ export const mepCostRouter = router({
 
         if (!estimate) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
         return estimate;
+      }),
+  }),
+
+  // ==================== DISCIPLINE CALCULATION ====================
+  disciplines: router({
+    // Public: Get disciplines for a city
+    getByCity: publicProcedure
+      .input(z.object({ cityId: z.number() }))
+      .query(async ({ input }) => {
+        return getDisciplineCostsByCity(input.cityId);
+      }),
+
+    // Public: Get specific discipline cost
+    getOne: publicProcedure
+      .input(z.object({
+        cityId: z.number(),
+        discipline: z.enum(["electrical", "plumbing", "hvac", "fire-system"]),
+      }))
+      .query(async ({ input }) => {
+        return getDisciplineCost(input.cityId, input.discipline);
+      }),
+
+    // Public: Calculate discipline-based cost
+    calculate: publicProcedure
+      .input(z.object({
+        projectType: z.enum(["residential", "commercial", "industrial", "hospitality", "mixed-use"]),
+        buildingArea: z.number().positive(),
+        cityId: z.number(),
+        disciplines: z.array(z.enum(["electrical", "plumbing", "hvac", "fire-system"])).min(1),
+        buildingComplexity: z.enum(["simple", "moderate", "complex"]).default("moderate"),
+        greenCertification: z.enum(["none", "LEED", "IGBC"]).default("none"),
+        materialQuality: z.enum(["standard", "premium", "imported"]).default("standard"),
+        projectTimeline: z.enum(["standard", "fast-track", "delayed"]).default("standard"),
+        lodLevel: z.enum(["100", "200", "300", "350", "400", "500"]).default("300"),
+      }))
+      .query(async ({ input }) => {
+        const result = await calculateDisciplineCost(input);
+        if (!result) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to calculate cost" });
+        return result;
       }),
   }),
 });

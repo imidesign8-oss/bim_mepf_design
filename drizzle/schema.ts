@@ -679,6 +679,36 @@ export type MepComponentCost = typeof mepComponentCosts.$inferSelect;
 export type InsertMepComponentCost = typeof mepComponentCosts.$inferInsert;
 
 /**
+ * MEP Discipline Costs - Individual discipline pricing by city
+ */
+export const mepDisciplineCosts = mysqlTable("mep_discipline_costs", {
+  id: int("id").autoincrement().primaryKey(),
+  cityId: int("cityId").notNull().references(() => mepCities.id),
+  
+  // Discipline types
+  discipline: mysqlEnum("discipline", ["electrical", "plumbing", "hvac", "fire-system"]).notNull(),
+  
+  // Cost per sq ft for each discipline
+  costResidential: decimal("costResidential", { precision: 10, scale: 2 }).notNull(),
+  costCommercial: decimal("costCommercial", { precision: 10, scale: 2 }).notNull(),
+  costIndustrial: decimal("costIndustrial", { precision: 10, scale: 2 }).notNull(),
+  
+  // Percentage of total MEP cost
+  percentageOfMep: decimal("percentageOfMep", { precision: 5, scale: 2 }).notNull(),
+  
+  isActive: boolean("isActive").default(true).notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  cityDisciplineIdx: index("mep_discipline_city_idx").on(table.cityId, table.discipline),
+  disciplineIdx: index("mep_discipline_idx").on(table.discipline),
+}));
+
+export type MepDisciplineCost = typeof mepDisciplineCosts.$inferSelect;
+export type InsertMepDisciplineCost = typeof mepDisciplineCosts.$inferInsert;
+
+/**
  * MEP Cost Estimates - User generated estimates
  */
 export const mepEstimates = mysqlTable("mep_estimates", {
