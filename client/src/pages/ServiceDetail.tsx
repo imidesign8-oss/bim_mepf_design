@@ -3,7 +3,7 @@ import { trpc } from "@/lib/trpc";
 import Footer from "@/components/Footer";
 import { ArrowRight, CheckCircle, Zap, Layers } from "lucide-react";
 import { useEffect } from "react";
-import { addJsonLd, createServiceSchema, createBreadcrumbSchema, getFullUrl, createOrganizationSchema } from "@/lib/seoHelpers";
+import { addJsonLd, createServiceSchema, createBreadcrumbSchema, getFullUrl, createOrganizationSchema, setCanonicalUrl, setPageTitle, setPageDescription } from "@/lib/seoHelpers";
 
 // Service vertical insights data
 const serviceInsights: Record<string, any> = {
@@ -109,11 +109,12 @@ export default function ServiceDetail() {
 
   useEffect(() => {
     if (service) {
-      document.title = service.metaTitle || service.title;
-      const metaDescription = document.querySelector('meta[name="description"]');
-      if (metaDescription) {
-        metaDescription.setAttribute("content", service.metaDescription || "");
-      }
+      // Set page title and description
+      setPageTitle(service.metaTitle || service.title);
+      setPageDescription(service.metaDescription || service.shortDescription || "");
+      
+      // Set canonical URL for this service page
+      setCanonicalUrl(getFullUrl(`/services/${service.slug}`));
 
       // Add Service schema
       const orgInfo = {

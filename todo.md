@@ -548,3 +548,22 @@
 - [x] Verify Open Graph tags for social sharing
 - [x] Test with Google Search Console tools
 - [x] Create comprehensive SEO audit report
+
+
+## Canonical URL Implementation (In Progress)
+- [ ] Audit current canonical URL implementation across all pages
+- [ ] Implement dynamic canonical URL generation for each page
+- [ ] Handle www and non-www domain variations
+- [ ] Set preferred domain in index.html
+- [ ] Test canonical URLs on all pages
+- [ ] Verify canonical URLs point to primary domain (imidesign.in)
+
+
+## Canonical URL Implementation (Completed)
+- [x] Audit current canonical URL implementation
+- [x] Implement dynamic canonical URLs for all pages
+- [x] Handle www and non-www domain variations
+- [x] Test canonical URLs on all pages
+- [x] Verify canonical URLs in page source
+- [x] Add setCanonicalUrl to ServiceDetail page
+- [x] Verify all pages have unique canonical URLs
