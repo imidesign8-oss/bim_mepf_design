@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -14,23 +16,13 @@ import {
 import { Loader2, Download, Share2, AlertCircle, Zap, Droplet, Wind, Flame } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-interface CalculationResult {
-  baseMepCost?: number;
-  adjustedMepCost?: number;
-  costPerSqft: number;
-  accuracyRange: string;
-  mechanicalCost?: number;
-  electricalCost?: number;
-  plumbingCost?: number;
-  fireSafetyCost?: number;
-  smartSystemsCost?: number;
-  totalCost?: number;
-  disciplineCosts?: Record<string, number>;
-  appliedAdjustments: Record<string, number>;
-}
+type Vertical = "bim" | "mep";
+type ProjectType = "residential" | "commercial" | "industrial" | "hospitality" | "mixed-use";
+type Discipline = "electrical" | "plumbing" | "hvac" | "fire-system";
+type LodLevel = "100" | "200" | "300" | "400" | "500";
 
 interface DisciplineOption {
-  id: "electrical" | "plumbing" | "hvac" | "fire-system";
+  id: Discipline;
   label: string;
   icon: React.ReactNode;
   color: string;
@@ -44,160 +36,208 @@ const DISCIPLINES: DisciplineOption[] = [
 ];
 
 export function MepCalculator() {
+  const [vertical, setVertical] = useState<Vertical>("mep");
+  const [unitType, setUnitType] = useState<"sqft" | "sqm">("sqft");
+  const [selectedDisciplines, setSelectedDisciplines] = useState<Discipline[]>(["electrical", "plumbing"]);
   const [formData, setFormData] = useState({
-    projectType: "residential",
-    projectSubType: "",
+    projectType: "residential" as ProjectType,
     buildingArea: 1000,
-    cityId: 0,
+    constructionCost: 2000000,
+    projectCost: 2000000,
     stateId: 0,
-    buildingComplexity: "moderate",
-    greenCertification: "none",
-    materialQuality: "standard",
-    projectTimeline: "standard",
-    lodLevel: "300",
+    cityId: 0,
+    lodLevel: "300" as LodLevel,
   });
 
-  const [selectedDisciplines, setSelectedDisciplines] = useState<("electrical" | "plumbing" | "hvac" | "fire-system")[]>(["electrical", "plumbing", "hvac"]);
-  const [vertical, setVertical] = useState<"bim" | "mep">("mep");
-  const [unitType, setUnitType] = useState<"sqft" | "sqm">("sqft");
-  const [result, setResult] = useState<CalculationResult | null>(null);
-  const [isCalculating, setIsCalculating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // Convert area based on unit type
-  const displayArea = unitType === "sqm" ? Math.round(formData.buildingArea * 10.764) : formData.buildingArea;
-  const actualArea = unitType === "sqm" ? formData.buildingArea / 10.764 : formData.buildingArea;
+  const [result, setResult] = useState<any>(null);
+  const [error, setError] = useState("");
 
   // Fetch states
-  const { data: states = [] } = trpc.mepCost.states.list.useQuery();
+  const { data: states = [] } = trpc.mepCost.getStates.useQuery();
 
   // Fetch cities for selected state
-  const { data: cities = [] } = trpc.mepCost.cities.byState.useQuery(
+  const { data: cities = [] } = trpc.mepCost.getCitiesByState.useQuery(
     { stateId: formData.stateId },
     { enabled: formData.stateId > 0 }
   );
 
-  // Calculate discipline-based cost
-  const disciplineQuery = trpc.mepCost.disciplines.calculate.useQuery(
-    {
-      projectType: formData.projectType as any,
-      buildingArea: actualArea,
-      cityId: formData.cityId,
-      disciplines: selectedDisciplines,
-      buildingComplexity: formData.buildingComplexity as any,
-      greenCertification: formData.greenCertification as any,
-      materialQuality: formData.materialQuality as any,
-      projectTimeline: formData.projectTimeline as any,
-      lodLevel: formData.lodLevel as any,
+  // MEP calculation mutation
+  const mepCalculation = trpc.mepCost.disciplines.calculate.useMutation({
+    onSuccess: (data) => {
+      setResult({ ...data, type: "mep" });
     },
-    { enabled: false }
-  );
+    onError: (err) => {
+      setError(err.message || "MEP calculation failed");
+    },
+  });
 
-  const handleStateChange = (value: string) => {
-    const stateId = parseInt(value);
-    setFormData({ ...formData, stateId, cityId: 0 });
+  // BIM calculation mutation
+  const bimCalculation = trpc.mepCost.bim.calculate.useMutation({
+    onSuccess: (data) => {
+      setResult({ ...data, type: "bim" });
+    },
+    onError: (err) => {
+      setError(err.message || "BIM calculation failed");
+    },
+  });
+
+  // Report generation mutation
+  const reportGeneration = trpc.mepCost.generateReport.useMutation();
+
+  const handleStateChange = (stateId: string) => {
+    const id = parseInt(stateId);
+    setFormData({ ...formData, stateId: id, cityId: 0 });
   };
 
-  const handleCityChange = (value: string) => {
-    setFormData({ ...formData, cityId: parseInt(value) });
+  const handleCityChange = (cityId: string) => {
+    setFormData({ ...formData, cityId: parseInt(cityId) });
   };
 
   const handleAreaChange = (value: string) => {
-    const numValue = parseFloat(value) || 0;
-    setFormData({ ...formData, buildingArea: numValue });
+    const area = parseFloat(value) || 0;
+    setFormData({ ...formData, buildingArea: area });
   };
 
-  const toggleDiscipline = (disciplineId: "electrical" | "plumbing" | "hvac" | "fire-system") => {
-    if (selectedDisciplines.includes(disciplineId)) {
-      setSelectedDisciplines(selectedDisciplines.filter((d) => d !== disciplineId));
-    } else {
-      setSelectedDisciplines([...selectedDisciplines, disciplineId]);
-    }
+  const toggleDiscipline = (discipline: Discipline) => {
+    setSelectedDisciplines((prev) =>
+      prev.includes(discipline) ? prev.filter((d) => d !== discipline) : [...prev, discipline]
+    );
   };
 
   const handleCalculate = async () => {
+    setError("");
+    setResult(null);
+
+    if (formData.stateId === 0) {
+      setError("Please select a state");
+      return;
+    }
     if (formData.cityId === 0) {
       setError("Please select a city");
       return;
     }
 
-    if (selectedDisciplines.length === 0) {
-      setError("Please select at least one discipline");
-      return;
-    }
-
-    setIsCalculating(true);
-    try {
-      const { data } = await disciplineQuery.refetch();
-      if (data) {
-        setResult(data);
-        setError(null);
+    if (vertical === "mep") {
+      if (selectedDisciplines.length === 0) {
+        setError("Please select at least one discipline");
+        return;
       }
-    } catch (err: any) {
-      setError(err.message || "Failed to calculate MEP cost");
-    } finally {
-      setIsCalculating(false);
+      mepCalculation.mutate({
+        constructionCost: formData.constructionCost,
+        projectType: formData.projectType,
+        cityId: formData.cityId,
+        selectedDisciplines,
+        areaUnit: unitType,
+        buildingArea: formData.buildingArea,
+      });
+    } else {
+      bimCalculation.mutate({
+        projectCost: formData.projectCost,
+        projectType: formData.projectType,
+        cityId: formData.cityId,
+        lodLevel: formData.lodLevel,
+        areaUnit: unitType,
+        buildingArea: formData.buildingArea,
+      });
     }
   };
 
-  const handleDownloadPDF = () => {
+  const isCalculating = mepCalculation.isPending || bimCalculation.isPending;
+
+  const handleDownloadReport = async () => {
     if (!result) return;
 
-    const disciplineList = selectedDisciplines.map((d) => d.charAt(0).toUpperCase() + d.slice(1)).join(", ");
+    // Get selected city and state names
+    const selectedCity = cities.find((c: any) => c.id === formData.cityId);
+    const selectedState = states.find((s: any) => s.id === formData.stateId);
 
-    const content = `
-MEP COST ESTIMATION REPORT
-Generated: ${new Date().toLocaleDateString()}
+    if (vertical === "mep" && result.type === "mep") {
+      const disciplineCosts: Record<string, number> = {};
+      for (const d of DISCIPLINES) {
+        const bd = result.disciplineBreakdown?.[d.id];
+        if (bd) disciplineCosts[d.id] = bd.cost;
+      }
+
+      try {
+        const reportResult = await reportGeneration.mutateAsync({
+          projectType: formData.projectType,
+          buildingArea: formData.buildingArea,
+          areaUnit: unitType,
+          complexity: "moderate",
+          greenCertification: "none",
+          materialQuality: "standard",
+          selectedDisciplines: selectedDisciplines,
+          totalCost: result.totalMepCost,
+          costPerUnit: result.costPerUnit,
+          accuracyRange: result.accuracyRange,
+          disciplineCosts,
+          city: selectedCity?.cityName || "Unknown",
+          state: selectedState?.stateName || "Unknown",
+        });
+
+        // Open HTML report in new window for printing as PDF
+        const printWindow = window.open("", "_blank");
+        if (printWindow) {
+          printWindow.document.write(reportResult.html);
+          printWindow.document.close();
+          setTimeout(() => printWindow.print(), 500);
+        }
+      } catch (err: any) {
+        setError("Failed to generate report");
+      }
+    } else {
+      // BIM text report fallback
+      const report = `
+BIM COST ESTIMATION REPORT
+Generated: ${new Date().toLocaleDateString("en-IN")}
 
 PROJECT DETAILS:
-- Type: ${formData.projectType} (${vertical.toUpperCase()})
-- Building Area: ${displayArea.toLocaleString()} ${unitType === "sqft" ? "sq ft" : "sq m"}
-- Complexity: ${formData.buildingComplexity}
-- Green Certification: ${formData.greenCertification}
-- Material Quality: ${formData.materialQuality}
+- Type: ${formData.projectType} (BIM)
+- Building Area: ${formData.buildingArea.toLocaleString()} ${unitType === "sqft" ? "sq ft" : "sq m"}
 - LOD Level: ${formData.lodLevel}
-
-SELECTED DISCIPLINES:
-${disciplineList}
+- City: ${selectedCity?.cityName || "Unknown"}
+- State: ${selectedState?.stateName || "Unknown"}
 
 COST ESTIMATION:
-- Total Cost: ₹${(result.totalCost || result.adjustedMepCost || 0).toLocaleString()}
-- Cost per Sq Ft: ₹${result.costPerSqft}
+- Total BIM Cost: ₹${result.totalBimCost?.toLocaleString("en-IN")}
+- BIM Percentage: ${result.bimPercentage}%
+- Cost per ${unitType === "sqft" ? "Sq Ft" : "Sq M"}: ₹${result.costPerUnit?.toLocaleString("en-IN")}
 - Accuracy Range: ${result.accuracyRange}
 
-DISCIPLINE BREAKDOWN:
-${result.disciplineCosts ? Object.entries(result.disciplineCosts).map(([d, c]) => `- ${d.charAt(0).toUpperCase() + d.slice(1)}: ₹${(c as number).toLocaleString()}`).join('\n') : 'N/A'}
-
 DISCLAIMER:
-This is an approximate estimate based on industry data and should NOT be used as the sole basis for project budgeting. Actual costs may vary based on specific project requirements, site conditions, and current market rates. Always get multiple quotes from qualified MEP contractors before finalizing budgets.
-    `;
+This is an approximate estimate. Actual costs may vary.
+      `.trim();
 
-    const blob = new Blob([content], { type: "text/plain" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `MEP_Estimate_${new Date().getTime()}.txt`;
-    a.click();
+      const blob = new Blob([report], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `BIM_Cost_Estimate_${new Date().toISOString().slice(0, 10)}.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
   };
 
+  // Results display helpers
+  const totalCost = result?.type === "mep" ? result?.totalMepCost : result?.totalBimCost;
+  const costPerUnit = result?.costPerUnit || 0;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-secondary/10 py-12 px-4">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-12 px-4">
+      <div className="max-w-6xl mx-auto space-y-8">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">MEP Cost Estimation Tool</h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Estimate mechanical, electrical, plumbing, and fire system design costs for your project. Choose your vertical (BIM or MEP) and select individual disciplines.
-          </p>
+        <div className="text-center space-y-2">
+          <h1 className="text-4xl font-bold text-slate-900">Cost Estimation Calculator</h1>
+          <p className="text-lg text-slate-600">Get accurate MEP and BIM design cost estimates</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Calculator Form */}
-          <div className="lg:col-span-2">
-            <Card>
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Form Section */}
+          <div className="lg:col-span-1">
+            <Card className="sticky top-4">
               <CardHeader>
                 <CardTitle>Project Details</CardTitle>
-                <CardDescription>Enter your project specifications to calculate costs</CardDescription>
+                <CardDescription>Configure your project parameters</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 {error && (
@@ -212,7 +252,7 @@ This is an approximate estimate based on industry data and should NOT be used as
                   <Label>Design Vertical</Label>
                   <div className="flex gap-3">
                     <button
-                      onClick={() => setVertical("bim")}
+                      onClick={() => { setVertical("bim"); setResult(null); }}
                       className={`flex-1 px-4 py-2 rounded-lg border-2 transition ${
                         vertical === "bim"
                           ? "border-primary bg-primary/10 text-primary font-semibold"
@@ -222,7 +262,7 @@ This is an approximate estimate based on industry data and should NOT be used as
                       BIM-Based Design
                     </button>
                     <button
-                      onClick={() => setVertical("mep")}
+                      onClick={() => { setVertical("mep"); setResult(null); }}
                       className={`flex-1 px-4 py-2 rounded-lg border-2 transition ${
                         vertical === "mep"
                           ? "border-primary bg-primary/10 text-primary font-semibold"
@@ -237,7 +277,7 @@ This is an approximate estimate based on industry data and should NOT be used as
                 {/* Project Type */}
                 <div className="space-y-2">
                   <Label htmlFor="projectType">Project Type</Label>
-                  <Select value={formData.projectType} onValueChange={(value) => setFormData({ ...formData, projectType: value })}>
+                  <Select value={formData.projectType} onValueChange={(value) => setFormData({ ...formData, projectType: value as ProjectType })}>
                     <SelectTrigger id="projectType">
                       <SelectValue />
                     </SelectTrigger>
@@ -251,7 +291,7 @@ This is an approximate estimate based on industry data and should NOT be used as
                   </Select>
                 </div>
 
-                {/* Building Area with Unit Toggle */}
+                {/* Building Area */}
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
                     <Label htmlFor="buildingArea">Building Area</Label>
@@ -279,53 +319,49 @@ This is an approximate estimate based on industry data and should NOT be used as
                     type="number"
                     value={formData.buildingArea}
                     onChange={(e) => handleAreaChange(e.target.value)}
-                    placeholder={`Enter building area in ${unitType === "sqft" ? "square feet" : "square meters"}`}
+                    placeholder={`Enter area in ${unitType === "sqft" ? "square feet" : "square meters"}`}
                   />
-                  <p className="text-xs text-muted-foreground">
-                    {unitType === "sqft" ? `≈ ${Math.round(formData.buildingArea / 10.764)} sq m` : `≈ ${Math.round(formData.buildingArea * 10.764)} sq ft`}
-                  </p>
+                  {unitType === "sqft" && formData.buildingArea > 0 && (
+                    <p className="text-xs text-muted-foreground">≈ {Math.round(formData.buildingArea * 0.0929)} sq m</p>
+                  )}
+                  {unitType === "sqm" && formData.buildingArea > 0 && (
+                    <p className="text-xs text-muted-foreground">≈ {Math.round(formData.buildingArea * 10.764)} sq ft</p>
+                  )}
                 </div>
 
-                {/* Discipline Selection */}
-                <div className="space-y-3">
-                  <Label className="text-base font-semibold">Select Disciplines</Label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {DISCIPLINES.map((discipline) => (
-                      <button
-                        key={discipline.id}
-                        onClick={() => toggleDiscipline(discipline.id)}
-                        className={`p-3 rounded-lg border-2 transition text-left ${
-                          selectedDisciplines.includes(discipline.id)
-                            ? `${discipline.color} border-current`
-                            : "border-border bg-background hover:border-primary/50"
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="checkbox"
-                            checked={selectedDisciplines.includes(discipline.id)}
-                            onChange={() => {}}
-                            className="w-4 h-4"
-                          />
-                          <div className="flex items-center gap-2">
-                            {discipline.icon}
-                            <span className="text-sm font-medium">{discipline.label}</span>
-                          </div>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
+                {/* Construction/Project Cost */}
+                <div className="space-y-2">
+                  <Label htmlFor="cost">
+                    {vertical === "mep" ? "Construction Cost (₹)" : "Project Cost (₹)"}
+                  </Label>
+                  <Input
+                    id="cost"
+                    type="number"
+                    value={vertical === "mep" ? formData.constructionCost : formData.projectCost}
+                    onChange={(e) =>
+                      vertical === "mep"
+                        ? setFormData({ ...formData, constructionCost: parseFloat(e.target.value) || 0 })
+                        : setFormData({ ...formData, projectCost: parseFloat(e.target.value) || 0 })
+                    }
+                    placeholder="Enter total cost in INR"
+                  />
+                  {vertical === "mep" && (
+                    <p className="text-xs text-muted-foreground">MEP design fee is typically 1-2% of construction cost</p>
+                  )}
+                  {vertical === "bim" && (
+                    <p className="text-xs text-muted-foreground">BIM services cost is typically 4-10% of project cost</p>
+                  )}
                 </div>
 
                 {/* State Selection */}
                 <div className="space-y-2">
                   <Label htmlFor="state">State</Label>
-                  <Select value={formData.stateId.toString()} onValueChange={handleStateChange}>
+                  <Select value={formData.stateId > 0 ? formData.stateId.toString() : ""} onValueChange={handleStateChange}>
                     <SelectTrigger id="state">
                       <SelectValue placeholder="Select a state" />
                     </SelectTrigger>
                     <SelectContent>
-                      {states.map((state) => (
+                      {states.map((state: any) => (
                         <SelectItem key={state.id} value={state.id.toString()}>
                           {state.stateName}
                         </SelectItem>
@@ -337,12 +373,12 @@ This is an approximate estimate based on industry data and should NOT be used as
                 {/* City Selection */}
                 <div className="space-y-2">
                   <Label htmlFor="city">City</Label>
-                  <Select value={formData.cityId.toString()} onValueChange={handleCityChange}>
+                  <Select value={formData.cityId > 0 ? formData.cityId.toString() : ""} onValueChange={handleCityChange}>
                     <SelectTrigger id="city">
                       <SelectValue placeholder="Select a city" />
                     </SelectTrigger>
                     <SelectContent>
-                      {cities.map((city) => (
+                      {cities.map((city: any) => (
                         <SelectItem key={city.id} value={city.id.toString()}>
                           {city.cityName}
                         </SelectItem>
@@ -351,41 +387,59 @@ This is an approximate estimate based on industry data and should NOT be used as
                   </Select>
                 </div>
 
-                {/* Building Complexity */}
-                <div className="space-y-2">
-                  <Label htmlFor="complexity">Building Complexity</Label>
-                  <Select value={formData.buildingComplexity} onValueChange={(value) => setFormData({ ...formData, buildingComplexity: value })}>
-                    <SelectTrigger id="complexity">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="simple">Simple</SelectItem>
-                      <SelectItem value="moderate">Moderate</SelectItem>
-                      <SelectItem value="complex">Complex</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                {/* LOD Level - ONLY for BIM */}
+                {vertical === "bim" && (
+                  <div className="space-y-2">
+                    <Label htmlFor="lod">LOD (Level of Development)</Label>
+                    <Select value={formData.lodLevel} onValueChange={(value) => setFormData({ ...formData, lodLevel: value as LodLevel })}>
+                      <SelectTrigger id="lod">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="100">LOD 100 (Conceptual)</SelectItem>
+                        <SelectItem value="200">LOD 200 (Schematic)</SelectItem>
+                        <SelectItem value="300">LOD 300 (Design Development)</SelectItem>
+                        <SelectItem value="400">LOD 400 (Construction Documents)</SelectItem>
+                        <SelectItem value="500">LOD 500 (As-Built)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">Higher LOD = more detail = higher accuracy</p>
+                  </div>
+                )}
 
-                {/* LOD Level */}
-                <div className="space-y-2">
-                  <Label htmlFor="lod">LOD (Level of Development)</Label>
-                  <Select value={formData.lodLevel} onValueChange={(value) => setFormData({ ...formData, lodLevel: value })}>
-                    <SelectTrigger id="lod">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="100">LOD 100 (Conceptual)</SelectItem>
-                      <SelectItem value="200">LOD 200 (Schematic)</SelectItem>
-                      <SelectItem value="300">LOD 300 (Design Development)</SelectItem>
-                      <SelectItem value="350">LOD 350 (Construction Documents)</SelectItem>
-                      <SelectItem value="400">LOD 400 (Fabrication)</SelectItem>
-                      <SelectItem value="500">LOD 500 (As-Built)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                {/* Discipline Selection - ONLY for MEP */}
+                {vertical === "mep" && (
+                  <div className="space-y-3">
+                    <Label className="text-base font-semibold">Select Disciplines</Label>
+                    <div className="space-y-2">
+                      {DISCIPLINES.map((discipline) => (
+                        <button
+                          key={discipline.id}
+                          onClick={() => toggleDiscipline(discipline.id)}
+                          className={`w-full p-3 rounded-lg border-2 transition text-left ${
+                            selectedDisciplines.includes(discipline.id)
+                              ? `${discipline.color} border-current`
+                              : "border-border bg-background hover:border-primary/50"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="checkbox"
+                              checked={selectedDisciplines.includes(discipline.id)}
+                              onChange={() => {}}
+                              className="w-4 h-4 accent-primary"
+                            />
+                            {discipline.icon}
+                            <span className="font-medium">{discipline.label}</span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Calculate Button */}
-                <Button onClick={handleCalculate} disabled={isCalculating} className="w-full">
+                <Button onClick={handleCalculate} disabled={isCalculating} className="w-full" size="lg">
                   {isCalculating ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -399,77 +453,182 @@ This is an approximate estimate based on industry data and should NOT be used as
             </Card>
           </div>
 
-          {/* Results Panel */}
-          <div className="lg:col-span-1">
+          {/* Results Section */}
+          <div className="lg:col-span-2">
             {result ? (
-              <div className="space-y-4">
-                {/* Main Result Card */}
+              <div className="space-y-6">
+                {/* Total Cost Card */}
                 <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
-                  <CardHeader>
-                    <CardTitle className="text-2xl">₹{(result.totalCost || result.adjustedMepCost || 0).toLocaleString()}</CardTitle>
-                    <CardDescription>Total {vertical.toUpperCase()} Cost</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Cost per Sq Ft:</span>
-                        <span className="font-semibold">₹{result.costPerSqft}</span>
+                  <CardContent className="pt-6">
+                    <div className="space-y-4">
+                      <div>
+                        <p className="text-sm text-muted-foreground">
+                          Total {vertical === "mep" ? "MEP Design" : "BIM Services"} Cost
+                        </p>
+                        <p className="text-4xl font-bold text-primary">
+                          ₹{(totalCost || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 })}
+                        </p>
                       </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Accuracy Range:</span>
-                        <span className="font-semibold text-amber-600">{result.accuracyRange}</span>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-xs text-muted-foreground">Cost per {unitType === "sqft" ? "Sq Ft" : "Sq M"}</p>
+                          <p className="text-lg font-semibold">₹{costPerUnit.toLocaleString("en-IN", { maximumFractionDigits: 2 })}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Accuracy Range</p>
+                          <p className="text-lg font-semibold">{result.accuracyRange}</p>
+                        </div>
                       </div>
+                      {result.type === "mep" && (
+                        <div className="pt-2 border-t">
+                          <p className="text-xs text-muted-foreground">
+                            MEP Percentage Applied: {result.mepPercentage}% of ₹{(vertical === "mep" ? formData.constructionCost : formData.projectCost).toLocaleString("en-IN")}
+                          </p>
+                        </div>
+                      )}
+                      {result.type === "bim" && (
+                        <div className="pt-2 border-t">
+                          <p className="text-xs text-muted-foreground">
+                            BIM Percentage Applied: {result.bimPercentage}% | LOD Level: {result.lodLevel}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
 
-                {/* Discipline Breakdown */}
-                {result.disciplineCosts && Object.keys(result.disciplineCosts).length > 0 && (
+                {/* Discipline Breakdown - ONLY for MEP */}
+                {result.type === "mep" && result.disciplineBreakdown && (
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-lg">Discipline Breakdown</CardTitle>
+                      <CardTitle>Discipline Breakdown</CardTitle>
+                      <CardDescription>Cost distribution across MEP disciplines</CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-3">
-                      {Object.entries(result.disciplineCosts).map(([discipline, cost]) => {
-                        const disciplineData = DISCIPLINES.find((d) => d.id === discipline);
+                    <CardContent className="space-y-4">
+                      {DISCIPLINES.map((discipline) => {
+                        const breakdown = result.disciplineBreakdown[discipline.id];
+                        if (!breakdown) return null;
+                        const isSelected = selectedDisciplines.includes(discipline.id);
+                        const percentage = totalCost > 0 && breakdown.cost > 0 ? (breakdown.cost / totalCost) * 100 : 0;
                         return (
-                          <div key={discipline} className="space-y-2">
-                            <div className="flex justify-between text-sm">
-                              <span className="font-medium flex items-center gap-2">
-                                {disciplineData?.icon}
-                                {discipline.charAt(0).toUpperCase() + discipline.slice(1)}
+                          <div key={discipline.id} className={`space-y-2 p-3 rounded-lg ${isSelected ? "bg-slate-50" : "bg-slate-50/50 opacity-50"}`}>
+                            <div className="flex justify-between items-center">
+                              <div className="flex items-center gap-2">
+                                {discipline.icon}
+                                <span className={`font-medium ${!isSelected ? "line-through" : ""}`}>
+                                  {discipline.label}
+                                </span>
+                                {!isSelected && (
+                                  <span className="text-xs text-muted-foreground">(Not selected)</span>
+                                )}
+                              </div>
+                              <span className="font-semibold">
+                                ₹{breakdown.cost.toLocaleString("en-IN", { maximumFractionDigits: 0 })}
                               </span>
-                              <span className="font-semibold">₹{(cost as number).toLocaleString()}</span>
                             </div>
-                            <div className="w-full bg-secondary rounded-full h-2">
-                              <div
-                                className="bg-primary h-2 rounded-full"
-                                style={{ width: `${((cost as number) / (result.totalCost || 1)) * 100}%` }}
-                              ></div>
-                            </div>
+                            {isSelected && (
+                              <>
+                                <div className="w-full bg-secondary rounded-full h-2">
+                                  <div
+                                    className="bg-primary rounded-full h-2 transition-all"
+                                    style={{ width: `${percentage}%` }}
+                                  />
+                                </div>
+                                <p className="text-xs text-muted-foreground">
+                                  {percentage.toFixed(1)}% of total | Weightage: {breakdown.percentage.toFixed(1)}%
+                                </p>
+                              </>
+                            )}
                           </div>
                         );
                       })}
+
+                      {/* Verification: Sum check */}
+                      <div className="pt-3 border-t mt-4">
+                        <div className="flex justify-between items-center font-semibold">
+                          <span>Total (Selected Disciplines)</span>
+                          <span>₹{(totalCost || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 })}</span>
+                        </div>
+                      </div>
                     </CardContent>
                   </Card>
                 )}
 
-                {/* Action Buttons */}
-                <div className="space-y-2">
-                  <Button onClick={handleDownloadPDF} variant="outline" className="w-full">
+                {/* BIM Details Card */}
+                {result.type === "bim" && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>BIM Cost Details</CardTitle>
+                      <CardDescription>LOD-based cost estimation</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="p-3 bg-slate-50 rounded-lg">
+                          <p className="text-xs text-muted-foreground">LOD Level</p>
+                          <p className="text-lg font-semibold">LOD {result.lodLevel}</p>
+                        </div>
+                        <div className="p-3 bg-slate-50 rounded-lg">
+                          <p className="text-xs text-muted-foreground">BIM Percentage</p>
+                          <p className="text-lg font-semibold">{result.bimPercentage}%</p>
+                        </div>
+                        <div className="p-3 bg-slate-50 rounded-lg">
+                          <p className="text-xs text-muted-foreground">Project Cost</p>
+                          <p className="text-lg font-semibold">₹{formData.projectCost.toLocaleString("en-IN")}</p>
+                        </div>
+                        <div className="p-3 bg-slate-50 rounded-lg">
+                          <p className="text-xs text-muted-foreground">BIM Services Cost</p>
+                          <p className="text-lg font-semibold">₹{result.totalBimCost.toLocaleString("en-IN")}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Actions */}
+                <div className="flex gap-3">
+                  <Button variant="outline" className="flex-1" onClick={handleDownloadReport}>
                     <Download className="mr-2 h-4 w-4" />
                     Download Report
                   </Button>
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="flex-1" onClick={() => {
+                    const url = window.location.href;
+                    navigator.clipboard.writeText(url);
+                    alert("Link copied to clipboard!");
+                  }}>
                     <Share2 className="mr-2 h-4 w-4" />
                     Share Estimate
                   </Button>
                 </div>
+
+                {/* Disclaimer */}
+                <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
+                  <p className="font-semibold mb-1">Disclaimer</p>
+                  <p>
+                    This is an approximate estimate based on industry data and should NOT be used as the sole basis for project budgeting. 
+                    Actual costs may vary based on specific project requirements, site conditions, and current market rates. 
+                    Always get multiple quotes from qualified MEP/BIM contractors before finalizing budgets.
+                  </p>
+                </div>
               </div>
             ) : (
-              <Card className="bg-secondary/50">
-                <CardContent className="pt-6">
-                  <p className="text-center text-muted-foreground">Select disciplines and fill in project details to see cost estimation</p>
+              <Card className="h-full flex items-center justify-center min-h-96">
+                <CardContent className="text-center space-y-4">
+                  <div className="text-6xl">📐</div>
+                  <h3 className="text-xl font-semibold">Ready to Estimate</h3>
+                  <p className="text-muted-foreground max-w-md">
+                    Select your design vertical ({vertical === "mep" ? "MEP" : "BIM"}), 
+                    fill in project details, and click "Calculate Cost" to get your estimate.
+                  </p>
+                  {vertical === "mep" && (
+                    <p className="text-xs text-muted-foreground">
+                      MEP design fee: 1-2% of construction cost | No LOD levels
+                    </p>
+                  )}
+                  {vertical === "bim" && (
+                    <p className="text-xs text-muted-foreground">
+                      BIM services: 4-10% of project cost | LOD 100-500
+                    </p>
+                  )}
                 </CardContent>
               </Card>
             )}

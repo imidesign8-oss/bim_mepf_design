@@ -662,7 +662,14 @@
 - [x] Add BIM LOD levels (100, 200, 300, 400, 500) with 4-10% pricing
 - [x] Add MEP discipline weightage (Electrical, Plumbing, HVAC, Fire System)
 - [x] Seed database with proper BIM and MEP pricing data
-- [ ] Remove LOD from MEP calculations
-- [ ] Update backend to calculate BIM and MEP separately
-- [ ] Redesign calculator UI for BIM vs MEP selection
+- [x] Remove LOD from MEP calculations
+- [x] Update backend to calculate BIM and MEP separately
+- [x] Redesign calculator UI for BIM vs MEP selection
 - [ ] Update admin panel for BIM LOD and MEP weightage management
+
+
+## MEP Calculator Bug Fixes - CRITICAL
+- [x] Fix cost calculation - discipline costs now add up correctly (verified: ₹10,500 + ₹7,500 = ₹18,000)
+- [x] Remove LOD field from MEP calculator (LOD is BIM-only) - LOD hidden for MEP, shown for BIM
+- [x] Show all 4 disciplines in breakdown (not just selected ones) - unselected show as ₹0
+- [x] Verify cost calculation formula matches 1-2% MEP model with discipline weightage - verified correct

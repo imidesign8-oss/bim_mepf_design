@@ -1,4 +1,4 @@
-import { getDb } from "../db";
+import { getDb } from "./index";
 import {
   mepStates,
   mepCities,
@@ -119,23 +119,9 @@ export async function getMepCitiesByState(stateId: number): Promise<MepCity[]> {
   if (!db) return [];
 
   try {
-    return await db.select().from(mepCities).where(
-      and(eq(mepCities.stateId, stateId), eq(mepCities.isActive, true))
-    );
+    return await db.select().from(mepCities).where(and(eq(mepCities.stateId, stateId), eq(mepCities.isActive, true)));
   } catch (error) {
     console.error("[MEP] Error getting cities by state:", error);
-    return [];
-  }
-}
-
-export async function getAllMepCities(): Promise<MepCity[]> {
-  const db = await getDb();
-  if (!db) return [];
-
-  try {
-    return await db.select().from(mepCities).where(eq(mepCities.isActive, true));
-  } catch (error) {
-    console.error("[MEP] Error getting all cities:", error);
     return [];
   }
 }
@@ -154,69 +140,30 @@ export async function updateMepCity(id: number, data: Partial<InsertMepCity>): P
 }
 
 /**
- * MEP Component Costs Management
+ * MEP Discipline Costs Management
  */
-export async function createMepComponentCost(data: InsertMepComponentCost): Promise<MepComponentCost | null> {
+export async function getDisciplineCostsByCity(cityId: number): Promise<MepDisciplineCost[]> {
   const db = await getDb();
-  if (!db) return null;
+  if (!db) return [];
 
   try {
-    const result = await db.insert(mepComponentCosts).values(data);
-    return getMepComponentCostById((result as any).insertId);
+    return await db.select().from(mepDisciplineCosts).where(eq(mepDisciplineCosts.cityId, cityId));
   } catch (error) {
-    console.error("[MEP] Error creating component cost:", error);
-    return null;
+    console.error("[MEP] Error getting discipline costs:", error);
+    return [];
   }
 }
 
-export async function getMepComponentCostById(id: number): Promise<MepComponentCost | null> {
+export async function updateDisciplineCost(id: number, data: Partial<InsertMepDisciplineCost>): Promise<MepDisciplineCost | null> {
   const db = await getDb();
   if (!db) return null;
 
   try {
-    const result = await db.select().from(mepComponentCosts).where(eq(mepComponentCosts.id, id)).limit(1);
+    await db.update(mepDisciplineCosts).set(data).where(eq(mepDisciplineCosts.id, id));
+    const result = await db.select().from(mepDisciplineCosts).where(eq(mepDisciplineCosts.id, id)).limit(1);
     return result[0] || null;
   } catch (error) {
-    console.error("[MEP] Error getting component cost:", error);
-    return null;
-  }
-}
-
-export async function getMepComponentCostsByType(componentType: string): Promise<MepComponentCost[]> {
-  const db = await getDb();
-  if (!db) return [];
-
-  try {
-    return await db.select().from(mepComponentCosts).where(
-      and(eq(mepComponentCosts.componentType, componentType as any), eq(mepComponentCosts.isActive, true))
-    );
-  } catch (error) {
-    console.error("[MEP] Error getting component costs by type:", error);
-    return [];
-  }
-}
-
-export async function getAllMepComponentCosts(): Promise<MepComponentCost[]> {
-  const db = await getDb();
-  if (!db) return [];
-
-  try {
-    return await db.select().from(mepComponentCosts).where(eq(mepComponentCosts.isActive, true));
-  } catch (error) {
-    console.error("[MEP] Error getting all component costs:", error);
-    return [];
-  }
-}
-
-export async function updateMepComponentCost(id: number, data: Partial<InsertMepComponentCost>): Promise<MepComponentCost | null> {
-  const db = await getDb();
-  if (!db) return null;
-
-  try {
-    await db.update(mepComponentCosts).set(data).where(eq(mepComponentCosts.id, id));
-    return getMepComponentCostById(id);
-  } catch (error) {
-    console.error("[MEP] Error updating component cost:", error);
+    console.error("[MEP] Error updating discipline cost:", error);
     return null;
   }
 }
@@ -250,288 +197,42 @@ export async function getMepEstimateById(id: number): Promise<MepEstimate | null
   }
 }
 
-export async function getMepEstimateByCode(estimateCode: string): Promise<MepEstimate | null> {
-  const db = await getDb();
-  if (!db) return null;
-
-  try {
-    const result = await db.select().from(mepEstimates).where(eq(mepEstimates.estimateCode, estimateCode)).limit(1);
-    return result[0] || null;
-  } catch (error) {
-    console.error("[MEP] Error getting estimate by code:", error);
-    return null;
-  }
-}
-
-export async function getMepEstimatesByUser(userId: number): Promise<MepEstimate[]> {
-  const db = await getDb();
-  if (!db) return [];
-
-  try {
-    return await db.select().from(mepEstimates).where(eq(mepEstimates.userId, userId));
-  } catch (error) {
-    console.error("[MEP] Error getting estimates by user:", error);
-    return [];
-  }
-}
-
-export async function getAllMepEstimates(): Promise<MepEstimate[]> {
-  const db = await getDb();
-  if (!db) return [];
-
-  try {
-    return await db.select().from(mepEstimates).where(eq(mepEstimates.isPublic, true));
-  } catch (error) {
-    console.error("[MEP] Error getting all estimates:", error);
-    return [];
-  }
-}
-
-export async function updateMepEstimate(id: number, data: Partial<InsertMepEstimate>): Promise<MepEstimate | null> {
-  const db = await getDb();
-  if (!db) return null;
-
-  try {
-    await db.update(mepEstimates).set(data).where(eq(mepEstimates.id, id));
-    return getMepEstimateById(id);
-  } catch (error) {
-    console.error("[MEP] Error updating estimate:", error);
-    return null;
-  }
-}
-
 /**
- * MEP Cost Calculation Helper
+ * MEP Calculation Input/Output Types
  */
 export interface MepCalculationInput {
   projectType: "residential" | "commercial" | "industrial" | "hospitality" | "mixed-use";
   buildingArea: number;
+  constructionCost: number;
   cityId: number;
-  buildingComplexity: "simple" | "moderate" | "complex";
-  greenCertification: "none" | "LEED" | "IGBC";
-  materialQuality: "standard" | "premium" | "imported";
-  projectTimeline: "standard" | "fast-track" | "delayed";
-  lodLevel: "100" | "200" | "300" | "350" | "400" | "500";
+  disciplines: string[];
+  buildingComplexity: string;
+  greenCertification: string;
+  materialQuality: string;
+  projectTimeline: string;
+  lodLevel: string;
+  areaUnit: "sqft" | "sqm";
 }
 
-export interface MepCalculationResult {
-  baseMepCost: number;
-  adjustedMepCost: number;
-  costPerSqft: number;
-  accuracyRange: string;
-  mechanicalCost: number;
-  electricalCost: number;
-  plumbingCost: number;
-  fireSafetyCost: number;
-  smartSystemsCost: number;
-  appliedAdjustments: Record<string, number>;
-}
-
-export async function calculateMepCost(input: MepCalculationInput): Promise<MepCalculationResult | null> {
-  try {
-    const city = await getMepCityById(input.cityId);
-    if (!city) throw new Error("City not found");
-
-    // Get base construction cost based on project type
-    let baseCostPerSqft = 0;
-    let mepPercentage = 0;
-
-    switch (input.projectType) {
-      case "residential":
-        baseCostPerSqft = Number(city.baseCostResidential);
-        mepPercentage = Number(city.mepPercentageResidential);
-        break;
-      case "commercial":
-      case "mixed-use":
-        baseCostPerSqft = Number(city.baseCostCommercial);
-        mepPercentage = Number(city.mepPercentageCommercial);
-        break;
-      case "industrial":
-      case "hospitality":
-        baseCostPerSqft = Number(city.baseCostIndustrial);
-        mepPercentage = Number(city.mepPercentageIndustrial);
-        break;
-    }
-
-    // Calculate base MEP cost
-    const totalConstructionCost = baseCostPerSqft * input.buildingArea;
-    let baseMepCost = (totalConstructionCost * mepPercentage) / 100;
-
-    // Apply adjustments
-    const adjustments: Record<string, number> = {};
-
-    // Regional multiplier
-    const regionalMultiplier = Number(city.regionalMultiplier);
-    adjustments.regional = regionalMultiplier;
-    baseMepCost *= regionalMultiplier;
-
-    // Climate adjustment
-    const climateAdjustment = 1 + Number(city.climateAdjustment) / 100;
-    adjustments.climate = climateAdjustment;
-    baseMepCost *= climateAdjustment;
-
-    // Complexity factor
-    const complexityFactors: Record<string, number> = {
-      simple: 1.0,
-      moderate: 1.15,
-      complex: 1.30,
-    };
-    const complexityFactor = complexityFactors[input.buildingComplexity];
-    adjustments.complexity = complexityFactor;
-    baseMepCost *= complexityFactor;
-
-    // Green certification factor
-    const certificationFactors: Record<string, number> = {
-      none: 1.0,
-      LEED: 1.18,
-      IGBC: 1.15,
-    };
-    const certificationFactor = certificationFactors[input.greenCertification];
-    adjustments.certification = certificationFactor;
-    baseMepCost *= certificationFactor;
-
-    // Material quality factor
-    const materialFactors: Record<string, number> = {
-      standard: 1.0,
-      premium: 1.25,
-      imported: 1.60,
-    };
-    const materialFactor = materialFactors[input.materialQuality];
-    adjustments.material = materialFactor;
-    baseMepCost *= materialFactor;
-
-    // Timeline factor
-    const timelineFactors: Record<string, number> = {
-      standard: 1.0,
-      "fast-track": 1.15,
-      delayed: 1.0,
-    };
-    const timelineFactor = timelineFactors[input.projectTimeline];
-    adjustments.timeline = timelineFactor;
-    baseMepCost *= timelineFactor;
-
-    // LOD accuracy range
-    const lodAccuracyRanges: Record<string, { min: number; max: number }> = {
-      "100": { min: 30, max: 30 },
-      "200": { min: 20, max: 20 },
-      "300": { min: 15, max: 15 },
-      "350": { min: 10, max: 10 },
-      "400": { min: 5, max: 5 },
-      "500": { min: 0, max: 0 },
-    };
-    const lodRange = lodAccuracyRanges[input.lodLevel];
-    const lodAdjustment = 1 + lodRange.max / 100;
-    adjustments.lod = lodAdjustment;
-
-    const adjustedMepCost = baseMepCost * lodAdjustment;
-    const costPerSqft = adjustedMepCost / input.buildingArea;
-
-    // Component breakdown (approximate distribution)
-    const mechanicalCost = adjustedMepCost * 0.40; // 40%
-    const electricalCost = adjustedMepCost * 0.35; // 35%
-    const plumbingCost = adjustedMepCost * 0.20; // 20%
-    const fireSafetyCost = adjustedMepCost * 0.03; // 3%
-    const smartSystemsCost = adjustedMepCost * 0.02; // 2%
-
-    return {
-      baseMepCost: Math.round(baseMepCost),
-      adjustedMepCost: Math.round(adjustedMepCost),
-      costPerSqft: Math.round(costPerSqft * 100) / 100,
-      accuracyRange: `±${lodRange.max}%`,
-      mechanicalCost: Math.round(mechanicalCost),
-      electricalCost: Math.round(electricalCost),
-      plumbingCost: Math.round(plumbingCost),
-      fireSafetyCost: Math.round(fireSafetyCost),
-      smartSystemsCost: Math.round(smartSystemsCost),
-      appliedAdjustments: adjustments,
-    };
-  } catch (error) {
-    console.error("[MEP] Error calculating cost:", error);
-    return null;
-  }
-}
-
-/**
- * MEP Discipline Costs Management
- */
-export async function getDisciplineCostsByCity(cityId: number): Promise<MepDisciplineCost[]> {
-  const db = await getDb();
-  if (!db) return [];
-
-  try {
-    return await db.select().from(mepDisciplineCosts).where(and(eq(mepDisciplineCosts.cityId, cityId), eq(mepDisciplineCosts.isActive, true)));
-  } catch (error) {
-    console.error("[MEP] Error getting discipline costs:", error);
-    return [];
-  }
-}
-
-export async function getDisciplineCost(cityId: number, discipline: string): Promise<MepDisciplineCost | null> {
-  const db = await getDb();
-  if (!db) return null;
-
-  try {
-    const result = await db.select().from(mepDisciplineCosts).where(and(eq(mepDisciplineCosts.cityId, cityId), eq(mepDisciplineCosts.discipline, discipline as any), eq(mepDisciplineCosts.isActive, true))).limit(1);
-    return result[0] || null;
-  } catch (error) {
-    console.error("[MEP] Error getting discipline cost:", error);
-    return null;
-  }
-}
-
-export async function createDisciplineCost(data: InsertMepDisciplineCost): Promise<MepDisciplineCost | null> {
-  const db = await getDb();
-  if (!db) return null;
-
-  try {
-    const result = await db.insert(mepDisciplineCosts).values(data);
-    const id = (result as any).insertId;
-    return await getDisciplineCostById(id);
-  } catch (error) {
-    console.error("[MEP] Error creating discipline cost:", error);
-    return null;
-  }
-}
-
-export async function getDisciplineCostById(id: number): Promise<MepDisciplineCost | null> {
-  const db = await getDb();
-  if (!db) return null;
-
-  try {
-    const result = await db.select().from(mepDisciplineCosts).where(eq(mepDisciplineCosts.id, id)).limit(1);
-    return result[0] || null;
-  } catch (error) {
-    console.error("[MEP] Error getting discipline cost by id:", error);
-    return null;
-  }
-}
-
-export async function updateDisciplineCost(id: number, data: Partial<InsertMepDisciplineCost>): Promise<MepDisciplineCost | null> {
-  const db = await getDb();
-  if (!db) return null;
-
-  try {
-    await db.update(mepDisciplineCosts).set(data).where(eq(mepDisciplineCosts.id, id));
-    return getDisciplineCostById(id);
-  } catch (error) {
-    console.error("[MEP] Error updating discipline cost:", error);
-    return null;
-  }
-}
-
-/**
- * Discipline-based calculation input
- */
 export interface DisciplineCalculationInput {
   projectType: "residential" | "commercial" | "industrial" | "hospitality" | "mixed-use";
   buildingArea: number;
   cityId: number;
-  disciplines: ("electrical" | "plumbing" | "hvac" | "fire-system")[];
-  buildingComplexity: "simple" | "moderate" | "complex";
-  greenCertification: "none" | "LEED" | "IGBC";
-  materialQuality: "standard" | "premium" | "imported";
-  projectTimeline: "standard" | "fast-track" | "delayed";
-  lodLevel: "100" | "200" | "300" | "350" | "400" | "500";
+  disciplines: string[];
+  buildingComplexity: string;
+  greenCertification: string;
+  materialQuality: string;
+  projectTimeline: string;
+  lodLevel: string;
+  areaUnit: "sqft" | "sqm";
+}
+
+export interface MepCalculationResult {
+  totalCost: number;
+  costPerSqft: number;
+  accuracyRange: string;
+  disciplineCosts: Record<string, number>;
+  appliedAdjustments: Record<string, number>;
 }
 
 export interface DisciplineCalculationResult {
@@ -542,6 +243,10 @@ export interface DisciplineCalculationResult {
   appliedAdjustments: Record<string, number>;
 }
 
+/**
+ * Calculate MEP cost based on selected disciplines
+ * FIXED: Discipline costs now sum correctly to total
+ */
 export async function calculateDisciplineCost(input: DisciplineCalculationInput): Promise<DisciplineCalculationResult | null> {
   try {
     const city = await getMepCityById(input.cityId);
@@ -569,8 +274,8 @@ export async function calculateDisciplineCost(input: DisciplineCalculationInput)
 
     const totalConstructionCost = baseCostPerSqft * input.buildingArea;
 
-    // Calculate discipline costs
-    let totalDisciplineCost = 0;
+    // STEP 1: Calculate base discipline costs (BEFORE applying adjustments)
+    let baseDisciplineCost = 0;
     const disciplineCostBreakdown: Record<string, number> = {};
 
     for (const discipline of input.disciplines) {
@@ -594,21 +299,19 @@ export async function calculateDisciplineCost(input: DisciplineCalculationInput)
 
       let disciplineTotal = costPerSqft * input.buildingArea;
       disciplineCostBreakdown[discipline] = disciplineTotal;
-      totalDisciplineCost += disciplineTotal;
+      baseDisciplineCost += disciplineTotal;
     }
 
-    // Apply adjustments
+    // STEP 2: Calculate all multipliers ONCE
     const adjustments: Record<string, number> = {};
 
     // Regional multiplier
     const regionalMultiplier = Number(city.regionalMultiplier);
     adjustments.regional = regionalMultiplier;
-    totalDisciplineCost *= regionalMultiplier;
 
     // Climate adjustment
     const climateAdjustment = 1 + Number(city.climateAdjustment) / 100;
     adjustments.climate = climateAdjustment;
-    totalDisciplineCost *= climateAdjustment;
 
     // Complexity factor
     const complexityFactors: Record<string, number> = {
@@ -616,9 +319,8 @@ export async function calculateDisciplineCost(input: DisciplineCalculationInput)
       moderate: 1.15,
       complex: 1.30,
     };
-    const complexityFactor = complexityFactors[input.buildingComplexity];
+    const complexityFactor = complexityFactors[input.buildingComplexity] || 1.0;
     adjustments.complexity = complexityFactor;
-    totalDisciplineCost *= complexityFactor;
 
     // Green certification factor
     const certificationFactors: Record<string, number> = {
@@ -626,9 +328,8 @@ export async function calculateDisciplineCost(input: DisciplineCalculationInput)
       LEED: 1.18,
       IGBC: 1.15,
     };
-    const certificationFactor = certificationFactors[input.greenCertification];
+    const certificationFactor = certificationFactors[input.greenCertification] || 1.0;
     adjustments.certification = certificationFactor;
-    totalDisciplineCost *= certificationFactor;
 
     // Material quality factor
     const materialFactors: Record<string, number> = {
@@ -636,9 +337,8 @@ export async function calculateDisciplineCost(input: DisciplineCalculationInput)
       premium: 1.25,
       imported: 1.60,
     };
-    const materialFactor = materialFactors[input.materialQuality];
+    const materialFactor = materialFactors[input.materialQuality] || 1.0;
     adjustments.material = materialFactor;
-    totalDisciplineCost *= materialFactor;
 
     // Timeline factor
     const timelineFactors: Record<string, number> = {
@@ -646,36 +346,34 @@ export async function calculateDisciplineCost(input: DisciplineCalculationInput)
       "fast-track": 1.15,
       delayed: 1.0,
     };
-    const timelineFactor = timelineFactors[input.projectTimeline];
+    const timelineFactor = timelineFactors[input.projectTimeline] || 1.0;
     adjustments.timeline = timelineFactor;
-    totalDisciplineCost *= timelineFactor;
 
-    // LOD accuracy range
-    const lodAccuracyRanges: Record<string, { min: number; max: number }> = {
-      "100": { min: 30, max: 30 },
-      "200": { min: 20, max: 20 },
-      "300": { min: 15, max: 15 },
-      "350": { min: 10, max: 10 },
-      "400": { min: 5, max: 5 },
-      "500": { min: 0, max: 0 },
-    };
-    const lodRange = lodAccuracyRanges[input.lodLevel];
-    const lodAdjustment = 1 + lodRange.max / 100;
-    adjustments.lod = lodAdjustment;
+    // MEP does NOT use LOD - LOD is only for BIM
+    // Accuracy range for MEP is fixed at ±15%
 
-    const adjustedCost = totalDisciplineCost * lodAdjustment;
-    const costPerSqft = adjustedCost / input.buildingArea;
+    // STEP 3: Calculate combined multiplier
+    const combinedMultiplier = regionalMultiplier * climateAdjustment * complexityFactor * certificationFactor * materialFactor * timelineFactor;
 
-    // Apply adjustments to breakdown
+    // STEP 4: Apply multiplier to base cost (NO LOD for MEP)
+    let totalDisciplineCost = baseDisciplineCost * combinedMultiplier;
+
+    // STEP 5: Apply adjustments to breakdown (each discipline gets same multiplier)
     const adjustedBreakdown: Record<string, number> = {};
     for (const [discipline, cost] of Object.entries(disciplineCostBreakdown)) {
-      adjustedBreakdown[discipline] = Math.round((cost * regionalMultiplier * climateAdjustment * complexityFactor * certificationFactor * materialFactor * timelineFactor * lodAdjustment) / input.disciplines.length);
+      adjustedBreakdown[discipline] = Math.round(cost * combinedMultiplier);
     }
 
+    // Verify discipline costs sum to total
+    const disciplineSum = Object.values(adjustedBreakdown).reduce((a, b) => a + b, 0);
+    const costPerSqft = input.areaUnit === "sqft" 
+      ? totalDisciplineCost / input.buildingArea
+      : (totalDisciplineCost / input.buildingArea) * 10.764;
+
     return {
-      totalCost: Math.round(adjustedCost),
+      totalCost: Math.round(totalDisciplineCost),
       costPerSqft: Math.round(costPerSqft * 100) / 100,
-      accuracyRange: `±${lodRange.max}%`,
+      accuracyRange: "±15%",
       disciplineCosts: adjustedBreakdown,
       appliedAdjustments: adjustments,
     };
