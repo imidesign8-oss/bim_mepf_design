@@ -77,9 +77,18 @@ export function setOpenGraphImage(imageUrl: string, alt?: string) {
 }
 
 /**
- * Set canonical URL
+ * Set canonical URL - Prevents duplicate canonical links
  */
 export function setCanonicalUrl(url: string) {
+  // Remove all existing canonical tags to prevent duplicates
+  const existingCanonicals = document.querySelectorAll('link[rel="canonical"]');
+  existingCanonicals.forEach((tag, index) => {
+    if (index > 0) {
+      tag.remove();
+    }
+  });
+
+  // Update or create the single canonical link
   let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
   if (!canonical) {
     canonical = document.createElement('link');

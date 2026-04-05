@@ -583,3 +583,155 @@ export const subscriptions = mysqlTable("subscriptions", {
 
 export type Subscription = typeof subscriptions.$inferSelect;
 export type InsertSubscription = typeof subscriptions.$inferInsert;
+
+/**
+ * MEP Cost Estimation - States and Cities
+ */
+export const mepStates = mysqlTable("mep_states", {
+  id: int("id").autoincrement().primaryKey(),
+  stateName: varchar("stateName", { length: 100 }).notNull().unique(),
+  stateCode: varchar("stateCode", { length: 10 }).notNull().unique(),
+  region: mysqlEnum("region", ["North", "South", "East", "West", "Northeast", "Central"]).notNull(),
+  baseMultiplier: decimal("baseMultiplier", { precision: 5, scale: 2 }).default("1.00").notNull(),
+  description: text("description"),
+  isActive: boolean("isActive").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  stateNameIdx: index("mep_state_name_idx").on(table.stateName),
+  regionIdx: index("mep_region_idx").on(table.region),
+}));
+
+export type MepState = typeof mepStates.$inferSelect;
+export type InsertMepState = typeof mepStates.$inferInsert;
+
+/**
+ * MEP Cost Estimation - Cities
+ */
+export const mepCities = mysqlTable("mep_cities", {
+  id: int("id").autoincrement().primaryKey(),
+  stateId: int("stateId").notNull().references(() => mepStates.id),
+  cityName: varchar("cityName", { length: 100 }).notNull(),
+  tier: mysqlEnum("tier", ["Tier-1", "Tier-2", "Tier-3"]).notNull(),
+  
+  // Base construction costs per sq ft
+  baseCostResidential: decimal("baseCostResidential", { precision: 10, scale: 2 }).notNull(),
+  baseCostCommercial: decimal("baseCostCommercial", { precision: 10, scale: 2 }).notNull(),
+  baseCostIndustrial: decimal("baseCostIndustrial", { precision: 10, scale: 2 }).notNull(),
+  
+  // MEP percentage of total construction cost
+  mepPercentageResidential: decimal("mepPercentageResidential", { precision: 5, scale: 2 }).default("12.00").notNull(),
+  mepPercentageCommercial: decimal("mepPercentageCommercial", { precision: 5, scale: 2 }).default("15.00").notNull(),
+  mepPercentageIndustrial: decimal("mepPercentageIndustrial", { precision: 5, scale: 2 }).default("13.00").notNull(),
+  
+  // Regional multiplier
+  regionalMultiplier: decimal("regionalMultiplier", { precision: 5, scale: 2 }).default("1.00").notNull(),
+  
+  // Climate adjustment
+  climateZone: mysqlEnum("climateZone", ["hot-humid", "hot-dry", "moderate", "cold"]).notNull(),
+  climateAdjustment: decimal("climateAdjustment", { precision: 5, scale: 2 }).default("0.00").notNull(),
+  
+  // Labor cost multiplier
+  laborCostMultiplier: decimal("laborCostMultiplier", { precision: 5, scale: 2 }).default("1.00").notNull(),
+  
+  isActive: boolean("isActive").default(true).notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  stateIdIdx: index("mep_city_state_idx").on(table.stateId),
+  cityNameIdx: index("mep_city_name_idx").on(table.cityName),
+  tierIdx: index("mep_city_tier_idx").on(table.tier),
+}));
+
+export type MepCity = typeof mepCities.$inferSelect;
+export type InsertMepCity = typeof mepCities.$inferInsert;
+
+/**
+ * MEP Component Costs
+ */
+export const mepComponentCosts = mysqlTable("mep_component_costs", {
+  id: int("id").autoincrement().primaryKey(),
+  componentType: mysqlEnum("componentType", ["mechanical", "electrical", "plumbing", "fire-safety", "smart-systems"]).notNull(),
+  subComponent: varchar("subComponent", { length: 100 }).notNull(),
+  description: text("description"),
+  
+  // Cost data
+  costPerUnit: decimal("costPerUnit", { precision: 12, scale: 2 }).notNull(),
+  unitType: mysqlEnum("unitType", ["per-sqft", "per-unit", "per-room", "per-fixture", "lump-sum"]).notNull(),
+  
+  // LOD levels
+  lodLevel: mysqlEnum("lodLevel", ["100", "200", "300", "350", "400", "500"]).notNull(),
+  
+  // Project types this applies to
+  applicableProjectTypes: varchar("applicableProjectTypes", { length: 255 }).notNull(), // JSON array
+  
+  isActive: boolean("isActive").default(true).notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  componentTypeIdx: index("mep_component_type_idx").on(table.componentType),
+  lodLevelIdx: index("mep_component_lod_idx").on(table.lodLevel),
+}));
+
+export type MepComponentCost = typeof mepComponentCosts.$inferSelect;
+export type InsertMepComponentCost = typeof mepComponentCosts.$inferInsert;
+
+/**
+ * MEP Cost Estimates - User generated estimates
+ */
+export const mepEstimates = mysqlTable("mep_estimates", {
+  id: int("id").autoincrement().primaryKey(),
+  estimateCode: varchar("estimateCode", { length: 50 }).notNull().unique(),
+  
+  // Project details
+  projectName: varchar("projectName", { length: 255 }),
+  projectType: mysqlEnum("projectType", ["residential", "commercial", "industrial", "hospitality", "mixed-use"]).notNull(),
+  projectSubType: varchar("projectSubType", { length: 100 }),
+  buildingArea: decimal("buildingArea", { precision: 12, scale: 2 }).notNull(),
+  
+  // Location
+  cityId: int("cityId").notNull().references(() => mepCities.id),
+  
+  // Project specifications
+  buildingComplexity: mysqlEnum("buildingComplexity", ["simple", "moderate", "complex"]).default("moderate").notNull(),
+  greenCertification: mysqlEnum("greenCertification", ["none", "LEED", "IGBC"]).default("none").notNull(),
+  materialQuality: mysqlEnum("materialQuality", ["standard", "premium", "imported"]).default("standard").notNull(),
+  projectTimeline: mysqlEnum("projectTimeline", ["standard", "fast-track", "delayed"]).default("standard").notNull(),
+  
+  // LOD level
+  lodLevel: mysqlEnum("lodLevel", ["100", "200", "300", "350", "400", "500"]).default("300").notNull(),
+  
+  // Calculated costs
+  baseMepCost: decimal("baseMepCost", { precision: 14, scale: 2 }).notNull(),
+  adjustedMepCost: decimal("adjustedMepCost", { precision: 14, scale: 2 }).notNull(),
+  costPerSqft: decimal("costPerSqft", { precision: 10, scale: 2 }).notNull(),
+  accuracyRange: varchar("accuracyRange", { length: 50 }).notNull(), // e.g., "±15%"
+  
+  // Cost breakdown
+  mechanicalCost: decimal("mechanicalCost", { precision: 14, scale: 2 }),
+  electricalCost: decimal("electricalCost", { precision: 14, scale: 2 }),
+  plumbingCost: decimal("plumbingCost", { precision: 14, scale: 2 }),
+  fireSafetyCost: decimal("fireSafetyCost", { precision: 14, scale: 2 }),
+  smartSystemsCost: decimal("smartSystemsCost", { precision: 14, scale: 2 }),
+  
+  // Applied adjustments (JSON)
+  appliedAdjustments: longtext("appliedAdjustments"), // JSON object with multipliers
+  
+  // User info
+  userId: int("userId"),
+  userEmail: varchar("userEmail", { length: 320 }),
+  
+  isPublic: boolean("isPublic").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  estimateCodeIdx: index("mep_estimate_code_idx").on(table.estimateCode),
+  cityIdIdx: index("mep_estimate_city_idx").on(table.cityId),
+  userIdIdx: index("mep_estimate_user_idx").on(table.userId),
+  createdAtIdx: index("mep_estimate_created_idx").on(table.createdAt),
+}));
+
+export type MepEstimate = typeof mepEstimates.$inferSelect;
+export type InsertMepEstimate = typeof mepEstimates.$inferInsert;

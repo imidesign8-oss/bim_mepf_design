@@ -9,6 +9,7 @@ import { emailMarketingRouter } from "./routers/emailMarketing";
 import { campaignAnalyticsRouter } from "./routers/campaignAnalytics";
 import { unsubscribeRouter } from "./routers/unsubscribe";
 import { advancedEmailMarketing } from "./routers/advancedEmailMarketing";
+import { mepCostRouter } from "./routers/mepCost";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import {
@@ -54,6 +55,7 @@ export const appRouter = router({
   campaignAnalytics: campaignAnalyticsRouter,
   unsubscribe: unsubscribeRouter,
   advancedEmailMarketing: advancedEmailMarketing,
+  mepCost: mepCostRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
