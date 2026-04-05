@@ -15,15 +15,17 @@ import { Loader2, Download, Share2, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface CalculationResult {
-  baseMepCost: number;
-  adjustedMepCost: number;
+  baseMepCost?: number;
+  adjustedMepCost?: number;
   costPerSqft: number;
   accuracyRange: string;
-  mechanicalCost: number;
-  electricalCost: number;
-  plumbingCost: number;
-  fireSafetyCost: number;
-  smartSystemsCost: number;
+  mechanicalCost?: number;
+  electricalCost?: number;
+  plumbingCost?: number;
+  fireSafetyCost?: number;
+  smartSystemsCost?: number;
+  totalCost?: number;
+  disciplineCosts?: Record<string, number>;
   appliedAdjustments: Record<string, number>;
 }
 
@@ -111,17 +113,12 @@ PROJECT DETAILS:
 - LOD Level: ${formData.lodLevel}
 
 COST ESTIMATION:
-- Base MEP Cost: ₹${result.baseMepCost.toLocaleString()}
-- Adjusted MEP Cost: ₹${result.adjustedMepCost.toLocaleString()}
+- Total MEP Cost: ₹${(result.totalCost || result.adjustedMepCost || 0).toLocaleString()}
 - Cost per Sq Ft: ₹${result.costPerSqft}
 - Accuracy Range: ${result.accuracyRange}
 
 COMPONENT BREAKDOWN:
-- Mechanical (HVAC): ₹${result.mechanicalCost.toLocaleString()}
-- Electrical: ₹${result.electricalCost.toLocaleString()}
-- Plumbing: ₹${result.plumbingCost.toLocaleString()}
-- Fire Safety: ₹${result.fireSafetyCost.toLocaleString()}
-- Smart Systems: ₹${result.smartSystemsCost.toLocaleString()}
+${result.disciplineCosts ? Object.entries(result.disciplineCosts).map(([d, c]) => `- ${d.charAt(0).toUpperCase() + d.slice(1)}: ₹${(c as number).toLocaleString()}`).join('\n') : `- Mechanical (HVAC): ₹${(result.mechanicalCost || 0).toLocaleString()}\n- Electrical: ₹${(result.electricalCost || 0).toLocaleString()}\n- Plumbing: ₹${(result.plumbingCost || 0).toLocaleString()}\n- Fire Safety: ₹${(result.fireSafetyCost || 0).toLocaleString()}\n- Smart Systems: ₹${(result.smartSystemsCost || 0).toLocaleString()}`}
 
 DISCLAIMER:
 This is an approximate estimate based on industry data and should NOT be used as the sole basis for project budgeting. Actual costs may vary based on specific project requirements, site conditions, and current market rates. Always get multiple quotes from qualified MEP contractors before finalizing budgets.
@@ -330,7 +327,7 @@ This is an approximate estimate based on industry data and should NOT be used as
                 {/* Main Result Card */}
                 <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
                   <CardHeader>
-                    <CardTitle className="text-2xl">₹{result.adjustedMepCost.toLocaleString()}</CardTitle>
+                    <CardTitle className="text-2xl">₹{(result.totalCost || result.adjustedMepCost || 0).toLocaleString()}</CardTitle>
                     <CardDescription>Estimated MEP Cost</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -353,55 +350,73 @@ This is an approximate estimate based on industry data and should NOT be used as
                     <CardTitle className="text-lg">Component Breakdown</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Mechanical (HVAC)</span>
-                        <span className="font-semibold">₹{result.mechanicalCost.toLocaleString()}</span>
-                      </div>
-                      <div className="w-full bg-secondary rounded-full h-2">
-                        <div className="bg-blue-500 h-2 rounded-full" style={{ width: "40%" }}></div>
-                      </div>
-                    </div>
+                    {result.disciplineCosts ? (
+                      Object.entries(result.disciplineCosts).map(([discipline, cost]) => (
+                        <div key={discipline} className="space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span className="capitalize">
+                              {discipline === "fire-system" ? "🔥 Fire System" : `${discipline === "electrical" ? "⚡" : discipline === "plumbing" ? "🔧" : "❄️"} ${discipline.charAt(0).toUpperCase() + discipline.slice(1)}`}
+                            </span>
+                            <span className="font-semibold">₹{(cost as number).toLocaleString()}</span>
+                          </div>
+                          <div className="w-full bg-secondary rounded-full h-2">
+                            <div className="bg-primary h-2 rounded-full" style={{ width: `${((cost as number) / (result.totalCost || 1)) * 100}%` }}></div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <>
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span>Mechanical (HVAC)</span>
+                            <span className="font-semibold">₹{(result.mechanicalCost || 0).toLocaleString()}</span>
+                          </div>
+                          <div className="w-full bg-secondary rounded-full h-2">
+                            <div className="bg-blue-500 h-2 rounded-full" style={{ width: "40%" }}></div>
+                          </div>
+                        </div>
 
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Electrical</span>
-                        <span className="font-semibold">₹{result.electricalCost.toLocaleString()}</span>
-                      </div>
-                      <div className="w-full bg-secondary rounded-full h-2">
-                        <div className="bg-yellow-500 h-2 rounded-full" style={{ width: "35%" }}></div>
-                      </div>
-                    </div>
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span>Electrical</span>
+                            <span className="font-semibold">₹{(result.electricalCost || 0).toLocaleString()}</span>
+                          </div>
+                          <div className="w-full bg-secondary rounded-full h-2">
+                            <div className="bg-yellow-500 h-2 rounded-full" style={{ width: "35%" }}></div>
+                          </div>
+                        </div>
 
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Plumbing</span>
-                        <span className="font-semibold">₹{result.plumbingCost.toLocaleString()}</span>
-                      </div>
-                      <div className="w-full bg-secondary rounded-full h-2">
-                        <div className="bg-green-500 h-2 rounded-full" style={{ width: "20%" }}></div>
-                      </div>
-                    </div>
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span>Plumbing</span>
+                            <span className="font-semibold">₹{(result.plumbingCost || 0).toLocaleString()}</span>
+                          </div>
+                          <div className="w-full bg-secondary rounded-full h-2">
+                            <div className="bg-green-500 h-2 rounded-full" style={{ width: "20%" }}></div>
+                          </div>
+                        </div>
 
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Fire Safety</span>
-                        <span className="font-semibold">₹{result.fireSafetyCost.toLocaleString()}</span>
-                      </div>
-                      <div className="w-full bg-secondary rounded-full h-2">
-                        <div className="bg-red-500 h-2 rounded-full" style={{ width: "3%" }}></div>
-                      </div>
-                    </div>
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span>Fire Safety</span>
+                            <span className="font-semibold">₹{(result.fireSafetyCost || 0).toLocaleString()}</span>
+                          </div>
+                          <div className="w-full bg-secondary rounded-full h-2">
+                            <div className="bg-red-500 h-2 rounded-full" style={{ width: "3%" }}></div>
+                          </div>
+                        </div>
 
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Smart Systems</span>
-                        <span className="font-semibold">₹{result.smartSystemsCost.toLocaleString()}</span>
-                      </div>
-                      <div className="w-full bg-secondary rounded-full h-2">
-                        <div className="bg-purple-500 h-2 rounded-full" style={{ width: "2%" }}></div>
-                      </div>
-                    </div>
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span>Smart Systems</span>
+                            <span className="font-semibold">₹{(result.smartSystemsCost || 0).toLocaleString()}</span>
+                          </div>
+                          <div className="w-full bg-secondary rounded-full h-2">
+                            <div className="bg-purple-500 h-2 rounded-full" style={{ width: "2%" }}></div>
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </CardContent>
                 </Card>
 

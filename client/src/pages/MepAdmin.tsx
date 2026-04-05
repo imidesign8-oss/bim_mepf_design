@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Edit2, Save, X, AlertCircle } from "lucide-react";
+import { Loader2, Edit2, Save, X, AlertCircle, Plus, Trash2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
@@ -22,6 +22,8 @@ export function MepAdmin() {
   const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState("cities");
   const [editingCity, setEditingCity] = useState<any>(null);
+  const [newCity, setNewCity] = useState<any>(null);
+  const [selectedStateForNewCity, setSelectedStateForNewCity] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -29,6 +31,10 @@ export function MepAdmin() {
   // Fetch data
   const { data: states = [] } = trpc.mepCost.states.list.useQuery();
   const { data: cities = [] } = trpc.mepCost.cities.list.useQuery();
+  const { data: disciplines = [] } = trpc.mepCost.disciplines.getByCity.useQuery(
+    { cityId: editingCity?.id || 0 },
+    { enabled: !!editingCity?.id }
+  );
 
   // Mutations
   const updateCityMutation = trpc.mepCost.cities.update.useMutation({
@@ -39,6 +45,18 @@ export function MepAdmin() {
     },
     onError: (error) => {
       setError(error.message || "Failed to update city");
+    },
+  });
+
+  const createCityMutation = trpc.mepCost.cities.create.useMutation({
+    onSuccess: () => {
+      setSuccess("City created successfully!");
+      setNewCity(null);
+      setSelectedStateForNewCity("");
+      setTimeout(() => setSuccess(null), 3000);
+    },
+    onError: (error) => {
+      setError(error.message || "Failed to create city");
     },
   });
 
@@ -79,19 +97,47 @@ export function MepAdmin() {
     setIsLoading(false);
   };
 
+  const handleCreateCity = async () => {
+    if (!newCity || !selectedStateForNewCity) {
+      setError("Please fill all fields");
+      return;
+    }
+
+    setIsLoading(true);
+    await createCityMutation.mutateAsync({
+      stateId: parseInt(selectedStateForNewCity),
+      cityName: newCity.cityName,
+      tier: newCity.tier,
+      baseCostResidential: parseFloat(newCity.baseCostResidential),
+      baseCostCommercial: parseFloat(newCity.baseCostCommercial),
+      baseCostIndustrial: parseFloat(newCity.baseCostIndustrial),
+      mepPercentageResidential: parseFloat(newCity.mepPercentageResidential || "12"),
+      mepPercentageCommercial: parseFloat(newCity.mepPercentageCommercial || "15"),
+      mepPercentageIndustrial: parseFloat(newCity.mepPercentageIndustrial || "13"),
+      climateZone: newCity.climateZone,
+      climateAdjustment: parseFloat(newCity.climateAdjustment || "0"),
+      laborCostMultiplier: parseFloat(newCity.laborCostMultiplier || "1.0"),
+    });
+    setIsLoading(false);
+  };
+
   const getStateName = (stateId: number) => {
     const state = states.find((s) => s.id === stateId);
     return state?.stateName || "Unknown";
   };
 
+  const getCitiesByState = (stateId: number) => {
+    return cities.filter((c) => c.stateId === stateId);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-secondary/10 py-12 px-4">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">MEP Cost Management</h1>
           <p className="text-lg text-muted-foreground">
-            Manage construction costs and multipliers for Indian cities and states
+            Manage construction costs, cities, and discipline pricing
           </p>
         </div>
 
@@ -110,9 +156,11 @@ export function MepAdmin() {
         )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList>
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="cities">Cities ({cities.length})</TabsTrigger>
             <TabsTrigger value="states">States ({states.length})</TabsTrigger>
+            <TabsTrigger value="disciplines">Disciplines</TabsTrigger>
+            <TabsTrigger value="newcity">Add City</TabsTrigger>
           </TabsList>
 
           {/* Cities Tab */}
@@ -144,129 +192,141 @@ export function MepAdmin() {
                           </Button>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          <div className="space-y-2">
-                            <Label>Residential Cost (₹/sq ft)</Label>
-                            <Input
-                              type="number"
-                              value={editingCity.baseCostResidential}
-                              onChange={(e) =>
-                                setEditingCity({
-                                  ...editingCity,
-                                  baseCostResidential: e.target.value,
-                                })
-                              }
-                              disabled={isLoading}
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label>Commercial Cost (₹/sq ft)</Label>
-                            <Input
-                              type="number"
-                              value={editingCity.baseCostCommercial}
-                              onChange={(e) =>
-                                setEditingCity({
-                                  ...editingCity,
-                                  baseCostCommercial: e.target.value,
-                                })
-                              }
-                              disabled={isLoading}
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label>Industrial Cost (₹/sq ft)</Label>
-                            <Input
-                              type="number"
-                              value={editingCity.baseCostIndustrial}
-                              onChange={(e) =>
-                                setEditingCity({
-                                  ...editingCity,
-                                  baseCostIndustrial: e.target.value,
-                                })
-                              }
-                              disabled={isLoading}
-                            />
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          <div className="space-y-2">
-                            <Label>MEP % Residential</Label>
-                            <Input
-                              type="number"
-                              step="0.1"
-                              value={editingCity.mepPercentageResidential}
-                              onChange={(e) =>
-                                setEditingCity({
-                                  ...editingCity,
-                                  mepPercentageResidential: e.target.value,
-                                })
-                              }
-                              disabled={isLoading}
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label>MEP % Commercial</Label>
-                            <Input
-                              type="number"
-                              step="0.1"
-                              value={editingCity.mepPercentageCommercial}
-                              onChange={(e) =>
-                                setEditingCity({
-                                  ...editingCity,
-                                  mepPercentageCommercial: e.target.value,
-                                })
-                              }
-                              disabled={isLoading}
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label>MEP % Industrial</Label>
-                            <Input
-                              type="number"
-                              step="0.1"
-                              value={editingCity.mepPercentageIndustrial}
-                              onChange={(e) =>
-                                setEditingCity({
-                                  ...editingCity,
-                                  mepPercentageIndustrial: e.target.value,
-                                })
-                              }
-                              disabled={isLoading}
-                            />
+                        {/* Construction Costs */}
+                        <div>
+                          <h4 className="font-semibold mb-3">Base Construction Costs (₹/sq ft)</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="space-y-2">
+                              <Label>Residential</Label>
+                              <Input
+                                type="number"
+                                value={editingCity.baseCostResidential}
+                                onChange={(e) =>
+                                  setEditingCity({
+                                    ...editingCity,
+                                    baseCostResidential: e.target.value,
+                                  })
+                                }
+                                disabled={isLoading}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Commercial</Label>
+                              <Input
+                                type="number"
+                                value={editingCity.baseCostCommercial}
+                                onChange={(e) =>
+                                  setEditingCity({
+                                    ...editingCity,
+                                    baseCostCommercial: e.target.value,
+                                  })
+                                }
+                                disabled={isLoading}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Industrial</Label>
+                              <Input
+                                type="number"
+                                value={editingCity.baseCostIndustrial}
+                                onChange={(e) =>
+                                  setEditingCity({
+                                    ...editingCity,
+                                    baseCostIndustrial: e.target.value,
+                                  })
+                                }
+                                disabled={isLoading}
+                              />
+                            </div>
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label>Climate Adjustment (%)</Label>
-                            <Input
-                              type="number"
-                              step="0.1"
-                              value={editingCity.climateAdjustment}
-                              onChange={(e) =>
-                                setEditingCity({
-                                  ...editingCity,
-                                  climateAdjustment: e.target.value,
-                                })
-                              }
-                              disabled={isLoading}
-                            />
+                        {/* MEP Percentages */}
+                        <div>
+                          <h4 className="font-semibold mb-3">MEP Percentage of Total Cost</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="space-y-2">
+                              <Label>Residential (%)</Label>
+                              <Input
+                                type="number"
+                                step="0.1"
+                                value={editingCity.mepPercentageResidential}
+                                onChange={(e) =>
+                                  setEditingCity({
+                                    ...editingCity,
+                                    mepPercentageResidential: e.target.value,
+                                  })
+                                }
+                                disabled={isLoading}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Commercial (%)</Label>
+                              <Input
+                                type="number"
+                                step="0.1"
+                                value={editingCity.mepPercentageCommercial}
+                                onChange={(e) =>
+                                  setEditingCity({
+                                    ...editingCity,
+                                    mepPercentageCommercial: e.target.value,
+                                  })
+                                }
+                                disabled={isLoading}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Industrial (%)</Label>
+                              <Input
+                                type="number"
+                                step="0.1"
+                                value={editingCity.mepPercentageIndustrial}
+                                onChange={(e) =>
+                                  setEditingCity({
+                                    ...editingCity,
+                                    mepPercentageIndustrial: e.target.value,
+                                  })
+                                }
+                                disabled={isLoading}
+                              />
+                            </div>
                           </div>
-                          <div className="space-y-2">
-                            <Label>Labor Cost Multiplier</Label>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              value={editingCity.laborCostMultiplier}
-                              onChange={(e) =>
-                                setEditingCity({
-                                  ...editingCity,
-                                  laborCostMultiplier: e.target.value,
-                                })
-                              }
-                              disabled={isLoading}
-                            />
+                        </div>
+
+                        {/* Adjustments */}
+                        <div>
+                          <h4 className="font-semibold mb-3">Adjustments</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label>Climate Adjustment (%)</Label>
+                              <Input
+                                type="number"
+                                step="0.1"
+                                value={editingCity.climateAdjustment}
+                                onChange={(e) =>
+                                  setEditingCity({
+                                    ...editingCity,
+                                    climateAdjustment: e.target.value,
+                                  })
+                                }
+                                disabled={isLoading}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Labor Cost Multiplier</Label>
+                              <Input
+                                type="number"
+                                step="0.01"
+                                value={editingCity.laborCostMultiplier}
+                                onChange={(e) =>
+                                  setEditingCity({
+                                    ...editingCity,
+                                    laborCostMultiplier: e.target.value,
+                                  })
+                                }
+                                disabled={isLoading}
+                              />
+                            </div>
                           </div>
                         </div>
 
@@ -344,37 +404,274 @@ export function MepAdmin() {
               <CardHeader>
                 <CardTitle>State Configuration</CardTitle>
                 <CardDescription>
-                  View and manage state-level regional multipliers
+                  View state-level regional multipliers and cities
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="text-left py-3 px-4 font-semibold">State</th>
-                        <th className="text-left py-3 px-4 font-semibold">Code</th>
-                        <th className="text-left py-3 px-4 font-semibold">Region</th>
-                        <th className="text-right py-3 px-4 font-semibold">Base Multiplier</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {states.map((state) => (
-                        <tr key={state.id} className="border-b hover:bg-secondary/50">
-                          <td className="py-3 px-4 font-medium">{state.stateName}</td>
-                          <td className="py-3 px-4">{state.stateCode}</td>
-                          <td className="py-3 px-4">
-                            <span className="inline-block px-2 py-1 bg-secondary rounded text-xs font-medium">
-                              {state.region}
-                            </span>
-                          </td>
-                          <td className="py-3 px-4 text-right font-semibold">
-                            {Number(state.baseMultiplier).toFixed(2)}x
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                <div className="space-y-6">
+                  {states.map((state) => {
+                    const stateCities = getCitiesByState(state.id);
+                    return (
+                      <Card key={state.id} className="border">
+                        <CardHeader>
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <CardTitle className="text-lg">{state.stateName}</CardTitle>
+                              <CardDescription>
+                                Region: {state.region} | Code: {state.stateCode} | Multiplier: {Number(state.baseMultiplier).toFixed(2)}x
+                              </CardDescription>
+                            </div>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          {stateCities.length > 0 ? (
+                            <div className="space-y-2">
+                              <p className="text-sm font-semibold">Cities ({stateCities.length}):</p>
+                              <ul className="list-disc list-inside space-y-1">
+                                {stateCities.map((city) => (
+                                  <li key={city.id} className="text-sm">
+                                    {city.cityName} ({city.tier})
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          ) : (
+                            <p className="text-sm text-muted-foreground italic">No cities added yet</p>
+                          )}
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Disciplines Tab */}
+          <TabsContent value="disciplines">
+            <Card>
+              <CardHeader>
+                <CardTitle>Discipline Cost Management</CardTitle>
+                <CardDescription>
+                  View and manage discipline-specific costs by city
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Select City</Label>
+                    <Select
+                      value={editingCity?.id?.toString() || ""}
+                      onValueChange={(value) => {
+                        const city = cities.find((c) => c.id === parseInt(value));
+                        setEditingCity(city);
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a city to view disciplines" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {cities.map((city) => (
+                          <SelectItem key={city.id} value={city.id.toString()}>
+                            {city.cityName} ({getStateName(city.stateId)})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {editingCity && disciplines.length > 0 && (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b">
+                            <th className="text-left py-3 px-4 font-semibold">Discipline</th>
+                            <th className="text-right py-3 px-4 font-semibold">Residential</th>
+                            <th className="text-right py-3 px-4 font-semibold">Commercial</th>
+                            <th className="text-right py-3 px-4 font-semibold">Industrial</th>
+                            <th className="text-right py-3 px-4 font-semibold">% of MEP</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {disciplines.map((discipline) => (
+                            <tr key={discipline.id} className="border-b hover:bg-secondary/50">
+                              <td className="py-3 px-4 font-medium capitalize">
+                                {discipline.discipline.replace("-", " ")}
+                              </td>
+                              <td className="py-3 px-4 text-right">₹{Number(discipline.costResidential).toLocaleString()}</td>
+                              <td className="py-3 px-4 text-right">₹{Number(discipline.costCommercial).toLocaleString()}</td>
+                              <td className="py-3 px-4 text-right">₹{Number(discipline.costIndustrial).toLocaleString()}</td>
+                              <td className="py-3 px-4 text-right">{Number(discipline.percentageOfMep).toFixed(1)}%</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+
+                  {editingCity && disciplines.length === 0 && (
+                    <Alert>
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        No discipline costs found for this city. Please check the database.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Add City Tab */}
+          <TabsContent value="newcity">
+            <Card>
+              <CardHeader>
+                <CardTitle>Add New City</CardTitle>
+                <CardDescription>
+                  Add a new city to a state for MEP cost estimation
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4 max-w-2xl">
+                  <div className="space-y-2">
+                    <Label>Select State</Label>
+                    <Select value={selectedStateForNewCity} onValueChange={setSelectedStateForNewCity}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a state" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {states.map((state) => (
+                          <SelectItem key={state.id} value={state.id.toString()}>
+                            {state.stateName}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>City Name</Label>
+                    <Input
+                      placeholder="e.g., Bangalore"
+                      value={newCity?.cityName || ""}
+                      onChange={(e) =>
+                        setNewCity({ ...newCity, cityName: e.target.value })
+                      }
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Tier</Label>
+                    <Select
+                      value={newCity?.tier || ""}
+                      onValueChange={(value) =>
+                        setNewCity({ ...newCity, tier: value })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select tier" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Tier-1">Tier-1 (Metro)</SelectItem>
+                        <SelectItem value="Tier-2">Tier-2 (Major)</SelectItem>
+                        <SelectItem value="Tier-3">Tier-3 (Other)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold mb-3">Base Construction Costs (₹/sq ft)</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="space-y-2">
+                        <Label>Residential</Label>
+                        <Input
+                          type="number"
+                          placeholder="2500"
+                          value={newCity?.baseCostResidential || ""}
+                          onChange={(e) =>
+                            setNewCity({
+                              ...newCity,
+                              baseCostResidential: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Commercial</Label>
+                        <Input
+                          type="number"
+                          placeholder="3500"
+                          value={newCity?.baseCostCommercial || ""}
+                          onChange={(e) =>
+                            setNewCity({
+                              ...newCity,
+                              baseCostCommercial: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Industrial</Label>
+                        <Input
+                          type="number"
+                          placeholder="2000"
+                          value={newCity?.baseCostIndustrial || ""}
+                          onChange={(e) =>
+                            setNewCity({
+                              ...newCity,
+                              baseCostIndustrial: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold mb-3">Climate Zone</h4>
+                    <Select
+                      value={newCity?.climateZone || ""}
+                      onValueChange={(value) =>
+                        setNewCity({ ...newCity, climateZone: value })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select climate zone" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="hot-humid">Hot & Humid</SelectItem>
+                        <SelectItem value="hot-dry">Hot & Dry</SelectItem>
+                        <SelectItem value="moderate">Moderate</SelectItem>
+                        <SelectItem value="cold">Cold</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="flex gap-2 justify-end">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setNewCity(null);
+                        setSelectedStateForNewCity("");
+                      }}
+                      disabled={isLoading}
+                    >
+                      Cancel
+                    </Button>
+                    <Button onClick={handleCreateCity} disabled={isLoading}>
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Creating...
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="mr-2 h-4 w-4" />
+                          Create City
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>

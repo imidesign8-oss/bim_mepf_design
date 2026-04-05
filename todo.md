@@ -619,3 +619,12 @@
 - [ ] Update cost breakdown to show per-discipline costs
 - [ ] Add discipline-specific LOD adjustments
 - [ ] Test discipline combinations and cost calculations
+
+
+## Admin Panel Enhancements - Phase 2
+- [x] Add construction cost editing in admin panel (residential, commercial, industrial)
+- [x] Add city management - create/edit/delete cities for each state
+- [x] Add discipline cost management tab
+- [x] Update calculator UI with discipline checkboxes
+- [x] Add export to PDF with discipline breakdown
+- [ ] Test all admin functions
