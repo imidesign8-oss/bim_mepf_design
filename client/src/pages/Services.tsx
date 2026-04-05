@@ -198,6 +198,24 @@ export default function Services() {
         </div>
       </section>
 
+      {/* MEP Calculator CTA */}
+      <section className="section-padding bg-gradient-to-r from-primary/10 to-accent/10">
+        <div className="container">
+          <div className="max-w-2xl mx-auto text-center">
+            <h2 className="mb-4">Quick MEP Cost Estimation</h2>
+            <p className="text-lg text-muted-foreground mb-8">
+              Need a quick estimate for your MEP design costs? Use our interactive calculator to get city-wise, project-type-specific cost estimates based on verified 2026 industry data.
+            </p>
+            <Link href="/mep-calculator">
+              <a className="inline-flex items-center gap-2 px-8 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors">
+                Try MEP Calculator
+                <ArrowRight className="w-4 h-4" />
+              </a>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       <Footer />
     </div>
   );

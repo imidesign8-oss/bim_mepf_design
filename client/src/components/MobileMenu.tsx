@@ -14,6 +14,7 @@ export default function MobileMenu() {
     { label: "Projects", href: "/projects" },
     { label: "Blog", href: "/blog" },
     { label: "Contact", href: "/contact" },
+    { label: "MEP Calculator", href: "/mep-calculator" },
   ];
 
   const handleClick = (href: string) => {

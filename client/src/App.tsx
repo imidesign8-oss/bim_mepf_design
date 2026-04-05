@@ -20,6 +20,7 @@ import Contact from "./pages/Contact";
 import Admin from "./pages/Admin";
 import Unsubscribe from "./pages/Unsubscribe";
 import { MepCalculator } from "./pages/MepCalculator";
+import { MepAdmin } from "./pages/MepAdmin";
 import { AIChatWidget } from "./components/AIChatWidget";
 import Analytics from "./components/Analytics";
 import Header from "./components/Header";
@@ -39,6 +40,7 @@ function Router() {
       <Route path={"/blog/:slug"} component={BlogDetail} />
       <Route path={"/contact"} component={Contact} />
       <Route path={"/mep-calculator"} component={MepCalculator} />
+      <Route path={"/mep-admin"} component={MepAdmin} />
       <Route path={"/admin"} component={Admin} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />

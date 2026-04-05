@@ -601,8 +601,10 @@
 - [x] Create MEP calculator page with form and results
 - [x] Add cost breakdown visualization (progress bars)
 - [x] Implement export/report generation for estimates
-- [ ] Create admin panel for managing construction costs by city/state
-- [ ] Add admin functionality to update base costs and multipliers
-- [ ] Seed database with Indian states and cities data
+- [x] Create admin panel for managing construction costs by city/state
+- [x] Add admin functionality to update base costs and multipliers
+- [x] Seed database with Indian states and cities data (30 states, 22 cities)
+- [x] Add MEP calculator navigation link to header and mobile menu
+- [x] Add MEP calculator CTA section to Services page
 - [ ] Test MEP calculator with various project types and locations
 - [ ] Create user documentation for MEP calculator

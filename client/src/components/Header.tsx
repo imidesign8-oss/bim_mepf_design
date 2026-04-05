@@ -77,6 +77,11 @@ export default function Header() {
               Contact
             </a>
           </Link>
+          <Link href="/mep-calculator">
+            <a className={`nav-link ${isActive("/mep-calculator") ? "active" : ""}`}>
+              MEP Calculator
+            </a>
+          </Link>
         </div>
         
         <div className="flex gap-2 md:gap-4 items-center">
