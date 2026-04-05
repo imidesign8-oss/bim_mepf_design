@@ -805,3 +805,133 @@ export const mepEstimateHistory = mysqlTable("mep_estimate_history", {
 
 export type MepEstimateHistory = typeof mepEstimateHistory.$inferSelect;
 export type InsertMepEstimateHistory = typeof mepEstimateHistory.$inferInsert;
+
+
+/**
+ * BIM LOD Pricing - Level of Development pricing for BIM services
+ */
+export const bimLodPricing = mysqlTable("bim_lod_pricing", {
+  id: int("id").autoincrement().primaryKey(),
+  cityId: int("cityId").notNull().references(() => mepCities.id),
+  
+  // LOD levels
+  lodLevel: mysqlEnum("lodLevel", ["100", "200", "300", "400", "500"]).notNull(),
+  
+  // BIM service cost as percentage of project cost (4-10%)
+  bimPercentageResidential: decimal("bimPercentageResidential", { precision: 5, scale: 2 }).notNull(),
+  bimPercentageCommercial: decimal("bimPercentageCommercial", { precision: 5, scale: 2 }).notNull(),
+  bimPercentageIndustrial: decimal("bimPercentageIndustrial", { precision: 5, scale: 2 }).notNull(),
+  
+  // Description of LOD level
+  description: text("description"),
+  
+  isActive: boolean("isActive").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  cityLodIdx: index("bim_lod_city_idx").on(table.cityId, table.lodLevel),
+  lodIdx: index("bim_lod_idx").on(table.lodLevel),
+}));
+
+export type BimLodPricing = typeof bimLodPricing.$inferSelect;
+export type InsertBimLodPricing = typeof bimLodPricing.$inferInsert;
+
+/**
+ * MEP Discipline Weightage - Weightage for each discipline in MEP cost
+ */
+export const mepDisciplineWeightage = mysqlTable("mep_discipline_weightage", {
+  id: int("id").autoincrement().primaryKey(),
+  
+  // Discipline types
+  discipline: mysqlEnum("discipline", ["electrical", "plumbing", "hvac", "fire-system"]).notNull().unique(),
+  
+  // Weightage as percentage of total MEP cost (should sum to 100%)
+  weightagePercentage: decimal("weightagePercentage", { precision: 5, scale: 2 }).notNull(),
+  
+  // Description
+  description: text("description"),
+  
+  isActive: boolean("isActive").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  disciplineIdx: index("mep_weightage_discipline_idx").on(table.discipline),
+}));
+
+export type MepDisciplineWeightage = typeof mepDisciplineWeightage.$inferSelect;
+export type InsertMepDisciplineWeightage = typeof mepDisciplineWeightage.$inferInsert;
+
+/**
+ * MEP Cost Range - Base MEP cost percentage range (1-2%) by project type
+ */
+export const mepCostRange = mysqlTable("mep_cost_range", {
+  id: int("id").autoincrement().primaryKey(),
+  
+  // Project type
+  projectType: mysqlEnum("projectType", ["residential", "commercial", "industrial", "hospitality", "mixed-use"]).notNull().unique(),
+  
+  // MEP cost as percentage of construction cost (1-2%)
+  minPercentage: decimal("minPercentage", { precision: 5, scale: 2 }).notNull(), // e.g., 1.00
+  maxPercentage: decimal("maxPercentage", { precision: 5, scale: 2 }).notNull(), // e.g., 2.00
+  
+  // Default percentage to use
+  defaultPercentage: decimal("defaultPercentage", { precision: 5, scale: 2 }).notNull(),
+  
+  // Description
+  description: text("description"),
+  
+  isActive: boolean("isActive").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  projectTypeIdx: index("mep_cost_range_type_idx").on(table.projectType),
+}));
+
+export type MepCostRange = typeof mepCostRange.$inferSelect;
+export type InsertMepCostRange = typeof mepCostRange.$inferInsert;
+
+/**
+ * BIM Estimates - User generated BIM cost estimates
+ */
+export const bimEstimates = mysqlTable("bim_estimates", {
+  id: int("id").autoincrement().primaryKey(),
+  estimateCode: varchar("estimateCode", { length: 50 }).notNull().unique(),
+  
+  // Project details
+  projectName: varchar("projectName", { length: 255 }),
+  projectType: mysqlEnum("projectType", ["residential", "commercial", "industrial", "hospitality", "mixed-use"]).notNull(),
+  buildingArea: decimal("buildingArea", { precision: 12, scale: 2 }).notNull(),
+  areaUnit: mysqlEnum("areaUnit", ["sqft", "sqm"]).default("sqft").notNull(),
+  
+  // Location
+  cityId: int("cityId").notNull().references(() => mepCities.id),
+  
+  // BIM specifications
+  lodLevel: mysqlEnum("lodLevel", ["100", "200", "300", "400", "500"]).notNull(),
+  buildingComplexity: mysqlEnum("buildingComplexity", ["simple", "moderate", "complex"]).default("moderate").notNull(),
+  
+  // Project cost
+  projectCost: decimal("projectCost", { precision: 14, scale: 2 }).notNull(),
+  
+  // Calculated BIM cost
+  baseBimCost: decimal("baseBimCost", { precision: 14, scale: 2 }).notNull(),
+  adjustedBimCost: decimal("adjustedBimCost", { precision: 14, scale: 2 }).notNull(),
+  
+  // User info
+  userEmail: varchar("userEmail", { length: 255 }),
+  userName: varchar("userName", { length: 255 }),
+  
+  // Status
+  emailSent: boolean("emailSent").default(false).notNull(),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  estimateCodeIdx: index("bim_estimate_code_idx").on(table.estimateCode),
+  cityIdIdx: index("bim_estimate_city_idx").on(table.cityId),
+  userEmailIdx: index("bim_estimate_email_idx").on(table.userEmail),
+  createdAtIdx: index("bim_estimate_created_idx").on(table.createdAt),
+}));
+
+export type BimEstimate = typeof bimEstimates.$inferSelect;
+export type InsertBimEstimate = typeof bimEstimates.$inferInsert;

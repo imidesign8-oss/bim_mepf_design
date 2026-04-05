@@ -655,3 +655,14 @@
 - [x] Add city management tab
 - [x] Add discipline cost management tab
 - [ ] Test all admin functions
+
+
+## Pricing Model Restructuring - BIM vs MEP
+- [x] Update database schema for separate BIM and MEP pricing
+- [x] Add BIM LOD levels (100, 200, 300, 400, 500) with 4-10% pricing
+- [x] Add MEP discipline weightage (Electrical, Plumbing, HVAC, Fire System)
+- [x] Seed database with proper BIM and MEP pricing data
+- [ ] Remove LOD from MEP calculations
+- [ ] Update backend to calculate BIM and MEP separately
+- [ ] Redesign calculator UI for BIM vs MEP selection
+- [ ] Update admin panel for BIM LOD and MEP weightage management
