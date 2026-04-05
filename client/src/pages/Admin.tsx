@@ -21,6 +21,7 @@ import { EmailMarketingEnhanced } from "@/components/admin/EmailMarketingEnhance
 import { CampaignPerformanceDashboard } from "@/components/admin/CampaignPerformanceDashboard";
 import { UnsubscribeManagement } from "@/components/admin/UnsubscribeManagement";
 import { SubscriptionsAdmin } from "@/components/admin/Subscriptions";
+import { MepAdmin } from "./MepAdmin";
 
 export default function Admin() {
   const { user } = useAuth();
@@ -44,6 +45,7 @@ export default function Admin() {
 
   const tabs = [
     { id: "dashboard", label: "Dashboard", icon: "📊" },
+    { id: "mep-admin", label: "MEP Cost Management", icon: "💰" },
     { id: "blog", label: "Blog", icon: "📝" },
     { id: "services", label: "Services", icon: "🔧" },
     { id: "case-studies", label: "Case Studies", icon: "📸" },
@@ -118,6 +120,7 @@ export default function Admin() {
         {/* Main Content */}
         <main className="flex-1 p-6">
           {currentTab === "dashboard" && <AdminDashboard onNavigate={setCurrentTab} />}
+          {currentTab === "mep-admin" && <MepAdmin />}
           {currentTab === "blog" && <AdminBlog />}
           {currentTab === "services" && <AdminServices />}
           {currentTab === "case-studies" && <CaseStudiesAdmin />}

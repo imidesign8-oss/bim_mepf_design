@@ -647,3 +647,11 @@
 - [x] Show only selected discipline costs in results
 - [x] Update backend to calculate discipline-only costs
 - [ ] Test discipline selection and cost calculation
+
+
+## Admin Panel Fixes - MEP Management
+- [x] Fix admin panel routing and visibility
+- [x] Add construction cost management tab
+- [x] Add city management tab
+- [x] Add discipline cost management tab
+- [ ] Test all admin functions
