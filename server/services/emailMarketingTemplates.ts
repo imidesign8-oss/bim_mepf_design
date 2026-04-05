@@ -40,7 +40,7 @@ export const emailTemplates = {
 <body>
   <div class="container">
     <div class="header">
-      <img src="${LOGO_URL}" alt="IMI DESIGN Logo" width="100" height="100" style="max-width: 100px; width: 100px; height: 100px; display: block; margin: 0 auto; border: none; background-color: transparent;" />
+      <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663379809910/dQGMwfPzENE9oJMqbRVUVv/logo_230a91c4.png" alt="IMI DESIGN Logo" width="100" height="100" style="max-width: 100px; width: 100px; height: 100px; display: block; margin: 0 auto; border: none; background-color: transparent;" />
       <h1>IMI DESIGN</h1>
       <p>BIM & MEPF Design Excellence</p>
     </div>
@@ -141,7 +141,7 @@ export const emailTemplates = {
 <body>
   <div class="container">
     <div class="header">
-      <img src="${LOGO_URL}" alt="IMI DESIGN Logo" width="100" height="100" style="max-width: 100px; width: 100px; height: 100px; display: block; margin: 0 auto; border: none; background-color: transparent;" />
+      <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663379809910/dQGMwfPzENE9oJMqbRVUVv/logo_230a91c4.png" alt="IMI DESIGN Logo" width="100" height="100" style="max-width: 100px; width: 100px; height: 100px; display: block; margin: 0 auto; border: none; background-color: transparent;" />
       <h1>IMI DESIGN</h1>
       <p>Construction Excellence Through BIM & MEPF Design</p>
     </div>
@@ -247,7 +247,7 @@ export const emailTemplates = {
 <body>
   <div class="container">
     <div class="header">
-      <img src="${LOGO_URL}" alt="IMI DESIGN Logo" width="100" height="100" style="max-width: 100px; width: 100px; height: 100px; display: block; margin: 0 auto; border: none; background-color: transparent;" />
+      <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663379809910/dQGMwfPzENE9oJMqbRVUVv/logo_230a91c4.png" alt="IMI DESIGN Logo" width="100" height="100" style="max-width: 100px; width: 100px; height: 100px; display: block; margin: 0 auto; border: none; background-color: transparent;" />
       <h1>IMI DESIGN</h1>
       <p>BIM & MEPF Design Services</p>
     </div>
