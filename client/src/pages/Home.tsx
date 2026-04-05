@@ -27,9 +27,9 @@ export default function Home() {
 
   useEffect(() => {
     // Set page title and meta tags
-    setPageTitle("BIM & MEPF Design Services | IMI Design");
+    setPageTitle("Professional BIM & MEPF Design Services for Modern Buildings");
     setPageDescription(
-      "Expert BIM coordination and MEPF design services for modern buildings. Professional solutions for mechanical, electrical, and plumbing design."
+      "Expert BIM coordination, 3D modeling, and MEPF design services. Mechanical, electrical, plumbing, and fire protection design for modern buildings."
     );
     setCanonicalUrl(getFullUrl("/"));
     setOpenGraphImage(
@@ -136,7 +136,7 @@ export default function Home() {
                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-primary/10 mb-4">
                   <feature.icon className="text-primary" size={24} />
                 </div>
-                <h4 className="mb-2">{feature.title}</h4>
+                <h3 className="mb-2 text-base">{feature.title}</h3>
                 <p className="text-sm text-muted-foreground">{feature.desc}</p>
               </div>
             ))}
@@ -225,12 +225,47 @@ export default function Home() {
         description="Get answers to common questions about our BIM and MEPF design services."
       />
 
+      {/* Additional Services Links Section */}
+      <section className="py-16 md:py-24 bg-card/50">
+        <div className="container">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="mb-6 text-center">Our Core Expertise</h2>
+            <p className="text-center text-muted-foreground mb-12">
+              We specialize in comprehensive BIM and MEPF solutions for modern buildings. Learn more about our specialized services:
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Link href="/services/building-information-modeling">
+                <a className="p-6 border border-border rounded-lg hover:border-primary hover:bg-primary/5 transition-all">
+                  <h3 className="mb-3">BIM Services</h3>
+                  <p className="text-sm text-muted-foreground mb-4">3D modeling, coordination, clash detection, and 4D/5D planning</p>
+                  <span className="text-primary font-semibold text-sm">Learn More →</span>
+                </a>
+              </Link>
+              <Link href="/services/mepf-design-modeling-coordination">
+                <a className="p-6 border border-border rounded-lg hover:border-primary hover:bg-primary/5 transition-all">
+                  <h3 className="mb-3">MEPF Design</h3>
+                  <p className="text-sm text-muted-foreground mb-4">Mechanical, electrical, plumbing, and fire protection design coordination</p>
+                  <span className="text-primary font-semibold text-sm">Learn More →</span>
+                </a>
+              </Link>
+              <Link href="/services/quantities-estimating">
+                <a className="p-6 border border-border rounded-lg hover:border-primary hover:bg-primary/5 transition-all">
+                  <h3 className="mb-3">Quantities & Estimating</h3>
+                  <p className="text-sm text-muted-foreground mb-4">Material take-off, bill of quantities, and variation quantification</p>
+                  <span className="text-primary font-semibold text-sm">Learn More →</span>
+                </a>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-16 md:py-24 bg-gradient-to-r from-primary/10 to-accent/10">
         <div className="container text-center">
           <h2 className="mb-6">Ready to Transform Your Project?</h2>
           <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Let's discuss your BIM and MEPF design requirements and create exceptional solutions together.
+            Let's discuss your BIM and MEPF design requirements and create exceptional solutions together. Explore our <Link href="/about"><a className="text-primary font-semibold hover:underline">about us</a></Link> page to learn more about our team and experience.
           </p>
           <Link href="/contact">
             <a className="inline-flex items-center px-8 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors">
