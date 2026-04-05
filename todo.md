@@ -638,3 +638,12 @@
 - [ ] Create estimate history API endpoints
 - [ ] Build estimate history UI with comparison feature
 - [ ] Add PDF generation for email attachment
+
+
+## UI Fixes - Discipline & Unit Selection
+- [x] Add visible discipline selection checkboxes to calculator
+- [x] Add BIM vs MEP vertical toggle
+- [x] Add Sq Ft / Sq M unit conversion toggle
+- [x] Show only selected discipline costs in results
+- [x] Update backend to calculate discipline-only costs
+- [ ] Test discipline selection and cost calculation
