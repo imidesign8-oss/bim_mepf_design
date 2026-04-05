@@ -628,3 +628,13 @@
 - [x] Update calculator UI with discipline checkboxes
 - [x] Add export to PDF with discipline breakdown
 - [ ] Test all admin functions
+
+
+## Phase 3: City Expansion & Estimate History
+- [x] Expand city coverage to 50+ cities across all states (63 cities added)
+- [x] Add estimate history schema to database
+- [x] Implement email notifications for cost estimates
+- [x] Add email helper with HTML templates for estimates and comparisons
+- [ ] Create estimate history API endpoints
+- [ ] Build estimate history UI with comparison feature
+- [ ] Add PDF generation for email attachment

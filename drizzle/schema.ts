@@ -765,3 +765,43 @@ export const mepEstimates = mysqlTable("mep_estimates", {
 
 export type MepEstimate = typeof mepEstimates.$inferSelect;
 export type InsertMepEstimate = typeof mepEstimates.$inferInsert;
+
+/**
+ * MEP Estimate History - Track all user estimates for comparison and history
+ */
+export const mepEstimateHistory = mysqlTable("mep_estimate_history", {
+  id: int("id").autoincrement().primaryKey(),
+  estimateId: int("estimateId").notNull().references(() => mepEstimates.id, { onDelete: "cascade" }),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  // Estimate details
+  projectName: varchar("projectName", { length: 255 }),
+  projectNotes: longtext("projectNotes"),
+  
+  // Selected disciplines
+  selectedDisciplines: varchar("selectedDisciplines", { length: 500 }), // JSON array: ["electrical", "plumbing", "hvac"]
+  
+  // Cost breakdown by discipline
+  disciplineCosts: longtext("disciplineCosts"), // JSON: { "electrical": 50000, "plumbing": 30000, ... }
+  totalCost: decimal("totalCost", { precision: 14, scale: 2 }).notNull(),
+  
+  // Metadata
+  isCompared: boolean("isCompared").default(false).notNull(),
+  comparedWithEstimateIds: varchar("comparedWithEstimateIds", { length: 500 }), // JSON array of IDs
+  
+  // Email tracking
+  emailSent: boolean("emailSent").default(false).notNull(),
+  emailSentAt: timestamp("emailSentAt"),
+  emailRecipient: varchar("emailRecipient", { length: 320 }),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  userIdIdx: index("mep_history_user_idx").on(table.userId),
+  estimateIdIdx: index("mep_history_estimate_idx").on(table.estimateId),
+  createdAtIdx: index("mep_history_created_idx").on(table.createdAt),
+  emailSentIdx: index("mep_history_email_idx").on(table.emailSent),
+}));
+
+export type MepEstimateHistory = typeof mepEstimateHistory.$inferSelect;
+export type InsertMepEstimateHistory = typeof mepEstimateHistory.$inferInsert;
