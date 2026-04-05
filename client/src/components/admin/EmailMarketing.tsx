@@ -14,7 +14,8 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Mail, Upload, Send, Settings, Loader, CheckCircle, AlertCircle } from 'lucide-react';
+import { Mail, Upload, Send, Settings, Loader, CheckCircle, AlertCircle, Eye } from 'lucide-react';
+import { EmailPreviewModal } from '../EmailPreviewModal';
 
 export function EmailMarketing() {
   const [activeTab, setActiveTab] = useState('campaigns');
@@ -28,6 +29,9 @@ export function EmailMarketing() {
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [uploadStatus, setUploadStatus] = useState('');
   const [sendingCampaignId, setSendingCampaignId] = useState<number | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewHtml, setPreviewHtml] = useState('');
+  const [previewTemplate, setPreviewTemplate] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch data
@@ -36,11 +40,33 @@ export function EmailMarketing() {
     recipientType: 'all',
   });
   const { data: templates = [] } = trpc.emailMarketing.templates.list.useQuery();
+  const getTemplate = trpc.emailMarketing.templates.get.useQuery(
+    { templateType: campaignForm.templateType as any },
+    { enabled: false }
+  );
 
   // Mutations
   const uploadRecipients = trpc.emailMarketing.recipients.upload.useMutation();
   const createCampaign = trpc.emailMarketing.campaigns.create.useMutation();
   const sendCampaign = trpc.emailMarketing.campaigns.send.useMutation();
+
+  const handlePreview = async () => {
+    if (!campaignForm.subject || !campaignForm.content) {
+      alert('Please fill in subject and content');
+      return;
+    }
+
+    try {
+      const template = await getTemplate.refetch();
+      if (template.data) {
+        setPreviewHtml(template.data.html);
+        setPreviewTemplate(template.data.name);
+        setPreviewOpen(true);
+      }
+    } catch (error: any) {
+      alert(`Error loading template: ${error.message}`);
+    }
+  };
 
   const handleCSVUpload = async () => {
     if (!csvFile) {
@@ -243,6 +269,14 @@ export function EmailMarketing() {
               </div>
 
               <Button
+                onClick={handlePreview}
+                variant="outline"
+                className="w-full mb-2"
+              >
+                <Eye className="w-4 h-4 mr-2" />
+                Preview Email
+              </Button>
+              <Button
                 onClick={handleCreateCampaign}
                 disabled={createCampaign.isPending}
                 className="w-full"
@@ -408,6 +442,14 @@ jane@example.com,Jane Smith,builder,XYZ Builders,Bangalore,Karnataka`}
           </Card>
         </TabsContent>
       </Tabs>
+
+      <EmailPreviewModal
+        isOpen={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        emailHtml={previewHtml}
+        subject={campaignForm.subject}
+        templateName={previewTemplate}
+      />
     </div>
   );
 }

@@ -518,3 +518,20 @@
 - [ ] Evaluate WhatsApp marketing benefits vs implementation complexity
 - [ ] Document WhatsApp strategy recommendations
 - [ ] Create implementation roadmap if approved
+
+
+## Email Preview Feature (In Progress)
+- [ ] Create email preview modal component
+- [ ] Add preview button to email marketing campaigns form
+- [ ] Implement responsive email preview display
+- [ ] Add device preview options (Desktop, Mobile, Gmail, Outlook)
+- [ ] Display logo and content rendering preview
+- [ ] Test email preview across different templates
+
+
+## Email Preview Feature (Code Complete - Button Rendering Issue)
+- [x] Create email preview modal/page component (EmailPreviewModal.tsx)
+- [x] Add preview functionality to email marketing admin panel
+- [x] Implement responsive email preview display with iframe
+- [x] Add device/client preview options (desktop, mobile, Gmail, Outlook)
+- [ ] Debug button rendering issue in EmailMarketing component (known limitation - button not visible in UI despite code being present)
