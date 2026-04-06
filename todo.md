@@ -673,3 +673,10 @@
 - [x] Remove LOD field from MEP calculator (LOD is BIM-only) - LOD hidden for MEP, shown for BIM
 - [x] Show all 4 disciplines in breakdown (not just selected ones) - unselected show as ₹0
 - [x] Verify cost calculation formula matches 1-2% MEP model with discipline weightage - verified correct
+
+
+## BIM Calculation Bug Fix - CRITICAL
+- [x] Fix BIM cost calculation - now showing correct amount (₹1,20,000 for ₹20L @ 6% LOD 300)
+- [x] Remove discipline breakdown from BIM results (only for MEP) - BIM shows only total cost
+- [x] BIM shows: Total Project Cost × LOD % (no discipline split) - verified working
+- [x] Verify BIM calculation: ₹20L × 6% (LOD 300) = ₹1,20,000 ✓ CORRECT
