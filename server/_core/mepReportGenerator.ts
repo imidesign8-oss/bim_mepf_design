@@ -289,7 +289,7 @@ export function generateMepReportHTML(data: MepReportData): string {
     
     <!-- Footer -->
     <div class="footer">
-      IMI Design - BIM & MEP Services | www.imidesign.in | Contact: info@imidesign.in
+      IMI Design - BIM & MEP Services | www.imidesign.in | Contact: projects@imidesign.in
     </div>
   </div>
 </body>

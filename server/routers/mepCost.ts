@@ -333,7 +333,15 @@ export const mepCostRouter = router({
         disciplineCosts: input.disciplineCosts,
         city: input.city,
         state: input.state,
-        generatedDate: new Date().toLocaleDateString("en-IN"),
+        generatedDate: new Date().toLocaleString("en-IN", { 
+          timeZone: "Asia/Kolkata",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit"
+        }),
       });
       return { html };
     }),

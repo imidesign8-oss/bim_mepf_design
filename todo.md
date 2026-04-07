@@ -730,3 +730,16 @@
 - [ ] Monitor indexing status and crawl errors - PENDING (after submission)
 - [ ] Add Google Analytics and conversion tracking - PENDING
 - [x] Create robots.txt with proper directives - DONE
+
+
+## Critical MEP Calculator Bug Fixes - URGENT
+- [x] Add BIM pricing data for all Indian states (currently missing for city 30001) - DONE (120 records populated)
+- [x] Implement state-based BIM LOD pricing configuration - DONE (all 24 cities × 5 LOD levels)
+- [ ] Generate PDF reports for BIM calculations (currently text-only, MEP has PDF) - PENDING
+- [x] Review and document MEP discipline weightage (Electrical vs Plumbing distribution) - DONE (justification document created)
+- [x] Change email from info@imidesign.in to projects@imidesign.in in reports - DONE
+- [x] Configure Indian Standard Time (IST) for all timestamps and email timestamps - DONE (Asia/Kolkata timezone)
+- [x] Fix timezone issue in email notifications (currently showing wrong timezone) - DONE
+- [ ] Test BIM calculation with various states and LOD levels - READY (pricing data populated)
+- [ ] Test PDF generation for both BIM and MEP reports - PENDING
+- [x] Verify email timestamps are in IST format - DONE (IST formatting applied)
