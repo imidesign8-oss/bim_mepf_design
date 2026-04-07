@@ -698,3 +698,11 @@
 - [x] Add proper text justification and spacing - DONE (text-justify applied, proper card spacing)
 - [x] Test project detail page with multiple projects - READY (form fields ready for data entry)
 - [x] Verify mobile responsiveness of new layout - DONE (responsive grid layout)
+
+
+## Services & Location Data Persistence Bug - CRITICAL
+- [x] Fix services and location data not being saved to database - FIXED (added to tRPC input schemas)
+- [x] Fix services and location data not being retrieved when editing - FIXED (form loads data correctly)
+- [x] Verify form submission includes services and location fields - VERIFIED (both fields in form)
+- [x] Verify database schema properly stores the data - VERIFIED (schema updated and migrated)
+- [x] Test end-to-end: enter data → save → edit → verify data persists - TESTED (test project created with all data)

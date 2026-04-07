@@ -385,6 +385,8 @@ export const appRouter = router({
         featuredImage: z.string().optional(),
         galleryImages: z.array(z.string()).optional(),
         client: z.string().optional(),
+        location: z.string().optional(),
+        services: z.array(z.string()).optional(),
         completionDate: z.string().optional(),
         budget: z.string().optional(),
         status: z.enum(["completed", "ongoing", "planned"]).default("completed"),
@@ -401,6 +403,7 @@ export const appRouter = router({
         return createProject({
           ...input,
           galleryImages: input.galleryImages ? JSON.stringify(input.galleryImages) : undefined,
+          services: input.services ? JSON.stringify(input.services) : undefined,
           slug,
           canonicalUrl: `/projects/${slug}`,
         });
@@ -416,6 +419,8 @@ export const appRouter = router({
         featuredImage: z.string().optional(),
         galleryImages: z.array(z.string()).optional(),
         client: z.string().optional(),
+        location: z.string().optional(),
+        services: z.array(z.string()).optional(),
         completionDate: z.string().optional(),
         budget: z.string().optional(),
         status: z.enum(["completed", "ongoing", "planned"]).optional(),
@@ -433,6 +438,7 @@ export const appRouter = router({
         const processedData = {
           ...data,
           galleryImages: data.galleryImages ? JSON.stringify(data.galleryImages) : undefined,
+          services: data.services ? JSON.stringify(data.services) : undefined,
         };
         return updateProject(id, processedData);
       }),
