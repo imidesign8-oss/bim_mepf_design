@@ -87,4 +87,35 @@
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
+
+  <!-- MEP Calculator Tool -->
+  <url>
+    <loc>https://imidesign.in/mep-calculator</loc>
+    <lastmod>2026-04-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- Individual Project Pages -->
+  <url>
+    <loc>https://imidesign.in/projects/plumbing-electrical-design-for-residential-project-pushpanjali</loc>
+    <lastmod>2026-04-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://imidesign.in/projects/mep-infrastructure-design-for-plotted-development-goa</loc>
+    <lastmod>2026-04-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://imidesign.in/projects/plumbing-system-design-nexcity-project</loc>
+    <lastmod>2026-04-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
 </urlset>

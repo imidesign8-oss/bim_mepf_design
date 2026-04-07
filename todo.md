@@ -716,3 +716,17 @@
 - [x] Integrate tag input into admin project form - DONE (integrated and working)
 - [x] Test tag input with multiple services - DONE (tested with 3+ services)
 - [x] Verify services display correctly in project detail page - READY (form fully functional)
+
+
+## SEO Setup for imidesign.in - CRITICAL
+- [x] Create sitemap.xml with all pages (homepage, services, projects, MEP calculator, contact, blog) - DONE
+- [x] Create robots.txt file for search engine crawling - DONE (already configured)
+- [x] Add meta tags to all pages (title, description, og:image, og:type, canonical) - DONE
+- [x] Implement structured data (Schema.org JSON-LD) for Organization and LocalBusiness - DONE
+- [x] Configure page indexing settings in HTML head - DONE (index, follow)
+- [x] Set up canonical URLs to prevent duplicate content - DONE (dynamic)
+- [ ] Verify domain in Google Search Console - PENDING (user action)
+- [ ] Submit sitemap.xml to Google Search Console - PENDING (user action)
+- [ ] Monitor indexing status and crawl errors - PENDING (after submission)
+- [ ] Add Google Analytics and conversion tracking - PENDING
+- [x] Create robots.txt with proper directives - DONE
