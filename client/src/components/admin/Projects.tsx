@@ -2,6 +2,7 @@ import { trpc } from "@/lib/trpc";
 import { Edit2, Trash2, Plus, Image, X } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
+import TagInput from "@/components/TagInput";
 
 export default function AdminProjects() {
   const { data: projects, refetch } = trpc.projects.listAll.useQuery();
@@ -289,15 +290,12 @@ export default function AdminProjects() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold mb-2">Services</label>
-              <input
-                type="text"
-                value={formData.services.join(", ")}
-                onChange={(e) => setFormData({ ...formData, services: e.target.value.split(",").map(s => s.trim()).filter(s => s) })}
-                className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="e.g., Electrical Design, Plumbing, HVAC"
+              <TagInput
+                value={formData.services}
+                onChange={(services) => setFormData({ ...formData, services })}
+                label="Services"
+                placeholder="Type a service and press Enter or comma to add"
               />
-              <p className="text-xs text-muted-foreground mt-1">Enter services separated by commas</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
