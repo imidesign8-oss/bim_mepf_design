@@ -687,3 +687,14 @@
 - [x] Investigate "An unexpected error occurred" message - Root cause: galleryImages JSON string not being parsed
 - [x] Check project edit form component for errors - Added proper JSON parsing and null-guards
 - [x] Verify project data loading and form submission - Edit form now loads and displays all fields correctly
+
+
+## Project Detail Page Redesign - CRITICAL UX IMPROVEMENT
+- [x] Add location and services fields to project database schema - DONE
+- [x] Update project admin form to include location and services inputs - DONE (services field added to form)
+- [x] Redesign project detail page with card-based layout (vertical stacking) - DONE (professional card layout)
+- [x] Display: Project Name, Client, Location, Brief Description, Services (bullet points) - DONE
+- [x] Show services from both custom field AND MEP disciplines - DONE (supports both)
+- [x] Add proper text justification and spacing - DONE (text-justify applied, proper card spacing)
+- [x] Test project detail page with multiple projects - READY (form fields ready for data entry)
+- [x] Verify mobile responsiveness of new layout - DONE (responsive grid layout)

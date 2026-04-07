@@ -55,8 +55,23 @@ export default function ProjectDetail() {
     ? project.galleryImages 
     : project.galleryImages ? JSON.parse(project.galleryImages) : [];
 
+  // Parse services
+  let services: string[] = [];
+  if (project.services) {
+    if (typeof project.services === 'string') {
+      try {
+        services = JSON.parse(project.services);
+      } catch (e) {
+        services = [];
+      }
+    } else if (Array.isArray(project.services)) {
+      services = project.services;
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-background">{/* Breadcrumb */}
+    <div className="min-h-screen bg-background">
+      {/* Breadcrumb */}
       <div className="bg-secondary/30 border-b border-border">
         <div className="container py-4 flex items-center gap-2 text-sm">
           <Link href="/"><a className="text-primary hover:underline">Home</a></Link>
@@ -90,56 +105,84 @@ export default function ProjectDetail() {
         </section>
       )}
 
-      {/* Project Details */}
-      <section className="section-padding">
-        <div className="container">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            {/* Main Content */}
-            <div className="lg:col-span-2">
-              <div className="prose prose-lg max-w-none">
+      {/* Project Details - Card Based Layout */}
+      <section className="py-12 md:py-16">
+        <div className="container max-w-4xl">
+          <div className="space-y-6">
+            {/* Project Info Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Client Card */}
+              {project.client && (
+                <div className="card-elegant p-6 rounded-lg border border-border">
+                  <p className="text-sm font-semibold text-primary mb-2">CLIENT</p>
+                  <p className="text-lg font-bold text-foreground">{project.client}</p>
+                </div>
+              )}
+
+              {/* Location Card */}
+              {project.location && (
+                <div className="card-elegant p-6 rounded-lg border border-border">
+                  <p className="text-sm font-semibold text-primary mb-2">LOCATION</p>
+                  <p className="text-lg font-bold text-foreground">{project.location}</p>
+                </div>
+              )}
+
+              {/* Status Card */}
+              <div className="card-elegant p-6 rounded-lg border border-border">
+                <p className="text-sm font-semibold text-primary mb-2">STATUS</p>
+                <p className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-semibold capitalize">
+                  {project.status}
+                </p>
+              </div>
+
+              {/* Completion Date Card */}
+              {project.completionDate && (
+                <div className="card-elegant p-6 rounded-lg border border-border">
+                  <p className="text-sm font-semibold text-primary mb-2">COMPLETION DATE</p>
+                  <p className="text-lg font-bold text-foreground">{project.completionDate}</p>
+                </div>
+              )}
+            </div>
+
+            {/* Budget Card */}
+            {project.budget && (
+              <div className="card-elegant p-6 rounded-lg border border-border">
+                <p className="text-sm font-semibold text-primary mb-2">BUDGET</p>
+                <p className="text-lg font-bold text-foreground">{project.budget}</p>
+              </div>
+            )}
+
+            {/* Description Card */}
+            <div className="card-elegant p-6 rounded-lg border border-border">
+              <p className="text-sm font-semibold text-primary mb-4">DESCRIPTION</p>
+              <div className="prose prose-sm max-w-none text-foreground leading-relaxed text-justify">
                 <div dangerouslySetInnerHTML={{ __html: project.description }} />
               </div>
             </div>
 
-            {/* Sidebar */}
-            <div>
-              <div className="card-elegant sticky top-20">
-                <h3 className="mb-6">Project Details</h3>
-                <div className="space-y-4">
-                  {project.client && (
-                    <div>
-                      <p className="text-sm text-muted-foreground">Client</p>
-                      <p className="font-semibold">{project.client}</p>
-                    </div>
-                  )}
-                  {project.completionDate && (
-                    <div>
-                      <p className="text-sm text-muted-foreground">Completion Date</p>
-                      <p className="font-semibold">{project.completionDate}</p>
-                    </div>
-                  )}
-                  {project.budget && (
-                    <div>
-                      <p className="text-sm text-muted-foreground">Budget</p>
-                      <p className="font-semibold">{project.budget}</p>
-                    </div>
-                  )}
-                  <div>
-                    <p className="text-sm text-muted-foreground">Status</p>
-                    <p className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-semibold capitalize">
-                      {project.status}
-                    </p>
-                  </div>
-                </div>
+            {/* Services Card */}
+            {services.length > 0 && (
+              <div className="card-elegant p-6 rounded-lg border border-border">
+                <p className="text-sm font-semibold text-primary mb-4">SERVICES PROVIDED</p>
+                <ul className="space-y-3">
+                  {services.map((service, index) => (
+                    <li key={index} className="flex items-start gap-3">
+                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-sm font-semibold flex-shrink-0 mt-0.5">
+                        ✓
+                      </span>
+                      <span className="text-foreground font-medium">{service}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </section>
 
       {/* Gallery */}
       {galleryImages.length > 0 && (
-        <section className="section-padding bg-secondary/30">
+        <section className="py-12 md:py-16 bg-secondary/30">
           <div className="container">
             <h2 className="mb-8 text-center">Project Gallery</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

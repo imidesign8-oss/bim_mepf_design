@@ -98,6 +98,8 @@ export const projects = mysqlTable("projects", {
   featuredImage: text("featuredImage"),
   galleryImages: longtext("galleryImages"), // JSON array of image URLs
   client: varchar("client", { length: 255 }),
+  location: varchar("location", { length: 255 }), // City/State or custom location
+  services: longtext("services"), // JSON array of services or custom text
   completionDate: varchar("completionDate", { length: 50 }),
   budget: varchar("budget", { length: 100 }),
   status: mysqlEnum("status", ["completed", "ongoing", "planned"]).default("completed").notNull(),

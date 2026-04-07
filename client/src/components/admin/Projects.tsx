@@ -12,6 +12,8 @@ export default function AdminProjects() {
     description: "",
     shortDescription: "",
     client: "",
+    location: "",
+    services: [] as string[],
     status: "completed" as const,
     metaTitle: "",
     metaDescription: "",
@@ -27,6 +29,8 @@ export default function AdminProjects() {
         description: "",
         shortDescription: "",
         client: "",
+        location: "",
+        services: [],
         status: "completed",
         metaTitle: "",
         metaDescription: "",
@@ -47,6 +51,8 @@ export default function AdminProjects() {
         description: "",
         shortDescription: "",
         client: "",
+        location: "",
+        services: [],
         status: "completed",
         metaTitle: "",
         metaDescription: "",
@@ -83,6 +89,19 @@ export default function AdminProjects() {
           galleryImages = project.galleryImages;
         }
       }
+      // Parse services if it's a JSON string
+      let services: string[] = [];
+      if (project.services) {
+        if (typeof project.services === 'string') {
+          try {
+            services = JSON.parse(project.services);
+          } catch (e) {
+            services = [];
+          }
+        } else if (Array.isArray(project.services)) {
+          services = project.services;
+        }
+      }
       // Ensure all fields are properly typed and non-null for controlled inputs
       const validStatus = ['completed', 'ongoing', 'planned'].includes(project.status) ? project.status : 'completed';
       setFormData({
@@ -90,6 +109,8 @@ export default function AdminProjects() {
         description: project.description ?? "",
         shortDescription: project.shortDescription ?? "",
         client: project.client ?? "",
+        location: project.location ?? "",
+        services: services,
         status: validStatus,
         metaTitle: project.metaTitle ?? "",
         metaDescription: project.metaDescription ?? "",
@@ -126,6 +147,8 @@ export default function AdminProjects() {
       description: "",
       shortDescription: "",
       client: "",
+      location: "",
+      services: [],
       status: "completed",
       metaTitle: "",
       metaDescription: "",
@@ -167,6 +190,8 @@ export default function AdminProjects() {
                 description: "",
                 shortDescription: "",
                 client: "",
+                location: "",
+                services: [],
                 status: "completed",
                 metaTitle: "",
                 metaDescription: "",
@@ -218,6 +243,17 @@ export default function AdminProjects() {
             </div>
 
             <div>
+              <label className="block text-sm font-semibold mb-2">Location</label>
+              <input
+                type="text"
+                value={formData.location}
+                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="City/State or location"
+              />
+            </div>
+
+            <div>
               <label className="block text-sm font-semibold mb-2">Short Description</label>
               <input
                 type="text"
@@ -250,6 +286,18 @@ export default function AdminProjects() {
                 <option value="ongoing">Ongoing</option>
                 <option value="planned">Planned</option>
               </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold mb-2">Services</label>
+              <input
+                type="text"
+                value={formData.services.join(", ")}
+                onChange={(e) => setFormData({ ...formData, services: e.target.value.split(",").map(s => s.trim()).filter(s => s) })}
+                className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="e.g., Electrical Design, Plumbing, HVAC"
+              />
+              <p className="text-xs text-muted-foreground mt-1">Enter services separated by commas</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
