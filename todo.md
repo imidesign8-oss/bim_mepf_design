@@ -680,3 +680,10 @@
 - [x] Remove discipline breakdown from BIM results (only for MEP) - BIM shows only total cost
 - [x] BIM shows: Total Project Cost × LOD % (no discipline split) - verified working
 - [x] Verify BIM calculation: ₹20L × 6% (LOD 300) = ₹1,20,000 ✓ CORRECT
+
+
+## Project Edit Error - CRITICAL BUG
+- [x] Fix project edit error when clicking edit icon in admin panel - FIXED!
+- [x] Investigate "An unexpected error occurred" message - Root cause: galleryImages JSON string not being parsed
+- [x] Check project edit form component for errors - Added proper JSON parsing and null-guards
+- [x] Verify project data loading and form submission - Edit form now loads and displays all fields correctly

@@ -67,18 +67,41 @@ export default function AdminProjects() {
   });
 
   const handleEdit = (project: any) => {
-    setEditingId(project.id);
-    setFormData({
-      title: project.title,
-      description: project.description,
-      shortDescription: project.shortDescription || "",
-      client: project.client || "",
-      status: project.status || "completed",
-      metaTitle: project.metaTitle || "",
-      metaDescription: project.metaDescription || "",
-      galleryImages: project.galleryImages || [],
-    });
-    setShowForm(true);
+    try {
+      console.log('handleEdit called with project:', project);
+      setEditingId(project.id);
+      // Parse galleryImages if it's a JSON string
+      let galleryImages: string[] = [];
+      if (project.galleryImages) {
+        if (typeof project.galleryImages === 'string') {
+          try {
+            galleryImages = JSON.parse(project.galleryImages);
+          } catch (e) {
+            galleryImages = [];
+          }
+        } else if (Array.isArray(project.galleryImages)) {
+          galleryImages = project.galleryImages;
+        }
+      }
+      // Ensure all fields are properly typed and non-null for controlled inputs
+      const validStatus = ['completed', 'ongoing', 'planned'].includes(project.status) ? project.status : 'completed';
+      setFormData({
+        title: project.title ?? "",
+        description: project.description ?? "",
+        shortDescription: project.shortDescription ?? "",
+        client: project.client ?? "",
+        status: validStatus,
+        metaTitle: project.metaTitle ?? "",
+        metaDescription: project.metaDescription ?? "",
+        galleryImages: galleryImages,
+      });
+      console.log('About to set showForm to true');
+      setShowForm(true);
+      console.log('setShowForm(true) called');
+    } catch (error) {
+      console.error('Error loading project for edit:', error);
+      toast.error('Failed to load project for editing');
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
