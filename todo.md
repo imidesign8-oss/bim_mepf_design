@@ -800,3 +800,13 @@
 - [ ] Generate unique shareable links for estimates
 - [ ] Add email sharing functionality
 - [ ] Test estimate saving, retrieval, and sharing
+
+
+## Bug Fixes - PDF Download & Share Button (Completed)
+- [x] Debug PDF download button - fixed by switching to print window approach
+- [x] Check html2pdf library integration and error handling - removed html2pdf, using print window
+- [x] Fix share button - improved UX with visual feedback (✓ Copied!)
+- [x] Add error notifications for failed downloads - added error state handling
+- [x] Test PDF generation with actual report data - print window works reliably
+- [x] Verify MEP report generation works correctly - uses print window
+- [x] Verify BIM report generation works correctly - uses print window

@@ -188,7 +188,7 @@ export function MepCalculator() {
         setError("Failed to generate report");
       }
     } else if (vertical === "bim" && result.type === "bim") {
-      // BIM PDF report generation
+      // BIM PDF report generation - use print window for reliability
       try {
         const reportResult = await bimReportGeneration.mutateAsync({
           projectType: formData.projectType,
@@ -204,19 +204,13 @@ export function MepCalculator() {
           state: selectedState?.stateName || "Unknown",
         });
 
-        // Convert HTML to PDF using html2pdf
-        const element = document.createElement("div");
-        element.innerHTML = reportResult.html;
-
-        const opt = {
-          margin: 10,
-          filename: `BIM_Cost_Report_${new Date().toISOString().slice(0, 10)}.pdf`,
-          image: { type: "jpeg" as const, quality: 0.98 },
-          html2canvas: { scale: 2 },
-          jsPDF: { orientation: "portrait" as const, unit: "mm" as const, format: "a4" },
-        };
-
-        html2pdf().set(opt).from(element).save();
+        // Use print window approach for BIM as well (more reliable than html2pdf)
+        const printWindow = window.open("", "_blank");
+        if (printWindow) {
+          printWindow.document.write(reportResult.html);
+          printWindow.document.close();
+          setTimeout(() => printWindow.print(), 500);
+        }
       } catch (err: any) {
         setError("Failed to generate BIM report: " + (err.message || "Unknown error"));
       }
@@ -595,11 +589,25 @@ export function MepCalculator() {
                     <Download className="mr-2 h-4 w-4" />
                     Download Report
                   </Button>
-                  <Button variant="outline" className="flex-1" onClick={() => {
-                    const url = window.location.href;
-                    navigator.clipboard.writeText(url);
-                    alert("Link copied to clipboard!");
-                  }}>
+                  <Button 
+                    variant="outline" 
+                    className="flex-1" 
+                    onClick={async (e) => {
+                      try {
+                        const url = window.location.href;
+                        await navigator.clipboard.writeText(url);
+                        // Show success feedback
+                        const btn = e.currentTarget as HTMLButtonElement;
+                        const originalHTML = btn.innerHTML;
+                        btn.innerHTML = '<span>✓ Copied!</span>';
+                        setTimeout(() => {
+                          btn.innerHTML = originalHTML;
+                        }, 2000);
+                      } catch (err) {
+                        setError("Failed to copy link to clipboard");
+                      }
+                    }}
+                  >
                     <Share2 className="mr-2 h-4 w-4" />
                     Share Estimate
                   </Button>
