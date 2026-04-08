@@ -340,6 +340,61 @@ export const mepCostRouter = router({
         });
         return { html };
       }),
+
+    getPricing: publicProcedure.query(async () => {
+      const db = await getDb();
+      if (!db) return [];
+      try {
+        const { bimLodPricing } = await import("../../drizzle/schema");
+        return await db.select().from(bimLodPricing);
+      } catch (error) {
+        console.error("[BIM] Error fetching BIM LOD pricing:", error);
+        return [];
+      }
+    }),
+
+    updatePricing: protectedProcedure
+      .input(z.object({
+        updates: z.array(z.object({
+          cityId: z.number(),
+          lodLevel: z.string(),
+          residential: z.number(),
+          commercial: z.number(),
+          industrial: z.number(),
+        })),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        ensureAdmin(ctx);
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+        try {
+          const { bimLodPricing } = await import("../../drizzle/schema");
+          const { eq, and } = await import("drizzle-orm");
+
+          for (const update of input.updates) {
+            await db
+              .update(bimLodPricing)
+              .set({
+                bimPercentageResidential: update.residential.toString(),
+                bimPercentageCommercial: update.commercial.toString(),
+                bimPercentageIndustrial: update.industrial.toString(),
+              })
+              .where(
+                and(
+                  eq(bimLodPricing.cityId, update.cityId),
+                  eq(bimLodPricing.lodLevel, update.lodLevel as any)
+                )
+              );
+          }
+          return { success: true };
+        } catch (error: any) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: error.message || "Failed to update BIM pricing",
+          });
+        }
+      }),
   }),
 
   // ==================== PDF REPORT GENERATION ====================
@@ -386,6 +441,52 @@ export const mepCostRouter = router({
       });
       return { html };
     }),
+
+  // ==================== MEP PRICING MANAGEMENT ====================
+  mep: router({
+    getWeightages: publicProcedure.query(async () => {
+      const db = await getDb();
+      if (!db) return [];
+      try {
+        const { mepDisciplineWeightage } = await import("../../drizzle/schema");
+        return await db.select().from(mepDisciplineWeightage);
+      } catch (error) {
+        console.error("[MEP] Error fetching MEP discipline weightages:", error);
+        return [];
+      }
+    }),
+
+    updateWeightage: protectedProcedure
+      .input(z.object({
+        updates: z.array(z.object({
+          discipline: z.string(),
+          weightage: z.number(),
+        })),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        ensureAdmin(ctx);
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+        try {
+          const { mepDisciplineWeightage } = await import("../../drizzle/schema");
+          const { eq } = await import("drizzle-orm");
+
+          for (const update of input.updates) {
+            await db
+              .update(mepDisciplineWeightage)
+              .set({ weightagePercentage: update.weightage.toString() })
+              .where(eq(mepDisciplineWeightage.discipline, update.discipline as any));
+          }
+          return { success: true };
+        } catch (error: any) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: error.message || "Failed to update MEP weightages",
+          });
+        }
+      }),
+  }),
 
   // ==================== ESTIMATES ====================
   estimates: router({

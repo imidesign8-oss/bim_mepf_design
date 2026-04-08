@@ -82,8 +82,9 @@ export function MepCalculator() {
     },
   });
 
-  // Report generation mutation
+  // Report generation mutations
   const reportGeneration = trpc.mepCost.generateReport.useMutation();
+  const bimReportGeneration = trpc.mepCost.bim.generateReport.useMutation();
 
   const handleStateChange = (stateId: string) => {
     const id = parseInt(stateId);
@@ -186,36 +187,39 @@ export function MepCalculator() {
       } catch (err: any) {
         setError("Failed to generate report");
       }
-    } else {
-      // BIM text report fallback
-      const report = `
-BIM COST ESTIMATION REPORT
-Generated: ${new Date().toLocaleDateString("en-IN")}
+    } else if (vertical === "bim" && result.type === "bim") {
+      // BIM PDF report generation
+      try {
+        const reportResult = await bimReportGeneration.mutateAsync({
+          projectType: formData.projectType,
+          buildingArea: formData.buildingArea,
+          areaUnit: unitType,
+          lodLevel: formData.lodLevel,
+          lodPercentage: result.bimPercentage,
+          projectCost: formData.projectCost,
+          bimCost: result.totalBimCost,
+          costPerUnit: result.costPerUnit,
+          accuracyRange: result.accuracyRange,
+          city: selectedCity?.cityName || "Unknown",
+          state: selectedState?.stateName || "Unknown",
+        });
 
-PROJECT DETAILS:
-- Type: ${formData.projectType} (BIM)
-- Building Area: ${formData.buildingArea.toLocaleString()} ${unitType === "sqft" ? "sq ft" : "sq m"}
-- LOD Level: ${formData.lodLevel}
-- City: ${selectedCity?.cityName || "Unknown"}
-- State: ${selectedState?.stateName || "Unknown"}
+        // Convert HTML to PDF using html2pdf
+        const element = document.createElement("div");
+        element.innerHTML = reportResult.html;
 
-COST ESTIMATION:
-- Total BIM Cost: ₹${result.totalBimCost?.toLocaleString("en-IN")}
-- BIM Percentage: ${result.bimPercentage}%
-- Cost per ${unitType === "sqft" ? "Sq Ft" : "Sq M"}: ₹${result.costPerUnit?.toLocaleString("en-IN")}
-- Accuracy Range: ${result.accuracyRange}
+        const opt = {
+          margin: 10,
+          filename: `BIM_Cost_Report_${new Date().toISOString().slice(0, 10)}.pdf`,
+          image: { type: "jpeg" as const, quality: 0.98 },
+          html2canvas: { scale: 2 },
+          jsPDF: { orientation: "portrait" as const, unit: "mm" as const, format: "a4" },
+        };
 
-DISCLAIMER:
-This is an approximate estimate. Actual costs may vary.
-      `.trim();
-
-      const blob = new Blob([report], { type: "text/plain" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `BIM_Cost_Estimate_${new Date().toISOString().slice(0, 10)}.txt`;
-      a.click();
-      URL.revokeObjectURL(url);
+        html2pdf().set(opt).from(element).save();
+      } catch (err: any) {
+        setError("Failed to generate BIM report: " + (err.message || "Unknown error"));
+      }
     }
   };
 
