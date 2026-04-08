@@ -743,3 +743,32 @@
 - [ ] Test BIM calculation with various states and LOD levels - READY (pricing data populated)
 - [ ] Test PDF generation for both BIM and MEP reports - PENDING
 - [x] Verify email timestamps are in IST format - DONE (IST formatting applied)
+
+
+## Feature 1: BIM PDF Report Generation
+- [ ] Create BIM report generator similar to MEP (bimReportGenerator.ts)
+- [ ] Add professional PDF formatting with cost breakdown
+- [ ] Include LOD level details and accuracy range
+- [ ] Add download button to BIM results page
+- [ ] Test PDF generation with various LOD levels
+- [ ] Verify PDF includes all required information
+
+## Feature 2: Admin Pricing Management Dashboard
+- [ ] Create admin pricing management page component
+- [ ] Display BIM LOD pricing table (cities × LOD levels)
+- [ ] Display MEP discipline weightages table
+- [ ] Add edit functionality for BIM pricing by city and LOD
+- [ ] Add edit functionality for MEP discipline weightages
+- [ ] Implement save/update functionality with database persistence
+- [ ] Add validation and error handling
+- [ ] Test pricing updates reflect in calculator
+
+## Feature 3: Estimate History & Comparison
+- [ ] Create estimates table in database schema
+- [ ] Add save estimate functionality after calculation
+- [ ] Create estimate history page to view all saved estimates
+- [ ] Implement estimate comparison feature (side-by-side)
+- [ ] Add unique shareable links for estimates
+- [ ] Implement email sharing functionality
+- [ ] Add export estimate as PDF
+- [ ] Test history, comparison, and sharing features

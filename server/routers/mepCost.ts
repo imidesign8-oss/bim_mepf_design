@@ -18,6 +18,7 @@ import {
 } from "../db/mepCostDb";
 import { calculateMepCost, calculateBimCost } from "../db/mepCalculations";
 import { generateMepReportHTML } from "../_core/mepReportGenerator";
+import { generateBimReportHTML } from "../_core/bimReportGenerator";
 import { getDb } from "../db";
 import { mepCities } from "../../drizzle/schema";
 
@@ -298,6 +299,46 @@ export const mepCostRouter = router({
             message: error.message || "Failed to calculate BIM cost",
           });
         }
+      }),
+
+    generateReport: publicProcedure
+      .input(z.object({
+        projectType: z.string(),
+        buildingArea: z.number(),
+        areaUnit: z.enum(["sqft", "sqm"]),
+        lodLevel: z.string(),
+        lodPercentage: z.number(),
+        projectCost: z.number(),
+        bimCost: z.number(),
+        costPerUnit: z.number(),
+        accuracyRange: z.string(),
+        city: z.string(),
+        state: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        const html = generateBimReportHTML({
+          projectType: input.projectType,
+          buildingArea: input.buildingArea,
+          areaUnit: input.areaUnit,
+          lodLevel: input.lodLevel,
+          lodPercentage: input.lodPercentage,
+          projectCost: input.projectCost,
+          bimCost: input.bimCost,
+          costPerUnit: input.costPerUnit,
+          accuracyRange: input.accuracyRange,
+          city: input.city,
+          state: input.state,
+          generatedDate: new Date().toLocaleString("en-IN", { 
+            timeZone: "Asia/Kolkata",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit"
+          }),
+        });
+        return { html };
       }),
   }),
 
