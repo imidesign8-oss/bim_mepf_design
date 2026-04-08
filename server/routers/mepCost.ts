@@ -546,4 +546,63 @@ export const mepCostRouter = router({
         return estimate;
       }),
   }),
+
+  // ==================== EMAIL SHARING ====================
+  sendReportViaEmail: publicProcedure
+    .input(z.object({
+      recipientEmail: z.string().email(),
+      recipientName: z.string().optional(),
+      customMessage: z.string().optional(),
+      reportHtml: z.string(),
+      reportType: z.enum(["mep", "bim"]),
+      projectType: z.string(),
+      totalCost: z.number(),
+    }))
+    .mutation(async ({ input }) => {
+      try {
+        const { emailService } = await import("../services/emailService");
+        
+        const subject = `${input.reportType.toUpperCase()} Cost Estimate Report - ${input.projectType} Project`;
+        
+        let emailBody = `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">`;
+        emailBody += `<h2>Your ${input.reportType.toUpperCase()} Cost Estimate</h2>`;
+        
+        if (input.recipientName) {
+          emailBody += `<p>Dear ${input.recipientName},</p>`;
+        }
+        
+        if (input.customMessage) {
+          emailBody += `<p>${input.customMessage.replace(/\n/g, "<br />")}</p>`;
+        }
+        
+        emailBody += `<hr style="margin: 20px 0;" />`;
+        emailBody += input.reportHtml;
+        emailBody += `<hr style="margin: 20px 0;" />`;
+        emailBody += `<p style="font-size: 12px; color: #666;">`;
+        emailBody += `This is an automated estimate report. Please contact us for any clarifications.</p>`;
+        emailBody += `</div>`;
+        
+        const success = await emailService.sendEmail({
+          to: input.recipientEmail,
+          subject,
+          html: emailBody,
+          text: `Your ${input.reportType.toUpperCase()} Cost Estimate Report - ${input.projectType} Project`,
+        });
+        
+        if (!success) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to send email. Please try again later.",
+          });
+        }
+        
+        return { success: true, message: "Report sent successfully" };
+      } catch (error: any) {
+        console.error("[EMAIL] Error sending report:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: error.message || "Failed to send report via email",
+        });
+      }
+    }),
 });

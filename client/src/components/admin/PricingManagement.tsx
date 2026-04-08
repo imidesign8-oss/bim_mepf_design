@@ -5,9 +5,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AlertCircle, Save, Loader2 } from "lucide-react";
+import { AlertCircle, Save, Loader2, X, Search } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const LOD_LEVELS = ["100", "200", "300", "400", "500"];
 const LOD_DESCRIPTIONS: Record<string, string> = {
@@ -38,6 +45,12 @@ export default function PricingManagement() {
   const [activeTab, setActiveTab] = useState("bim");
   const [isLoading, setIsLoading] = useState(false);
 
+  // Filter states
+  const [searchCity, setSearchCity] = useState("");
+  const [filterState, setFilterState] = useState<number | null>(null);
+  const [filterLod, setFilterLod] = useState<string | null>(null);
+  const [selectedBimRows, setSelectedBimRows] = useState<Set<string>>(new Set());
+
   // Fetch BIM LOD pricing
   const { data: bimPricing = [], refetch: refetchBim } = trpc.mepCost.bim.getPricing.useQuery();
 
@@ -46,6 +59,9 @@ export default function PricingManagement() {
 
   // Fetch states for BIM pricing
   const { data: states = [] } = trpc.mepCost.getStates.useQuery();
+
+  // Fetch all cities for filtering
+  const { data: allCities = [] } = trpc.mepCost.getAllCities.useQuery();
 
   // State for BIM pricing edits
   const [bimEdits, setBimEdits] = useState<Record<string, BimPricingRow>>({});
@@ -58,6 +74,7 @@ export default function PricingManagement() {
     onSuccess: () => {
       toast.success("BIM LOD pricing updated successfully");
       setBimEdits({});
+      setSelectedBimRows(new Set());
       refetchBim();
     },
     onError: (err: any) => {
@@ -75,6 +92,23 @@ export default function PricingManagement() {
     onError: (err: any) => {
       toast.error("Failed to update MEP weightages: " + (err.message || "Unknown error"));
     },
+  });
+
+  // Filter BIM pricing based on search and filters
+  const filteredBimPricing = bimPricing.filter((row: any) => {
+    const city = allCities.find((c: any) => c.id === row.cityId);
+    if (!city) return false;
+
+    // Filter by state
+    if (filterState !== null && city.stateId !== filterState) return false;
+
+    // Filter by city search
+    if (searchCity && !city.cityName.toLowerCase().includes(searchCity.toLowerCase())) return false;
+
+    // Filter by LOD level
+    if (filterLod && row.lodLevel !== filterLod) return false;
+
+    return true;
   });
 
   const handleBimPricingChange = (
@@ -150,6 +184,25 @@ export default function PricingManagement() {
     }
   };
 
+  const toggleRowSelection = (key: string) => {
+    const newSelected = new Set(selectedBimRows);
+    if (newSelected.has(key)) {
+      newSelected.delete(key);
+    } else {
+      newSelected.add(key);
+    }
+    setSelectedBimRows(newSelected);
+  };
+
+  const handleBulkUpdate = (field: "residential" | "commercial" | "industrial", value: number) => {
+    selectedBimRows.forEach((key) => {
+      const [cityIdStr, lodLevel] = key.split("-");
+      const cityId = parseInt(cityIdStr);
+      handleBimPricingChange(cityId, lodLevel, field, value);
+    });
+    toast.success(`Updated ${selectedBimRows.size} rows`);
+  };
+
   // Group BIM pricing by city and LOD
   const bimByKey: Record<string, any> = {};
   bimPricing.forEach((item: any) => {
@@ -187,10 +240,162 @@ export default function PricingManagement() {
                 </AlertDescription>
               </Alert>
 
+              {/* Filters Section */}
+              <div className="bg-slate-50 p-4 rounded-lg space-y-4">
+                <h3 className="font-semibold text-sm">Filters & Search</h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                  {/* City Search */}
+                  <div className="space-y-2">
+                    <Label htmlFor="city-search" className="text-xs">Search City</Label>
+                    <div className="relative">
+                      <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="city-search"
+                        placeholder="e.g., Delhi, Mumbai..."
+                        value={searchCity}
+                        onChange={(e) => setSearchCity(e.target.value)}
+                        className="pl-8 text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  {/* State Filter */}
+                  <div className="space-y-2">
+                    <Label htmlFor="state-filter" className="text-xs">Filter by State</Label>
+                    <Select
+                      value={filterState?.toString() || "all"}
+                      onValueChange={(val) => setFilterState(val === "all" ? null : parseInt(val))}
+                    >
+                      <SelectTrigger id="state-filter" className="text-sm">
+                        <SelectValue placeholder="All States" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All States</SelectItem>
+                        {states.map((state: any) => (
+                          <SelectItem key={state.id} value={state.id.toString()}>
+                            {state.stateName}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* LOD Level Filter */}
+                  <div className="space-y-2">
+                    <Label htmlFor="lod-filter" className="text-xs">Filter by LOD</Label>
+                    <Select
+                      value={filterLod || "all"}
+                      onValueChange={(val) => setFilterLod(val === "all" ? null : val)}
+                    >
+                      <SelectTrigger id="lod-filter" className="text-sm">
+                        <SelectValue placeholder="All LOD Levels" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All LOD Levels</SelectItem>
+                        {LOD_LEVELS.map((lod) => (
+                          <SelectItem key={lod} value={lod}>
+                            LOD {lod}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Reset Filters */}
+                  <div className="space-y-2">
+                    <Label className="text-xs">&nbsp;</Label>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSearchCity("");
+                        setFilterState(null);
+                        setFilterLod(null);
+                      }}
+                      className="w-full"
+                    >
+                      <X className="h-4 w-4 mr-1" />
+                      Reset
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Bulk Edit Section */}
+                {selectedBimRows.size > 0 && (
+                  <div className="border-t pt-4 mt-4">
+                    <p className="text-sm font-semibold mb-3">
+                      Bulk Update ({selectedBimRows.size} selected)
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => {
+                          const val = prompt("Enter Residential percentage:");
+                          if (val !== null) handleBulkUpdate("residential", parseFloat(val) || 0);
+                        }}
+                      >
+                        Update Residential
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => {
+                          const val = prompt("Enter Commercial percentage:");
+                          if (val !== null) handleBulkUpdate("commercial", parseFloat(val) || 0);
+                        }}
+                      >
+                        Update Commercial
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => {
+                          const val = prompt("Enter Industrial percentage:");
+                          if (val !== null) handleBulkUpdate("industrial", parseFloat(val) || 0);
+                        }}
+                      >
+                        Update Industrial
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setSelectedBimRows(new Set())}
+                      >
+                        Clear Selection
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                <p className="text-xs text-muted-foreground">
+                  Showing {filteredBimPricing.length} of {bimPricing.length} entries
+                </p>
+              </div>
+
+              {/* Pricing Table */}
               <div className="overflow-x-auto">
                 <table className="w-full text-sm border-collapse">
                   <thead>
                     <tr className="border-b-2 border-border">
+                      <th className="text-left py-3 px-4 font-semibold w-12">
+                        <input
+                          type="checkbox"
+                          checked={selectedBimRows.size === filteredBimPricing.length && filteredBimPricing.length > 0}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              const newSelected = new Set<string>();
+                              filteredBimPricing.forEach((row: any) => {
+                                newSelected.add(`${row.cityId}-${row.lodLevel}`);
+                              });
+                              setSelectedBimRows(newSelected);
+                            } else {
+                              setSelectedBimRows(new Set());
+                            }
+                          }}
+                        />
+                      </th>
                       <th className="text-left py-3 px-4 font-semibold">City</th>
                       {LOD_LEVELS.map((lod) => (
                         <th key={lod} colSpan={3} className="text-center py-3 px-4 font-semibold border-l">
@@ -202,6 +407,7 @@ export default function PricingManagement() {
                       ))}
                     </tr>
                     <tr className="border-b border-border">
+                      <th className="text-left py-2 px-4"></th>
                       <th className="text-left py-2 px-4"></th>
                       {LOD_LEVELS.map((lod) => (
                         <th key={`${lod}-res`} colSpan={3} className="text-center py-2 px-2">
@@ -215,119 +421,120 @@ export default function PricingManagement() {
                     </tr>
                   </thead>
                   <tbody>
-                    {states.map((state: any) => (
-                      <tr key={state.id} className="border-b border-border hover:bg-secondary/50">
-                        <td className="py-3 px-4 font-medium text-sm">{state.stateName}</td>
-                        {LOD_LEVELS.map((lod) => {
-                          const key = `${state.id}-${lod}`;
-                          const original = bimByKey[key];
-                          const edited = bimEdits[key];
+                    {filteredBimPricing.map((row: any) => {
+                      const city = allCities.find((c: any) => c.id === row.cityId);
+                      const rowKey = `${row.cityId}-${row.lodLevel}`;
+                      const isSelected = selectedBimRows.has(rowKey);
 
-                          const residential = edited?.residential ?? parseFloat(String(original?.bimPercentageResidential || 0));
-                          const commercial = edited?.commercial ?? parseFloat(String(original?.bimPercentageCommercial || 0));
-                          const industrial = edited?.industrial ?? parseFloat(String(original?.bimPercentageIndustrial || 0));
+                      return (
+                        <tr
+                          key={rowKey}
+                          className={`border-b border-border hover:bg-secondary/50 ${
+                            isSelected ? "bg-blue-50" : ""
+                          }`}
+                        >
+                          <td className="py-3 px-4">
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={() => toggleRowSelection(rowKey)}
+                            />
+                          </td>
+                          <td className="py-3 px-4 font-medium text-sm">{city?.cityName || "Unknown"}</td>
+                          {LOD_LEVELS.map((lod) => {
+                            const key = `${row.cityId}-${lod}`;
+                            const original = bimByKey[key];
+                            const edited = bimEdits[key];
 
-                          return (
-                            <td key={lod} className="py-2 px-2 border-l">
-                              <div className="grid grid-cols-3 gap-1">
-                                <div className="flex items-center">
-                                  <Input
-                                    type="number"
-                                    min="0"
-                                    max="100"
-                                    step="0.1"
-                                    value={residential}
-                                    onChange={(e) =>
-                                      handleBimPricingChange(
-                                        state.id,
-                                        lod,
-                                        "residential",
-                                        parseFloat(e.target.value) || 0
-                                      )
-                                    }
-                                    className="w-12 text-center text-xs py-1"
-                                    placeholder="0"
-                                  />
-                                  <span className="text-xs ml-0.5">%</span>
+                            const residential = edited?.residential ?? parseFloat(String(original?.bimPercentageResidential || 0));
+                            const commercial = edited?.commercial ?? parseFloat(String(original?.bimPercentageCommercial || 0));
+                            const industrial = edited?.industrial ?? parseFloat(String(original?.bimPercentageIndustrial || 0));
+
+                            return (
+                              <td key={lod} className="py-2 px-2 border-l">
+                                <div className="grid grid-cols-3 gap-1">
+                                  <div className="flex items-center">
+                                    <Input
+                                      type="number"
+                                      min="0"
+                                      max="100"
+                                      step="0.1"
+                                      value={residential}
+                                      onChange={(e) =>
+                                        handleBimPricingChange(
+                                          row.cityId,
+                                          lod,
+                                          "residential",
+                                          parseFloat(e.target.value) || 0
+                                        )
+                                      }
+                                      className="w-12 text-center text-xs py-1"
+                                      placeholder="0"
+                                    />
+                                    <span className="text-xs ml-0.5">%</span>
+                                  </div>
+                                  <div className="flex items-center">
+                                    <Input
+                                      type="number"
+                                      min="0"
+                                      max="100"
+                                      step="0.1"
+                                      value={commercial}
+                                      onChange={(e) =>
+                                        handleBimPricingChange(
+                                          row.cityId,
+                                          lod,
+                                          "commercial",
+                                          parseFloat(e.target.value) || 0
+                                        )
+                                      }
+                                      className="w-12 text-center text-xs py-1"
+                                      placeholder="0"
+                                    />
+                                    <span className="text-xs ml-0.5">%</span>
+                                  </div>
+                                  <div className="flex items-center">
+                                    <Input
+                                      type="number"
+                                      min="0"
+                                      max="100"
+                                      step="0.1"
+                                      value={industrial}
+                                      onChange={(e) =>
+                                        handleBimPricingChange(
+                                          row.cityId,
+                                          lod,
+                                          "industrial",
+                                          parseFloat(e.target.value) || 0
+                                        )
+                                      }
+                                      className="w-12 text-center text-xs py-1"
+                                      placeholder="0"
+                                    />
+                                    <span className="text-xs ml-0.5">%</span>
+                                  </div>
                                 </div>
-                                <div className="flex items-center">
-                                  <Input
-                                    type="number"
-                                    min="0"
-                                    max="100"
-                                    step="0.1"
-                                    value={commercial}
-                                    onChange={(e) =>
-                                      handleBimPricingChange(
-                                        state.id,
-                                        lod,
-                                        "commercial",
-                                        parseFloat(e.target.value) || 0
-                                      )
-                                    }
-                                    className="w-12 text-center text-xs py-1"
-                                    placeholder="0"
-                                  />
-                                  <span className="text-xs ml-0.5">%</span>
-                                </div>
-                                <div className="flex items-center">
-                                  <Input
-                                    type="number"
-                                    min="0"
-                                    max="100"
-                                    step="0.1"
-                                    value={industrial}
-                                    onChange={(e) =>
-                                      handleBimPricingChange(
-                                        state.id,
-                                        lod,
-                                        "industrial",
-                                        parseFloat(e.target.value) || 0
-                                      )
-                                    }
-                                    className="w-12 text-center text-xs py-1"
-                                    placeholder="0"
-                                  />
-                                  <span className="text-xs ml-0.5">%</span>
-                                </div>
-                              </div>
-                            </td>
-                          );
-                        })}
-                      </tr>
-                    ))}
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setBimEdits({});
-                    refetchBim();
-                  }}
-                  disabled={isLoading || Object.keys(bimEdits).length === 0}
-                >
-                  Cancel
-                </Button>
+              {Object.keys(bimEdits).length > 0 && (
                 <Button
                   onClick={handleSaveBimPricing}
-                  disabled={isLoading || Object.keys(bimEdits).length === 0}
+                  disabled={isLoading}
+                  className="w-full"
                 >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="mr-2 h-4 w-4" />
-                      Save BIM Pricing
-                    </>
-                  )}
+                  {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  <Save className="mr-2 h-4 w-4" />
+                  Save {Object.keys(bimEdits).length} Changes
                 </Button>
-              </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -338,58 +545,58 @@ export default function PricingManagement() {
             <CardHeader>
               <CardTitle>MEP Discipline Weightages</CardTitle>
               <CardDescription>
-                Manage the cost distribution across MEP disciplines (total should equal 100%)
+                Manage the cost distribution percentage for each MEP discipline
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <Alert>
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  The sum of all discipline weightages should equal 100%. Current total:{" "}
-                  <span className="font-semibold">
-                    {Object.values(mepEdits).reduce((a, b) => a + b, 0) ||
-                      mepWeightages.reduce((sum: number, item: any) => sum + parseFloat(item.weightagePercentage || 0), 0)}
-                    %
-                  </span>
+                  Weightages determine the cost distribution across disciplines. Total should equal 100%.
                 </AlertDescription>
               </Alert>
 
               <div className="space-y-4">
                 {DISCIPLINES.map((discipline) => {
-                  const currentValue =
-                    mepEdits[discipline] ??
-                    parseFloat(
-                      String(mepWeightages.find((w: any) => w.discipline === discipline)?.weightagePercentage ?? 0)
-                    );
+                  const original = mepWeightages.find((w: any) => w.discipline === discipline);
+                  const edited = mepEdits[discipline];
+                  const value = edited ?? parseFloat(String(original?.weightagePercentage || 0));
+
                   return (
-                    <div key={discipline} className="p-4 border border-border rounded-lg">
-                      <div className="flex items-center justify-between mb-3">
-                        <Label className="text-base font-semibold">
-                          {DISCIPLINE_LABELS[discipline]}
-                        </Label>
-                        <div className="flex items-center gap-2">
-                          <Input
-                            type="number"
-                            min="0"
-                            max="100"
-                            step="0.5"
-                            value={currentValue}
-                            onChange={(e) =>
-                              handleMepWeightageChange(
-                                discipline,
-                                parseFloat(e.target.value) || 0
-                              )
-                            }
-                            className="w-24 text-center"
-                            placeholder="0"
-                          />
-                          <span className="text-sm font-medium">%</span>
-                        </div>
+                    <div key={discipline} className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <Label>{DISCIPLINE_LABELS[discipline]}</Label>
+                        <span className="text-sm font-semibold">{value.toFixed(1)}%</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Input
+                          type="range"
+                          min="0"
+                          max="100"
+                          step="0.1"
+                          value={value}
+                          onChange={(e) =>
+                            handleMepWeightageChange(discipline, parseFloat(e.target.value))
+                          }
+                          className="flex-1"
+                        />
+                        <Input
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="0.1"
+                          value={value}
+                          onChange={(e) =>
+                            handleMepWeightageChange(discipline, parseFloat(e.target.value) || 0)
+                          }
+                          className="w-20 text-center"
+                        />
+                        <span className="text-sm">%</span>
                       </div>
                       <div className="w-full bg-secondary rounded-full h-2">
                         <div
-                          className="bg-primary rounded-full h-2 transition-all"
-                          style={{ width: `${Math.min(currentValue, 100)}%` }}
+                          className="bg-primary h-2 rounded-full transition-all"
+                          style={{ width: `${value}%` }}
                         />
                       </div>
                     </div>
@@ -397,34 +604,39 @@ export default function PricingManagement() {
                 })}
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setMepEdits({});
-                    refetchMep();
-                  }}
-                  disabled={isLoading || Object.keys(mepEdits).length === 0}
-                >
-                  Cancel
-                </Button>
+              {/* Total Weightage Display */}
+              <div className="p-4 bg-slate-50 rounded-lg">
+                <div className="flex justify-between items-center">
+                  <span className="font-semibold">Total Weightage</span>
+                  <span className={`text-lg font-bold ${
+                    Math.abs(
+                      DISCIPLINES.reduce((sum, d) => {
+                        const edited = mepEdits[d];
+                        const original = mepWeightages.find((w: any) => w.discipline === d);
+                        return sum + (edited ?? parseFloat(String(original?.weightagePercentage || 0)));
+                      }, 0) - 100
+                    ) < 0.1 ? "text-green-600" : "text-orange-600"
+                  }`}>
+                    {DISCIPLINES.reduce((sum, d) => {
+                      const edited = mepEdits[d];
+                      const original = mepWeightages.find((w: any) => w.discipline === d);
+                      return sum + (edited ?? parseFloat(String(original?.weightagePercentage || 0)));
+                    }, 0).toFixed(1)}%
+                  </span>
+                </div>
+              </div>
+
+              {Object.keys(mepEdits).length > 0 && (
                 <Button
                   onClick={handleSaveMepWeightage}
-                  disabled={isLoading || Object.keys(mepEdits).length === 0}
+                  disabled={isLoading}
+                  className="w-full"
                 >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="mr-2 h-4 w-4" />
-                      Save Weightages
-                    </>
-                  )}
+                  {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  <Save className="mr-2 h-4 w-4" />
+                  Save {Object.keys(mepEdits).length} Changes
                 </Button>
-              </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

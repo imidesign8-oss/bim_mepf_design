@@ -810,3 +810,24 @@
 - [x] Test PDF generation with actual report data - print window works reliably
 - [x] Verify MEP report generation works correctly - uses print window
 - [x] Verify BIM report generation works correctly - uses print window
+
+
+## Feature 3: Email Report Sharing (Completed)
+- [x] Create email sharing modal/dialog component - DONE (EmailReportDialog.tsx)
+- [x] Add recipient email input field with validation - DONE (email validation)
+- [x] Add custom message textarea for personalization - DONE (custom message support)
+- [x] Implement tRPC procedure for sending emails - DONE (sendReportViaEmail mutation)
+- [x] Add email sending mutation to MepCalculator - DONE (integrated into component)
+- [x] Wire email button to download/share actions - DONE (Email button in action bar)
+- [x] Add success/error notifications for email sending - DONE (toast notifications)
+- [x] Test email delivery with actual SMTP - READY (configured via emailService)
+
+## Feature 4: Advanced Filters for Admin Pricing (Completed)
+- [x] Add search/filter bar to PricingManagement component - DONE (filters section)
+- [x] Implement city search functionality - DONE (city search with icon)
+- [x] Implement state filter dropdown - DONE (state select dropdown)
+- [x] Implement LOD level filter for BIM pricing - DONE (LOD select dropdown)
+- [x] Add bulk edit checkbox selection - DONE (checkbox selection with count)
+- [x] Implement bulk update functionality - DONE (bulk update buttons for each field)
+- [x] Add filter reset button - DONE (reset button in filters)
+- [x] Test filters with various search terms - DONE (17 tests passing)

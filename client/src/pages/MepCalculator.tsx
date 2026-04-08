@@ -13,9 +13,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Download, Share2, AlertCircle, Zap, Droplet, Wind, Flame } from "lucide-react";
+import { Loader2, Download, Share2, AlertCircle, Zap, Droplet, Wind, Flame, Mail } from "lucide-react";
 import html2pdf from "html2pdf.js";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { EmailReportDialog } from "@/components/EmailReportDialog";
 
 type Vertical = "bim" | "mep";
 type ProjectType = "residential" | "commercial" | "industrial" | "hospitality" | "mixed-use";
@@ -40,6 +41,8 @@ export function MepCalculator() {
   const [vertical, setVertical] = useState<Vertical>("mep");
   const [unitType, setUnitType] = useState<"sqft" | "sqm">("sqft");
   const [selectedDisciplines, setSelectedDisciplines] = useState<Discipline[]>(["electrical", "plumbing"]);
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+  const [reportHtmlForEmail, setReportHtmlForEmail] = useState("");
   const [formData, setFormData] = useState({
     projectType: "residential" as ProjectType,
     buildingArea: 1000,
@@ -177,6 +180,9 @@ export function MepCalculator() {
           state: selectedState?.stateName || "Unknown",
         });
 
+        // Store HTML for email sharing
+        setReportHtmlForEmail(reportResult.html);
+        
         // Open HTML report in new window for printing as PDF
         const printWindow = window.open("", "_blank");
         if (printWindow) {
@@ -204,6 +210,9 @@ export function MepCalculator() {
           state: selectedState?.stateName || "Unknown",
         });
 
+        // Store HTML for email sharing
+        setReportHtmlForEmail(reportResult.html);
+        
         // Use print window approach for BIM as well (more reliable than html2pdf)
         const printWindow = window.open("", "_blank");
         if (printWindow) {
@@ -584,19 +593,18 @@ export function MepCalculator() {
                 )}
 
                 {/* Actions */}
-                <div className="flex gap-3">
-                  <Button variant="outline" className="flex-1" onClick={handleDownloadReport}>
+                <div className="flex gap-2 flex-wrap">
+                  <Button variant="outline" className="flex-1 min-w-[100px]" onClick={handleDownloadReport}>
                     <Download className="mr-2 h-4 w-4" />
-                    Download Report
+                    Download
                   </Button>
                   <Button 
                     variant="outline" 
-                    className="flex-1" 
+                    className="flex-1 min-w-[100px]" 
                     onClick={async (e) => {
                       try {
                         const url = window.location.href;
                         await navigator.clipboard.writeText(url);
-                        // Show success feedback
                         const btn = e.currentTarget as HTMLButtonElement;
                         const originalHTML = btn.innerHTML;
                         btn.innerHTML = '<span>✓ Copied!</span>';
@@ -609,7 +617,16 @@ export function MepCalculator() {
                     }}
                   >
                     <Share2 className="mr-2 h-4 w-4" />
-                    Share Estimate
+                    Share
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="flex-1 min-w-[100px]"
+                    onClick={() => setEmailDialogOpen(true)}
+                    disabled={!reportHtmlForEmail}
+                  >
+                    <Mail className="mr-2 h-4 w-4" />
+                    Email
                   </Button>
                 </div>
 
@@ -648,6 +665,16 @@ export function MepCalculator() {
           </div>
         </div>
       </div>
+
+      {/* Email Report Dialog */}
+      <EmailReportDialog
+        open={emailDialogOpen}
+        onOpenChange={setEmailDialogOpen}
+        reportHtml={reportHtmlForEmail}
+        reportType={vertical}
+        projectType={formData.projectType}
+        totalCost={vertical === "mep" ? result?.totalMepCost || 0 : result?.totalBimCost || 0}
+      />
     </div>
   );
 }
