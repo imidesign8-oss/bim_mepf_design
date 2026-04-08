@@ -772,3 +772,28 @@
 - [ ] Implement email sharing functionality
 - [ ] Add export estimate as PDF
 - [ ] Test history, comparison, and sharing features
+
+
+## Feature 1: BIM PDF Download Button
+- [x] Add html2pdf library to project dependencies - DONE
+- [x] Wire download button on BIM results page - DONE (import added)
+- [x] Call tRPC procedure to generate report HTML - DONE (bimReportGeneration mutation ready)
+- [ ] Trigger PDF download with proper filename - IN PROGRESS
+- [ ] Test PDF generation and download - PENDING
+
+## Feature 2: Admin Pricing Management Dashboard
+- [ ] Create admin pricing management page component
+- [ ] Add BIM LOD pricing table with edit functionality
+- [ ] Add MEP discipline weightage table with edit functionality
+- [ ] Implement save/update functionality for pricing changes
+- [ ] Add city/state filter for pricing management
+- [ ] Test pricing updates reflect in calculator
+
+## Feature 3: Estimate History & Comparison
+- [ ] Create estimates table in database schema
+- [ ] Add save estimate functionality to calculator
+- [ ] Create estimate history page
+- [ ] Implement estimate comparison feature
+- [ ] Generate unique shareable links for estimates
+- [ ] Add email sharing functionality
+- [ ] Test estimate saving, retrieval, and sharing

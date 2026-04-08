@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Loader2, Download, Share2, AlertCircle, Zap, Droplet, Wind, Flame } from "lucide-react";
+import html2pdf from "html2pdf.js";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 type Vertical = "bim" | "mep";
