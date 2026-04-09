@@ -13,6 +13,8 @@ import { mepCostRouter } from "./routers/mepCost";
 import { statisticsRouter } from "./routers/statistics";
 import { sitemapRouter } from "./routers/sitemap";
 import { pageMetadataRouter } from "./routers/pageMetadata";
+import { gscIntegrationRouter } from "./routers/gscIntegration";
+import { seoAuditRouter } from "./routers/seoAudit";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import {
@@ -61,6 +63,8 @@ export const appRouter = router({
   mepCost: mepCostRouter,
   stats: statisticsRouter,
   pageMetadata: pageMetadataRouter,
+  gsc: gscIntegrationRouter,
+  seoAudit: seoAuditRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

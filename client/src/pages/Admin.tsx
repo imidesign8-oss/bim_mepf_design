@@ -24,6 +24,9 @@ import { SubscriptionsAdmin } from "@/components/admin/Subscriptions";
 import { MepAdmin } from "./MepAdmin";
 import PricingManagement from "@/components/admin/PricingManagement";
 import AnalyticsDashboard from "@/components/admin/AnalyticsDashboard";
+import { PageMetadataManager } from "@/components/admin/PageMetadataManager";
+import { GSCDashboard } from "@/components/admin/GSCDashboard";
+import { SEORecommendations } from "@/components/admin/SEORecommendations";
 
 export default function Admin() {
   const { user } = useAuth();
@@ -66,6 +69,9 @@ export default function Admin() {
     { id: "cms-services", label: "CMS: Services", icon: "📚" },
     { id: "cms-projects", label: "CMS: Projects", icon: "🖼️" },
     { id: "seo", label: "SEO", icon: "🔍" },
+    { id: "page-metadata", label: "Page Metadata", icon: "📝" },
+    { id: "gsc", label: "GSC Dashboard", icon: "📊" },
+    { id: "seo-recommendations", label: "SEO Recommendations", icon: "💬" },
     { id: "schema-validator", label: "Schema Validator", icon: "✓" },
     { id: "settings", label: "Settings", icon: "⚙️" },
   ];
@@ -143,6 +149,9 @@ export default function Admin() {
           {currentTab === "cms-services" && <ServicesPageCMS />}
           {currentTab === "cms-projects" && <ProjectsPageCMS />}
           {currentTab === "seo" && <AdminSEO />}
+          {currentTab === "page-metadata" && <PageMetadataManager />}
+          {currentTab === "gsc" && <GSCDashboard />}
+          {currentTab === "seo-recommendations" && <SEORecommendations />}
           {currentTab === "schema-validator" && <SchemaValidator />}
           {currentTab === "settings" && <AdminSettings />}
         </main>
