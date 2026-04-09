@@ -1,5 +1,5 @@
-import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
+import { Link } from "wouter";
 import Footer from "@/components/Footer";
 import { ArrowRight } from "lucide-react";
 
@@ -10,6 +10,7 @@ import { setPageTitle, setPageDescription, setOpenGraphImage, setCanonicalUrl, a
 export default function Projects() {
   const [page, setPage] = useState(1);
   const { data: projects, isLoading } = trpc.projects.list.useQuery({ page, limit: 12 });
+  const { data: stats } = trpc.stats.getAllStats.useQuery();
 
   useEffect(() => {
     setPageTitle("Portfolio | BIM & MEPF Projects | IMI Design");
@@ -113,9 +114,9 @@ export default function Projects() {
         <div className="container">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
             {[
-              { number: "150+", label: "Projects Completed" },
-              { number: "50+", label: "Happy Clients" },
-              { number: "10+", label: "Years Experience" },
+              { number: stats ? `${stats.projectsCompleted}+` : "150+", label: "Projects Completed" },
+              { number: stats ? `${stats.uniqueClients}+` : "50+", label: "Happy Clients" },
+              { number: stats ? `${stats.yearsInBusiness}+` : "10+", label: "Years Experience" },
               { number: "25+", label: "Team Members" },
             ].map((stat, i) => (
               <div key={i}>

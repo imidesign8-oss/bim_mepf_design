@@ -846,3 +846,97 @@
 - [x] Integrate analytics procedures in tRPC router
 - [x] Add Analytics tab to admin panel navigation
 - [x] Use mock data for initial display (will populate as reports are generated)
+
+
+## Feature 6: Dynamic Project Statistics (In Progress)
+- [ ] Create database queries to count actual projects completed
+- [ ] Create database queries to count unique clients
+- [ ] Create database queries to calculate team members count
+- [ ] Create database queries to calculate years in business
+- [ ] Add tRPC procedures to fetch these statistics
+- [ ] Update Home page component to use dynamic stats instead of hardcoded values
+- [ ] Add stats caching to improve performance
+- [ ] Test stats update when new projects are added
+
+## Feature 7: SEO Optimization (In Progress)
+- [ ] Implement Organization schema markup (JSON-LD)
+- [ ] Implement LocalBusiness schema markup
+- [ ] Implement Service schema markup for each service
+- [ ] Add dynamic meta descriptions for all pages
+- [ ] Add Open Graph tags for social media sharing
+- [ ] Implement breadcrumb schema markup
+- [ ] Add structured data for BIM and MEP services
+- [ ] Create XML sitemap generator
+- [ ] Add robots.txt optimization
+- [ ] Implement canonical tags for all pages
+
+## Feature 8: Blog SEO & Content Optimization (In Progress)
+- [ ] Add reading time estimate to blog posts
+- [ ] Implement blog post schema markup
+- [ ] Add related posts suggestions
+- [ ] Create blog category pages with schema markup
+- [ ] Add internal linking suggestions
+- [ ] Implement blog post meta optimization
+- [ ] Add FAQ schema markup for common questions
+- [ ] Create blog post performance tracking
+
+## Feature 9: Local SEO (In Progress)
+- [ ] Add Google Business Profile integration
+- [ ] Implement local schema markup with business address
+- [ ] Add service area markup for different cities
+- [ ] Create location-specific landing pages
+- [ ] Add local citations
+- [ ] Implement review schema markup
+- [ ] Add local business hours schema
+
+
+## Feature 6: Dynamic Project Statistics (Completed)
+- [x] Create database queries to count actual projects completed
+- [x] Create database queries to count unique clients
+- [x] Create tRPC procedures to fetch these statistics
+- [x] Update Projects page component to use dynamic stats instead of hardcoded values
+- [x] Add stats caching to improve performance
+- [x] Statistics update automatically when new projects are added
+
+## Feature 7: SEO Schema Markup (Completed)
+- [x] Create comprehensive schema markup utility functions
+- [x] Implement Service schema for BIM and MEPF services
+- [x] Implement Article/BlogPost schema for blog content
+- [x] Implement Project/Portfolio schema for case studies
+- [x] Implement FAQPage schema for FAQ content
+- [x] Implement Review/Rating schema for testimonials
+- [x] Implement Breadcrumb schema for navigation
+- [x] Implement Organization schema
+- [x] Implement LocalBusiness schema
+- [x] Implement Offer schema for services/products
+- [x] Implement ContactPoint schema for contact info
+
+## Feature 8: SEO Optimization (In Progress)
+- [ ] Add dynamic meta descriptions for all pages
+- [ ] Add Open Graph tags for social media sharing
+- [ ] Create XML sitemap generator
+- [ ] Add robots.txt optimization
+- [ ] Implement canonical tags for all pages
+- [ ] Add structured data for services pages
+- [ ] Implement image alt text optimization
+- [ ] Add JSON-LD markup to service pages
+- [ ] Create SEO audit dashboard in admin
+
+## Feature 9: Blog SEO & Content Optimization (In Progress)
+- [ ] Add reading time estimate to blog posts
+- [ ] Implement blog post schema markup integration
+- [ ] Add related posts suggestions
+- [ ] Create blog category pages with schema markup
+- [ ] Add internal linking suggestions
+- [ ] Implement blog post meta optimization
+- [ ] Add FAQ schema markup for common questions
+- [ ] Create blog post performance tracking
+
+## Feature 10: Local SEO (In Progress)
+- [ ] Add Google Business Profile integration
+- [ ] Implement local schema markup with business address
+- [ ] Add service area markup for different cities
+- [ ] Create location-specific landing pages
+- [ ] Add local citations
+- [ ] Implement review schema markup
+- [ ] Add local business hours schema
