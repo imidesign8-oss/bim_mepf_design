@@ -23,6 +23,7 @@ import { UnsubscribeManagement } from "@/components/admin/UnsubscribeManagement"
 import { SubscriptionsAdmin } from "@/components/admin/Subscriptions";
 import { MepAdmin } from "./MepAdmin";
 import PricingManagement from "@/components/admin/PricingManagement";
+import AnalyticsDashboard from "@/components/admin/AnalyticsDashboard";
 
 export default function Admin() {
   const { user } = useAuth();
@@ -46,6 +47,7 @@ export default function Admin() {
 
   const tabs = [
     { id: "dashboard", label: "Dashboard", icon: "📊" },
+    { id: "analytics", label: "Analytics", icon: "📈" },
     { id: "pricing", label: "Pricing Management", icon: "💵" },
     { id: "mep-admin", label: "MEP Cost Management", icon: "💰" },
     { id: "blog", label: "Blog", icon: "📝" },
@@ -122,6 +124,7 @@ export default function Admin() {
         {/* Main Content */}
         <main className="flex-1 p-6">
           {currentTab === "dashboard" && <AdminDashboard onNavigate={setCurrentTab} />}
+          {currentTab === "analytics" && <AnalyticsDashboard />}
           {currentTab === "pricing" && <PricingManagement />}
           {currentTab === "mep-admin" && <MepAdmin />}
           {currentTab === "blog" && <AdminBlog />}

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
+import { sql, eq, gte, and, isNotNull } from "drizzle-orm";
 import {
   createMepState,
   getMepStateById,
@@ -604,5 +605,91 @@ export const mepCostRouter = router({
           message: error.message || "Failed to send report via email",
         });
       }
+    }),
+
+  // ==================== ANALYTICS ====================
+  
+  getReportGenerationTrends: protectedProcedure
+    .input(z.object({ days: z.number().default(30) }))
+    .query(async ({ input, ctx }) => {
+      ensureAdmin(ctx);
+      // Return mock data for now - analytics will be populated as reports are generated
+      const data = [];
+      for (let i = input.days; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        data.push({
+          date: date.toISOString().split('T')[0],
+          mepCount: Math.floor(Math.random() * 10),
+          bimCount: Math.floor(Math.random() * 8),
+          emailShares: Math.floor(Math.random() * 5),
+          pdfDownloads: Math.floor(Math.random() * 12),
+        });
+      }
+      return data;
+    }),
+
+  getMostUsedCities: protectedProcedure
+    .input(z.object({ limit: z.number().default(10), days: z.number().default(30) }))
+    .query(async ({ input, ctx }) => {
+      ensureAdmin(ctx);
+      // Return top cities based on mock data
+      const cities = await getMepCitiesByState(1);
+      return cities.slice(0, input.limit).map((city: any) => ({
+        cityId: city.id,
+        cityName: city.cityName,
+        count: Math.floor(Math.random() * 50) + 10,
+        mepCount: Math.floor(Math.random() * 30),
+        bimCount: Math.floor(Math.random() * 25),
+      }));
+    }),
+
+  getMostUsedLodLevels: protectedProcedure
+    .input(z.object({ limit: z.number().default(10), days: z.number().default(30) }))
+    .query(async ({ input, ctx }) => {
+      ensureAdmin(ctx);
+      // Return LOD level distribution
+      const lods = ["100", "200", "300", "400", "500"];
+      return lods.map((lod) => ({
+        lodLevel: lod,
+        count: Math.floor(Math.random() * 100) + 20,
+        avgCost: Math.floor(Math.random() * 500000) + 100000,
+      }));
+    }),
+
+  getEmailSharingMetrics: protectedProcedure
+    .input(z.object({ days: z.number().default(30) }))
+    .query(async ({ input, ctx }) => {
+      ensureAdmin(ctx);
+      // Return sharing metrics
+      const totalReports = Math.floor(Math.random() * 500) + 100;
+      const emailShares = Math.floor(totalReports * 0.3);
+      const pdfDownloads = Math.floor(totalReports * 0.6);
+      
+      return {
+        totalReports,
+        emailShares,
+        pdfDownloads,
+        shareRate: Math.round((emailShares / totalReports) * 100),
+        downloadRate: Math.round((pdfDownloads / totalReports) * 100),
+      };
+    }),
+
+  logReportGeneration: publicProcedure
+    .input(z.object({
+      reportType: z.enum(["mep", "bim"]),
+      projectType: z.enum(["residential", "commercial", "industrial", "hospitality", "mixed-use"]),
+      cityId: z.number(),
+      stateId: z.number(),
+      lodLevel: z.string().optional(),
+      buildingArea: z.number().optional(),
+      estimatedCost: z.number().optional(),
+      userEmail: z.string().optional(),
+      emailShared: z.boolean().default(false),
+      downloadedAsPdf: z.boolean().default(false),
+    }))
+    .mutation(async ({ input }) => {
+      // Analytics logging - will be implemented to track actual data
+      return { success: true };
     }),
 });

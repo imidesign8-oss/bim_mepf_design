@@ -937,3 +937,45 @@ export const bimEstimates = mysqlTable("bim_estimates", {
 
 export type BimEstimate = typeof bimEstimates.$inferSelect;
 export type InsertBimEstimate = typeof bimEstimates.$inferInsert;
+
+
+/**
+ * Report Generation Analytics - Track all report generations for analytics
+ */
+export const reportGenerationAnalytics = mysqlTable("report_generation_analytics", {
+  id: int("id").autoincrement().primaryKey(),
+  
+  // Report details
+  reportType: mysqlEnum("reportType", ["mep", "bim"]).notNull(),
+  projectType: mysqlEnum("projectType", ["residential", "commercial", "industrial", "hospitality", "mixed-use"]).notNull(),
+  
+  // Location
+  cityId: int("cityId").notNull().references(() => mepCities.id),
+  stateId: int("stateId").notNull().references(() => mepStates.id),
+  
+  // BIM specific
+  lodLevel: varchar("lodLevel", { length: 10 }),
+  
+  // Metrics
+  buildingArea: decimal("buildingArea", { precision: 12, scale: 2 }),
+  estimatedCost: decimal("estimatedCost", { precision: 14, scale: 2 }),
+  
+  // User info
+  userEmail: varchar("userEmail", { length: 255 }),
+  
+  // Tracking
+  emailShared: boolean("emailShared").default(false).notNull(),
+  downloadedAsPdf: boolean("downloadedAsPdf").default(false).notNull(),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  reportTypeIdx: index("analytics_report_type_idx").on(table.reportType),
+  cityIdIdx: index("analytics_city_idx").on(table.cityId),
+  stateIdIdx: index("analytics_state_idx").on(table.stateId),
+  lodLevelIdx: index("analytics_lod_idx").on(table.lodLevel),
+  createdAtIdx: index("analytics_created_idx").on(table.createdAt),
+  userEmailIdx: index("analytics_email_idx").on(table.userEmail),
+}));
+
+export type ReportGenerationAnalytics = typeof reportGenerationAnalytics.$inferSelect;
+export type InsertReportGenerationAnalytics = typeof reportGenerationAnalytics.$inferInsert;
