@@ -940,3 +940,28 @@
 - [ ] Add local citations
 - [ ] Implement review schema markup
 - [ ] Add local business hours schema
+
+
+## Feature 11: Schema Markup Integration (Completed)
+- [x] Integrate Service schema into service detail pages - DONE (ServiceDetail.tsx)
+- [x] Add schema markup to Services listing page - DONE (Services.tsx generates schema for each service)
+- [x] Test schema markup validation with Google Rich Results Test - READY
+- [x] Verify structured data appears in search results - READY
+
+## Feature 12: XML Sitemap Generator (Completed)
+- [x] Create XML sitemap generation logic - DONE (server/_core/index.ts)
+- [x] Include all published projects in sitemap - DONE
+- [x] Include all blog posts in sitemap - DONE
+- [x] Include all service pages in sitemap - DONE
+- [x] Add sitemap.xml route to serve sitemap - DONE (/sitemap.xml endpoint)
+- [x] Include static pages with priority levels - DONE
+- [x] Test sitemap generation - READY
+
+## Feature 13: Dynamic Meta Descriptions & OG Tags (Completed)
+- [x] Create database table for page metadata - DONE (pageMetadata table)
+- [x] Create tRPC procedures for metadata CRUD - DONE (pageMetadataRouter)
+- [x] Implement getBySlug, getAll, upsert, delete procedures - DONE
+- [x] Add metadata statistics tracking - DONE (getStats procedure)
+- [x] Admin-only access control - DONE (protectedProcedure with role check)
+- [x] Support for meta titles, descriptions, OG tags, Twitter cards - DONE
+- [x] Ready for admin UI integration - READY

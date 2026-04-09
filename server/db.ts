@@ -10,7 +10,8 @@ import {
   pageContent, InsertPageContent, PageContent,
   companySettings, InsertCompanySettings, CompanySettings,
   caseStudies, InsertCaseStudy, CaseStudy,
-  subscriptions, InsertSubscription, Subscription
+  subscriptions, InsertSubscription, Subscription,
+  pageMetadata, InsertPageMetadata, PageMetadata
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 

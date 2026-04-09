@@ -979,3 +979,33 @@ export const reportGenerationAnalytics = mysqlTable("report_generation_analytics
 
 export type ReportGenerationAnalytics = typeof reportGenerationAnalytics.$inferSelect;
 export type InsertReportGenerationAnalytics = typeof reportGenerationAnalytics.$inferInsert;
+
+
+// ==================== PAGE METADATA ====================
+/**
+ * Page metadata table for managing SEO meta tags and Open Graph tags
+ * Allows admins to customize meta descriptions and OG images per page
+ */
+export const pageMetadata = mysqlTable("page_metadata", {
+  id: int("id").autoincrement().primaryKey(),
+  pageSlug: varchar("pageSlug", { length: 255 }).notNull().unique(), // e.g., "/services", "/about", "/blog/post-slug"
+  metaTitle: varchar("metaTitle", { length: 255 }), // Custom meta title for SEO
+  metaDescription: varchar("metaDescription", { length: 255 }), // Custom meta description (160 chars recommended)
+  ogTitle: varchar("ogTitle", { length: 255 }), // Open Graph title
+  ogDescription: varchar("ogDescription", { length: 255 }), // Open Graph description
+  ogImage: text("ogImage"), // Open Graph image URL
+  ogImageAlt: varchar("ogImageAlt", { length: 255 }), // Alt text for OG image
+  twitterCard: varchar("twitterCard", { length: 50 }).default("summary_large_image"), // Twitter card type
+  twitterImage: text("twitterImage"), // Twitter image URL
+  canonicalUrl: text("canonicalUrl"), // Canonical URL
+  keywords: text("keywords"), // SEO keywords (comma-separated)
+  robots: varchar("robots", { length: 100 }).default("index, follow"), // Robots meta tag
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  slugIdx: index("page_metadata_slug_idx").on(table.pageSlug),
+}));
+
+export type PageMetadata = typeof pageMetadata.$inferSelect;
+export type InsertPageMetadata = typeof pageMetadata.$inferInsert;

@@ -11,6 +11,8 @@ import { unsubscribeRouter } from "./routers/unsubscribe";
 import { advancedEmailMarketing } from "./routers/advancedEmailMarketing";
 import { mepCostRouter } from "./routers/mepCost";
 import { statisticsRouter } from "./routers/statistics";
+import { sitemapRouter } from "./routers/sitemap";
+import { pageMetadataRouter } from "./routers/pageMetadata";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import {
@@ -58,6 +60,7 @@ export const appRouter = router({
   advancedEmailMarketing: advancedEmailMarketing,
   mepCost: mepCostRouter,
   stats: statisticsRouter,
+  pageMetadata: pageMetadataRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
@@ -657,17 +660,7 @@ export const appRouter = router({
   seo: seoRouter,
 
   // ==================== SITEMAP ====================
-  sitemap: publicProcedure.query(async () => {
-    const blogs = await getAllBlogPosts(true);
-    const services = await getAllServices(true);
-    const projects = await getAllProjects(true);
-    
-    return {
-      blogs: blogs.map(b => ({ slug: b.slug, updatedAt: b.updatedAt })),
-      services: services.map(s => ({ slug: s.slug, updatedAt: s.updatedAt })),
-      projects: projects.map(p => ({ slug: p.slug, updatedAt: p.updatedAt })),
-    };
-  }),
+  // Sitemap router is defined separately in routers/sitemap.ts
 
   // ==================== CHAT ROUTES ====================
   chat: chatRouter,

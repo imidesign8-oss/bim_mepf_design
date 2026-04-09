@@ -13,6 +13,7 @@ import {
   setCanonicalUrl,
   addJsonLd,
   createBreadcrumbSchema,
+  createServiceSchema,
   getFullUrl,
 } from "@/lib/seoHelpers";
 
@@ -37,7 +38,41 @@ export default function Services() {
       { name: "Services", url: getFullUrl("/services") },
     ]);
     addJsonLd(breadcrumbSchema);
-  }, []);
+    // Add Service schema for each service
+    if (services && services.length > 0) {
+      const orgInfo = {
+        name: "IMI Design - BIM & MEPF Design Services",
+        description: "Professional BIM and MEPF design services",
+        url: getFullUrl("/"),
+        logo: getFullUrl("/favicon.svg"),
+        email: "projects@imidesign.in",
+        phone: "+91-9876543210",
+        address: {
+          streetAddress: "123 Design Street",
+          addressLocality: "Bangalore",
+          addressRegion: "Karnataka",
+          postalCode: "560001",
+          addressCountry: "IN",
+        },
+        sameAs: [],
+      };
+
+      services.forEach((service: any) => {
+        const serviceSchema = createServiceSchema(
+          {
+            name: service.title,
+            description: service.shortDescription || service.description || "",
+            url: getFullUrl(`/services/${service.slug}`),
+            image: service.image || undefined,
+            areaServed: "India",
+            serviceType: service.category || service.title,
+          },
+          orgInfo
+        );
+        addJsonLd(serviceSchema);
+      });
+    }
+  }, [services]);
 
   // Group services by category
   const groupedServices = services?.reduce((acc, service) => {
