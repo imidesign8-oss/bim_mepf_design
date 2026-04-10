@@ -1,10 +1,10 @@
 import { Link, useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
 import Footer from "@/components/Footer";
-import { ArrowRight, Calendar, User, Share2 } from "lucide-react";
+import { ArrowRight, Calendar, User, Share2, Clock } from "lucide-react";
 import { Streamdown } from "streamdown";
 import { useEffect } from "react";
-import { addJsonLd, createArticleSchema, createBreadcrumbSchema, getFullUrl } from "@/lib/seoHelpers";
+import { addJsonLd, createArticleSchema, createBreadcrumbSchema, getFullUrl, getReadingTimeFromContent, formatReadingTime } from "@/lib/seoHelpers";
 
 export default function BlogDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -108,6 +108,12 @@ export default function BlogDetail() {
               <div className="flex items-center gap-2">
                 <User size={18} />
                 By {post.author}
+              </div>
+            )}
+            {post.content && (
+              <div className="flex items-center gap-2">
+                <Clock size={18} />
+                {formatReadingTime(getReadingTimeFromContent(post.content))}
               </div>
             )}
           </div>

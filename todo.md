@@ -1045,3 +1045,11 @@
 - [x] Expand meta descriptions to 120-160 characters for all pages (150+ chars)
 - [x] Add Service schema markup for rich snippets (3 services)
 - [x] Test SEO checker integration end-to-end
+
+
+## Article Schema Markup for Blog Posts (Completed)
+- [x] Create Article schema markup utility with reading time calculator
+- [x] Integrate Article schema into blog detail page component
+- [x] Add reading time calculation to all blog posts (displays with Clock icon)
+- [x] Test Article schema markup generation (40+ tests passing)
+- [x] Verify schema in Google Rich Results Test (BlogPosting type with all fields)

@@ -217,7 +217,25 @@ export function createFAQSchema(faqs: Array<{ question: string; answer: string }
 }
 
 /**
- * Create Article schema for blog posts
+ * Calculate reading time from word count
+ * Average reading speed: 200 words per minute
+ */
+function calculateReadingTime(wordCount: number): number {
+  return Math.ceil(wordCount / 200);
+}
+
+/**
+ * Count words in text
+ */
+function countWords(text: string): number {
+  return text
+    .trim()
+    .split(/\s+/)
+    .filter((word) => word.length > 0).length;
+}
+
+/**
+ * Create Article schema for blog posts with reading time
  */
 export function createArticleSchema(article: {
   headline: string;
@@ -229,9 +247,13 @@ export function createArticleSchema(article: {
   articleBody?: string;
   url: string;
 }) {
+  // Calculate word count and reading time if article body is provided
+  const wordCount = article.articleBody ? countWords(article.articleBody) : undefined;
+  const readingTime = wordCount ? calculateReadingTime(wordCount) : undefined;
+
   return {
     '@context': 'https://schema.org',
-    '@type': 'Article',
+    '@type': 'BlogPosting',
     headline: article.headline,
     description: article.description,
     image: article.image,
@@ -243,6 +265,8 @@ export function createArticleSchema(article: {
     } : undefined,
     articleBody: article.articleBody,
     url: article.url,
+    ...(wordCount && { wordCount }),
+    ...(readingTime && { timeRequired: `PT${readingTime}M` }),
   };
 }
 
@@ -264,4 +288,19 @@ export function getImageUrl(imagePath: string): string {
   }
   // Otherwise, construct the full URL
   return getFullUrl(imagePath);
+}
+
+
+/**
+ * Export reading time functions for use in components
+ */
+export function getReadingTimeFromContent(content: string): number {
+  return calculateReadingTime(countWords(content));
+}
+
+export function formatReadingTime(minutes: number): string {
+  if (minutes < 1) {
+    return "< 1 min read";
+  }
+  return `${minutes} min read`;
 }
