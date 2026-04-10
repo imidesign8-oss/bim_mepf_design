@@ -1009,3 +1009,113 @@ export const pageMetadata = mysqlTable("page_metadata", {
 
 export type PageMetadata = typeof pageMetadata.$inferSelect;
 export type InsertPageMetadata = typeof pageMetadata.$inferInsert;
+
+
+// ==================== LEAD SCORING & CRM ====================
+/**
+ * Lead Scoring Rules - defines scoring criteria and weights
+ */
+export const leadScoringRules = mysqlTable("lead_scoring_rules", {
+  id: int("id").autoincrement().primaryKey(),
+  criterion: varchar("criterion", { length: 100 }).notNull().unique(),
+  weight: int("weight").notNull(),
+  description: text("description"),
+  active: boolean("active").default(true).notNull(),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type LeadScoringRule = typeof leadScoringRules.$inferSelect;
+export type InsertLeadScoringRule = typeof leadScoringRules.$inferInsert;
+
+/**
+ * Lead Scores - stores calculated scores for each contact
+ */
+export const leadScores = mysqlTable("lead_scores", {
+  id: int("id").autoincrement().primaryKey(),
+  contactId: int("contactId").notNull(),
+  totalScore: int("totalScore").notNull(),
+  qualification: mysqlEnum("qualification", ["cold", "warm", "hot", "qualified"]).notNull(),
+  projectType: varchar("projectType", { length: 100 }),
+  projectSize: varchar("projectSize", { length: 50 }),
+  estimatedBudget: varchar("estimatedBudget", { length: 50 }),
+  timeline: varchar("timeline", { length: 100 }),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  contactIdIdx: index("lead_score_contact_idx").on(table.contactId),
+  qualificationIdx: index("lead_score_qualification_idx").on(table.qualification),
+}));
+
+export type LeadScore = typeof leadScores.$inferSelect;
+export type InsertLeadScore = typeof leadScores.$inferInsert;
+
+/**
+ * CRM Integrations - stores CRM credentials and settings
+ */
+export const crmIntegrations = mysqlTable("crm_integrations", {
+  id: int("id").autoincrement().primaryKey(),
+  crmType: mysqlEnum("crmType", ["hubspot", "pipedrive", "salesforce"]).notNull(),
+  apiKey: text("apiKey").notNull(),
+  accountId: varchar("accountId", { length: 255 }),
+  isActive: boolean("isActive").default(true).notNull(),
+  syncEnabled: boolean("syncEnabled").default(true).notNull(),
+  lastSyncAt: timestamp("lastSyncAt"),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CrmIntegration = typeof crmIntegrations.$inferSelect;
+export type InsertCrmIntegration = typeof crmIntegrations.$inferInsert;
+
+/**
+ * Lead Routing - tracks which sales team member is assigned to each lead
+ */
+export const leadRouting = mysqlTable("lead_routing", {
+  id: int("id").autoincrement().primaryKey(),
+  contactId: int("contactId").notNull(),
+  assignedToUserId: int("assignedToUserId"),
+  routingReason: varchar("routingReason", { length: 255 }),
+  crmContactId: varchar("crmContactId", { length: 255 }),
+  crmDealId: varchar("crmDealId", { length: 255 }),
+  syncStatus: mysqlEnum("syncStatus", ["pending", "synced", "failed"]).default("pending").notNull(),
+  syncError: text("syncError"),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  contactIdIdx: index("lead_routing_contact_idx").on(table.contactId),
+  assignedToIdx: index("lead_routing_assigned_idx").on(table.assignedToUserId),
+  syncStatusIdx: index("lead_routing_sync_idx").on(table.syncStatus),
+}));
+
+export type LeadRouting = typeof leadRouting.$inferSelect;
+export type InsertLeadRouting = typeof leadRouting.$inferInsert;
+
+/**
+ * CRM Sync Logs - tracks all CRM synchronization activities
+ */
+export const crmSyncLogs = mysqlTable("crm_sync_logs", {
+  id: int("id").autoincrement().primaryKey(),
+  crmIntegrationId: int("crmIntegrationId").notNull(),
+  contactId: int("contactId"),
+  action: mysqlEnum("action", ["create", "update", "delete", "sync"]).notNull(),
+  status: mysqlEnum("status", ["success", "failed", "pending"]).default("pending").notNull(),
+  externalId: varchar("externalId", { length: 255 }),
+  errorMessage: text("errorMessage"),
+  requestPayload: longtext("requestPayload"),
+  responsePayload: longtext("responsePayload"),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  crmIntegrationIdx: index("crm_sync_log_integration_idx").on(table.crmIntegrationId),
+  contactIdIdx: index("crm_sync_log_contact_idx").on(table.contactId),
+  statusIdx: index("crm_sync_log_status_idx").on(table.status),
+}));
+
+export type CrmSyncLog = typeof crmSyncLogs.$inferSelect;
+export type InsertCrmSyncLog = typeof crmSyncLogs.$inferInsert;

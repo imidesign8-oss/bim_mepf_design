@@ -11,7 +11,12 @@ import {
   companySettings, InsertCompanySettings, CompanySettings,
   caseStudies, InsertCaseStudy, CaseStudy,
   subscriptions, InsertSubscription, Subscription,
-  pageMetadata, InsertPageMetadata, PageMetadata
+  pageMetadata, InsertPageMetadata, PageMetadata,
+  leadScores, InsertLeadScore, LeadScore,
+  leadScoringRules, InsertLeadScoringRule, LeadScoringRule,
+  leadRouting, InsertLeadRouting, LeadRouting,
+  crmIntegrations, InsertCrmIntegration, CrmIntegration,
+  crmSyncLogs, InsertCrmSyncLog, CrmSyncLog
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
