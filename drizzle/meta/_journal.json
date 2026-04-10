@@ -134,6 +134,13 @@
       "when": 1775814944728,
       "tag": "0018_giant_molten_man",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "5",
+      "when": 1775815573399,
+      "tag": "0019_lovely_wraith",
+      "breakpoints": true
     }
   ]
 }

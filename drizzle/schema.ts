@@ -1168,3 +1168,25 @@ export const leadNotifications = mysqlTable("lead_notifications", {
 
 export type LeadNotification = typeof leadNotifications.$inferSelect;
 export type InsertLeadNotification = typeof leadNotifications.$inferInsert;
+
+
+/**
+ * SEO Audits table for tracking page SEO performance
+ */
+export const seoAudits = mysqlTable("seo_audits", {
+  id: int("id").autoincrement().primaryKey(),
+  pagePath: varchar("pagePath", { length: 255 }).notNull(),
+  score: int("score").notNull(), // 0-100
+  issues: longtext("issues"), // JSON array of SEO issues
+  recommendations: longtext("recommendations"), // JSON array of recommendations
+  auditedAt: timestamp("auditedAt").defaultNow().notNull(),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  pagePathIdx: index("seo_audit_page_idx").on(table.pagePath),
+  auditedAtIdx: index("seo_audit_date_idx").on(table.auditedAt),
+}));
+
+export type SEOAudit = typeof seoAudits.$inferSelect;
+export type InsertSEOAudit = typeof seoAudits.$inferInsert;

@@ -8,31 +8,27 @@ import { AlertCircle, CheckCircle2, AlertTriangle, Info, RefreshCw, TrendingUp }
 import { Progress } from "@/components/ui/progress";
 
 export function SEORecommendations() {
-  const [selectedPage, setSelectedPage] = useState<string>("/");
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isAuditing, setIsAuditing] = useState(false);
 
-  const analyzePage = trpc.seoAudit.analyzePage.useQuery(
-    { pageSlug: selectedPage },
-    { enabled: !!selectedPage }
-  );
-  const auditAllPages = trpc.seoAudit.auditAllPages.useQuery();
+  const { data: healthData, isLoading: healthLoading, refetch: refetchHealth } = trpc.seoAudit.getHealthOverview.useQuery();
+  const { data: allAudits, isLoading: auditsLoading, refetch: refetchAudits } = trpc.seoAudit.getAllPageAudits.useQuery();
+  const auditAllMutation = trpc.seoAudit.auditAllPages.useMutation();
 
-  const handleAnalyze = async () => {
-    setIsAnalyzing(true);
-    await analyzePage.refetch();
-    setIsAnalyzing(false);
+  const handleAuditAll = async () => {
+    setIsAuditing(true);
+    try {
+      await auditAllMutation.mutateAsync();
+      await refetchHealth();
+      await refetchAudits();
+    } catch (error) {
+      console.error("Audit failed:", error);
+    } finally {
+      setIsAuditing(false);
+    }
   };
 
-  const recommendations = analyzePage.data?.recommendations || [];
-  const summary = analyzePage.data?.summary;
-
-  const criticalIssues = recommendations.filter(r => r.priority === "critical");
-  const highIssues = recommendations.filter(r => r.priority === "high");
-  const mediumIssues = recommendations.filter(r => r.priority === "medium");
-  const lowIssues = recommendations.filter(r => r.priority === "low");
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
+  const getPriorityColor = (severity: string) => {
+    switch (severity) {
       case "critical":
         return "bg-red-100 text-red-800 border-red-300";
       case "high":
@@ -46,271 +42,248 @@ export function SEORecommendations() {
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "pass":
-        return <CheckCircle2 className="h-5 w-5 text-green-600" />;
-      case "warning":
-        return <AlertTriangle className="h-5 w-5 text-yellow-600" />;
-      case "fail":
-        return <AlertCircle className="h-5 w-5 text-red-600" />;
-      default:
-        return <Info className="h-5 w-5 text-blue-600" />;
-    }
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return "text-green-600";
+    if (score >= 60) return "text-yellow-600";
+    return "text-red-600";
+  };
+
+  const getScoreBg = (score: number) => {
+    if (score >= 80) return "bg-green-50";
+    if (score >= 60) return "bg-yellow-50";
+    return "bg-red-50";
   };
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">SEO Recommendations</h2>
-          <p className="text-muted-foreground">Get actionable suggestions to improve your SEO</p>
-        </div>
-        <Button onClick={handleAnalyze} disabled={isAnalyzing}>
-          <RefreshCw className="h-4 w-4 mr-2" />
-          {isAnalyzing ? "Analyzing..." : "Analyze"}
-        </Button>
-      </div>
-
-      <Tabs defaultValue="single" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="single">Single Page</TabsTrigger>
-          <TabsTrigger value="all">All Pages</TabsTrigger>
-        </TabsList>
-
-        {/* Single Page Analysis */}
-        <TabsContent value="single" className="space-y-6">
-          {/* Page Selector */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Select Page to Analyze</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <select
-                value={selectedPage}
-                onChange={(e) => setSelectedPage(e.target.value)}
-                className="w-full px-3 py-2 border rounded-md"
+      {/* Health Overview */}
+      {healthData?.success && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span>SEO Health Overview</span>
+              <Button
+                onClick={handleAuditAll}
+                disabled={isAuditing}
+                size="sm"
+                variant="outline"
               >
-                <option value="/">Home</option>
-                <option value="/about">About</option>
-                <option value="/services">Services</option>
-                <option value="/services/bim-design">BIM Design Service</option>
-                <option value="/services/mepf-design">MEPF Design Service</option>
-                <option value="/projects">Projects</option>
-                <option value="/blog">Blog</option>
-                <option value="/contact">Contact</option>
-              </select>
-            </CardContent>
-          </Card>
+                <RefreshCw className="w-4 h-4 mr-2" />
+                {isAuditing ? "Auditing..." : "Run Full Audit"}
+              </Button>
+            </CardTitle>
+            <CardDescription>
+              Overall SEO performance across all pages
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Main Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className={`p-4 rounded-lg ${getScoreBg(healthData?.health?.overallScore || 0)}`}>
+                <div className="text-sm font-medium text-gray-600 mb-1">Overall Score</div>
+                <div className={`text-3xl font-bold ${getScoreColor(healthData?.health?.overallScore || 0)}`}>
+                  {healthData?.health?.overallScore || 0}/100
+                </div>
+              </div>
+              <div className="p-4 rounded-lg bg-blue-50">
+                <div className="text-sm font-medium text-gray-600 mb-1">Pages Audited</div>
+                <div className="text-3xl font-bold text-blue-600">
+                  {healthData?.health?.totalPages || 0}
+                </div>
+              </div>
+              <div className="p-4 rounded-lg bg-orange-50">
+                <div className="text-sm font-medium text-gray-600 mb-1">Needs Work</div>
+                <div className="text-3xl font-bold text-orange-600">
+                  {healthData?.health?.pagesNeedingWork || 0}
+                </div>
+              </div>
+              <div className="p-4 rounded-lg bg-red-50">
+                <div className="text-sm font-medium text-gray-600 mb-1">Critical</div>
+                <div className="text-3xl font-bold text-red-600">
+                  {healthData?.health?.criticalPages || 0}
+                </div>
+              </div>
+            </div>
 
-          {/* SEO Score */}
-          {summary && (
-            <Card>
-              <CardHeader>
-                <CardTitle>SEO Score</CardTitle>
-                <CardDescription>Overall page optimization score</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
+            {/* Issue Summary */}
+            <div className="space-y-3">
+              <h3 className="font-semibold text-sm">Issues by Severity</h3>
+              <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-4xl font-bold text-primary">{summary.score}/100</span>
-                  <div className="text-right">
-                    <p className="text-sm text-muted-foreground">
-                      {summary.critical} Critical • {summary.high} High • {summary.medium} Medium
-                    </p>
+                  <span className="text-sm text-gray-600">Critical</span>
+                  <div className="flex items-center gap-2">
+                    <Progress value={(allAudits?.statistics.criticalIssues || 0) / 10 * 100} className="w-24" />
+                    <span className="text-sm font-medium">{allAudits?.statistics.criticalIssues || 0}</span>
                   </div>
                 </div>
-                <Progress value={summary.score} className="h-2" />
-                <p className="text-sm text-muted-foreground">
-                  {summary.score >= 80
-                    ? "Great job! Your page is well optimized."
-                    : summary.score >= 60
-                    ? "Good progress. Follow the recommendations below to improve further."
-                    : "Significant improvements needed. Focus on critical issues first."}
-                </p>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Recommendations by Priority */}
-          {criticalIssues.length > 0 && (
-            <Card className="border-red-300">
-              <CardHeader className="bg-red-50">
-                <CardTitle className="flex items-center gap-2 text-red-900">
-                  <AlertCircle className="h-5 w-5" />
-                  Critical Issues ({criticalIssues.length})
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-4 space-y-3">
-                {criticalIssues.map((rec) => (
-                  <div key={rec.id} className="border rounded-lg p-3 bg-red-50">
-                    <div className="flex items-start gap-3">
-                      {getStatusIcon(rec.status)}
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-red-900">{rec.title}</h4>
-                        <p className="text-sm text-red-800 mt-1">{rec.description}</p>
-                        <div className="mt-2 space-y-1">
-                          <p className="text-xs font-medium text-red-900">Impact: {rec.impact}</p>
-                          <p className="text-xs text-red-800">💡 {rec.suggestion}</p>
-                        </div>
-                      </div>
-                    </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">High</span>
+                  <div className="flex items-center gap-2">
+                    <Progress value={(allAudits?.statistics.highIssues || 0) / 10 * 100} className="w-24" />
+                    <span className="text-sm font-medium">{allAudits?.statistics.highIssues || 0}</span>
                   </div>
-                ))}
-              </CardContent>
-            </Card>
-          )}
-
-          {highIssues.length > 0 && (
-            <Card className="border-orange-300">
-              <CardHeader className="bg-orange-50">
-                <CardTitle className="flex items-center gap-2 text-orange-900">
-                  <AlertTriangle className="h-5 w-5" />
-                  High Priority ({highIssues.length})
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-4 space-y-3">
-                {highIssues.map((rec) => (
-                  <div key={rec.id} className="border rounded-lg p-3 bg-orange-50">
-                    <div className="flex items-start gap-3">
-                      {getStatusIcon(rec.status)}
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-orange-900">{rec.title}</h4>
-                        <p className="text-sm text-orange-800 mt-1">{rec.description}</p>
-                        <div className="mt-2 space-y-1">
-                          <p className="text-xs font-medium text-orange-900">Impact: {rec.impact}</p>
-                          <p className="text-xs text-orange-800">💡 {rec.suggestion}</p>
-                        </div>
-                      </div>
-                    </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Medium</span>
+                  <div className="flex items-center gap-2">
+                    <Progress value={(allAudits?.statistics.mediumIssues || 0) / 10 * 100} className="w-24" />
+                    <span className="text-sm font-medium">{allAudits?.statistics.mediumIssues || 0}</span>
                   </div>
-                ))}
-              </CardContent>
-            </Card>
-          )}
-
-          {mediumIssues.length > 0 && (
-            <Card className="border-yellow-300">
-              <CardHeader className="bg-yellow-50">
-                <CardTitle className="flex items-center gap-2 text-yellow-900">
-                  <AlertTriangle className="h-5 w-5" />
-                  Medium Priority ({mediumIssues.length})
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-4 space-y-3">
-                {mediumIssues.map((rec) => (
-                  <div key={rec.id} className="border rounded-lg p-3 bg-yellow-50">
-                    <div className="flex items-start gap-3">
-                      {getStatusIcon(rec.status)}
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-yellow-900">{rec.title}</h4>
-                        <p className="text-sm text-yellow-800 mt-1">{rec.description}</p>
-                        <div className="mt-2 space-y-1">
-                          <p className="text-xs font-medium text-yellow-900">Impact: {rec.impact}</p>
-                          <p className="text-xs text-yellow-800">💡 {rec.suggestion}</p>
-                        </div>
-                      </div>
-                    </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Low</span>
+                  <div className="flex items-center gap-2">
+                    <Progress value={(allAudits?.statistics.lowIssues || 0) / 10 * 100} className="w-24" />
+                    <span className="text-sm font-medium">{allAudits?.statistics.lowIssues || 0}</span>
                   </div>
-                ))}
-              </CardContent>
-            </Card>
-          )}
-
-          {lowIssues.length > 0 && (
-            <Card className="border-blue-300">
-              <CardHeader className="bg-blue-50">
-                <CardTitle className="flex items-center gap-2 text-blue-900">
-                  <CheckCircle2 className="h-5 w-5" />
-                  Optimizations ({lowIssues.length})
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-4 space-y-3">
-                {lowIssues.map((rec) => (
-                  <div key={rec.id} className="border rounded-lg p-3 bg-blue-50">
-                    <div className="flex items-start gap-3">
-                      {getStatusIcon(rec.status)}
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-blue-900">{rec.title}</h4>
-                        <p className="text-sm text-blue-800 mt-1">{rec.description}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          )}
-
-          {recommendations.length === 0 && !analyzePage.isLoading && (
-            <Alert>
-              <CheckCircle2 className="h-4 w-4 text-green-600" />
-              <AlertDescription>
-                No recommendations available. Click "Analyze" to get started.
-              </AlertDescription>
-            </Alert>
-          )}
-        </TabsContent>
-
-        {/* All Pages Audit */}
-        <TabsContent value="all" className="space-y-6">
-          {auditAllPages.data && (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium">Total Pages</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{auditAllPages.data.summary.totalPages}</div>
-                    <p className="text-xs text-muted-foreground">Analyzed pages</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium">Average Score</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{auditAllPages.data.summary.avgScore}/100</div>
-                    <p className="text-xs text-muted-foreground">Overall SEO health</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium">Pages with Issues</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{auditAllPages.data.summary.pagesWithIssues}</div>
-                    <p className="text-xs text-muted-foreground">Need attention</p>
-                  </CardContent>
-                </Card>
+                </div>
               </div>
+            </div>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Page Scores</CardTitle>
-                  <CardDescription>SEO scores for all pages</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {auditAllPages.data.results.map((result: any) => (
-                      <div key={result.page} className="flex items-center justify-between p-3 border rounded-lg">
+            {/* Top Recommendations */}
+            {healthData.topRecommendations && healthData.topRecommendations.length > 0 && (
+              <div className="space-y-3 pt-4 border-t">
+                <h3 className="font-semibold text-sm">Top Recommendations</h3>
+                <div className="space-y-2">
+                  {healthData.topRecommendations.map((rec: string, idx: number) => (
+                    <Alert key={idx} className="border-orange-300 bg-orange-50">
+                      <AlertTriangle className="h-4 w-4 text-orange-600" />
+                      <AlertDescription className="text-sm text-orange-800">
+                        {rec}
+                      </AlertDescription>
+                    </Alert>
+                  ))}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Page Scores */}
+      {allAudits && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Page SEO Scores</CardTitle>
+            <CardDescription>
+              Individual page performance metrics
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {allAudits.audits.map((audit: any) => (
+                <div key={audit.pagePath} className={`p-4 rounded-lg border ${getScoreBg(audit.score)}`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-medium text-sm">{audit.pagePath}</span>
+                    <span className={`text-lg font-bold ${getScoreColor(audit.score)}`}>
+                      {audit.score}/100
+                    </span>
+                  </div>
+                  <Progress value={audit.score} className="h-2" />
+                  <div className="flex gap-2 mt-2 text-xs">
+                    {audit.issues && (
+                      <>
+                        {audit.issues.filter((i: any) => i.severity === "critical").length > 0 && (
+                          <span className="px-2 py-1 rounded bg-red-100 text-red-700">
+                            {audit.issues.filter((i: any) => i.severity === "critical").length} Critical
+                          </span>
+                        )}
+                        {audit.issues.filter((i: any) => i.severity === "high").length > 0 && (
+                          <span className="px-2 py-1 rounded bg-orange-100 text-orange-700">
+                            {audit.issues.filter((i: any) => i.severity === "high").length} High
+                          </span>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Detailed Issues */}
+      {allAudits?.audits && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Detailed Issues</CardTitle>
+            <CardDescription>
+              All SEO issues by category and severity
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="all" className="w-full">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="all">All</TabsTrigger>
+                <TabsTrigger value="critical">Critical</TabsTrigger>
+                <TabsTrigger value="high">High</TabsTrigger>
+                <TabsTrigger value="medium">Medium</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="all" className="space-y-3 mt-4">
+                {allAudits.audits.flatMap((audit: any) =>
+                  audit.issues?.map((issue: any, idx: number) => (
+                    <div key={`${audit.pagePath}-${idx}`} className={`p-4 rounded-lg border ${getPriorityColor(issue.severity)}`}>
+                      <div className="flex items-start gap-3">
+                        {issue.severity === "critical" && <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />}
+                        {issue.severity === "high" && <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />}
+                        {issue.severity === "medium" && <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />}
+                        {issue.severity === "low" && <CheckCircle2 className="w-5 h-5 flex-shrink-0 mt-0.5" />}
                         <div className="flex-1">
-                          <p className="font-medium">{result.page}</p>
-                          <p className="text-xs text-muted-foreground">{result.issues} issue(s)</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Progress value={result.score} className="w-24 h-2" />
-                          <span className="font-bold text-sm w-12 text-right">{result.score}/100</span>
+                          <div className="font-semibold text-sm mb-1">{issue.issue}</div>
+                          <div className="text-xs mb-2 opacity-75">{issue.category} • {audit.pagePath}</div>
+                          <div className="text-xs mb-2">{issue.recommendation}</div>
+                          <div className="text-xs opacity-70">Impact: {issue.impact}</div>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </>
-          )}
-        </TabsContent>
-      </Tabs>
+                    </div>
+                  ))
+                )}
+              </TabsContent>
+
+              <TabsContent value="critical" className="space-y-3 mt-4">
+                {allAudits.audits.flatMap((audit: any) =>
+                  audit.issues
+                    ?.filter((i: any) => i.severity === "critical")
+                    .map((issue: any, idx: number) => (
+                      <div key={`${audit.pagePath}-${idx}`} className={`p-4 rounded-lg border ${getPriorityColor(issue.severity)}`}>
+                        <div className="font-semibold text-sm mb-1">{issue.issue}</div>
+                        <div className="text-xs mb-2">{issue.recommendation}</div>
+                      </div>
+                    ))
+                )}
+              </TabsContent>
+
+              <TabsContent value="high" className="space-y-3 mt-4">
+                {allAudits.audits.flatMap((audit: any) =>
+                  audit.issues
+                    ?.filter((i: any) => i.severity === "high")
+                    .map((issue: any, idx: number) => (
+                      <div key={`${audit.pagePath}-${idx}`} className={`p-4 rounded-lg border ${getPriorityColor(issue.severity)}`}>
+                        <div className="font-semibold text-sm mb-1">{issue.issue}</div>
+                        <div className="text-xs mb-2">{issue.recommendation}</div>
+                      </div>
+                    ))
+                )}
+              </TabsContent>
+
+              <TabsContent value="medium" className="space-y-3 mt-4">
+                {allAudits.audits.flatMap((audit: any) =>
+                  audit.issues
+                    ?.filter((i: any) => i.severity === "medium")
+                    .map((issue: any, idx: number) => (
+                      <div key={`${audit.pagePath}-${idx}`} className={`p-4 rounded-lg border ${getPriorityColor(issue.severity)}`}>
+                        <div className="font-semibold text-sm mb-1">{issue.issue}</div>
+                        <div className="text-xs mb-2">{issue.recommendation}</div>
+                      </div>
+                    ))
+                )}
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
