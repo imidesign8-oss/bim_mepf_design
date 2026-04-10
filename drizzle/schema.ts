@@ -1119,3 +1119,52 @@ export const crmSyncLogs = mysqlTable("crm_sync_logs", {
 
 export type CrmSyncLog = typeof crmSyncLogs.$inferSelect;
 export type InsertCrmSyncLog = typeof crmSyncLogs.$inferInsert;
+
+
+/**
+ * Sales Team Members - stores sales team contact information for lead notifications
+ */
+export const salesTeamMembers = mysqlTable("sales_team_members", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull().unique(),
+  phone: varchar("phone", { length: 20 }),
+  role: varchar("role", { length: 100 }), // e.g., "Senior Sales Executive", "Account Manager"
+  specialization: varchar("specialization", { length: 255 }), // e.g., "BIM", "MEPF", "All"
+  isActive: boolean("isActive").default(true).notNull(),
+  notificationPreference: mysqlEnum("notificationPreference", ["all", "qualified_only", "hot_and_qualified", "none"]).default("all").notNull(),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  emailIdx: index("sales_team_email_idx").on(table.email),
+  isActiveIdx: index("sales_team_active_idx").on(table.isActive),
+}));
+
+export type SalesTeamMember = typeof salesTeamMembers.$inferSelect;
+export type InsertSalesTeamMember = typeof salesTeamMembers.$inferInsert;
+
+/**
+ * Lead Notifications - tracks which notifications have been sent for each lead
+ */
+export const leadNotifications = mysqlTable("lead_notifications", {
+  id: int("id").autoincrement().primaryKey(),
+  contactId: int("contactId").notNull(),
+  leadScoreId: int("leadScoreId"),
+  salesTeamMemberId: int("salesTeamMemberId").notNull(),
+  notificationType: mysqlEnum("notificationType", ["email", "slack", "sms"]).default("email").notNull(),
+  status: mysqlEnum("status", ["pending", "sent", "failed", "bounced"]).default("pending").notNull(),
+  sentAt: timestamp("sentAt"),
+  errorMessage: text("errorMessage"),
+  recipientEmail: varchar("recipientEmail", { length: 320 }),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  contactIdIdx: index("lead_notification_contact_idx").on(table.contactId),
+  statusIdx: index("lead_notification_status_idx").on(table.status),
+  salesTeamIdx: index("lead_notification_sales_team_idx").on(table.salesTeamMemberId),
+}));
+
+export type LeadNotification = typeof leadNotifications.$inferSelect;
+export type InsertLeadNotification = typeof leadNotifications.$inferInsert;

@@ -1,8 +1,9 @@
 import { router, protectedProcedure, adminProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
-import { leadScores, leadScoringRules, leadRouting, contacts } from "../../drizzle/schema";
+import { leadScores, leadScoringRules, leadRouting, contacts, salesTeamMembers } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
+import { notifyLeadToSalesTeam, getLeadNotificationHistory, getSalesTeamMembersForAdmin } from "../services/leadNotificationService";
 
 /**
  * Lead Scoring Router - Handles lead qualification and scoring logic
@@ -221,6 +222,162 @@ export const leadScoringRouter = router({
         return {
           success: false,
           error: "Failed to assign lead",
+        };
+      }
+    }),
+
+  /**
+   * Send lead notification to sales team
+   */
+  sendLeadNotification: adminProcedure
+    .input(
+      z.object({
+        contactId: z.number(),
+        leadScoreId: z.number().optional(),
+        leadScore: z.number(),
+        qualification: z.string(),
+        contactName: z.string(),
+        contactEmail: z.string().email(),
+        contactPhone: z.string().optional(),
+        projectType: z.string().optional(),
+        projectSize: z.string().optional(),
+        estimatedBudget: z.string().optional(),
+        timeline: z.string().optional(),
+        message: z.string().optional(),
+        subject: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      try {
+        const result = await notifyLeadToSalesTeam(input);
+        return result;
+      } catch (error) {
+        console.error("Error sending lead notification:", error);
+        return {
+          success: false,
+          notificationsSent: 0,
+          errors: ["Failed to send lead notification"],
+        };
+      }
+    }),
+
+  /**
+   * Get notification history for a lead
+   */
+  getNotificationHistory: adminProcedure
+    .input(z.object({ contactId: z.number() }))
+    .query(async ({ input }) => {
+      try {
+        const notifications = await getLeadNotificationHistory(input.contactId);
+        return notifications;
+      } catch (error) {
+        console.error("Error fetching notification history:", error);
+        return [];
+      }
+    }),
+
+  /**
+   * Get sales team members
+   */
+  getSalesTeamMembers: adminProcedure.query(async () => {
+    try {
+      const members = await getSalesTeamMembersForAdmin();
+      return members;
+    } catch (error) {
+      console.error("Error fetching sales team members:", error);
+      return [];
+    }
+  }),
+
+  /**
+   * Add sales team member
+   */
+  addSalesTeamMember: adminProcedure
+    .input(
+      z.object({
+        name: z.string().min(1),
+        email: z.string().email(),
+        phone: z.string().optional(),
+        role: z.string().optional(),
+        specialization: z.string().optional(),
+        notificationPreference: z.enum(["all", "qualified_only", "hot_and_qualified", "none"]).default("all"),
+      })
+    )
+    .mutation(async ({ input }) => {
+      try {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        await (db as any).insert(salesTeamMembers).values({
+          name: input.name,
+          email: input.email,
+          phone: input.phone,
+          role: input.role,
+          specialization: input.specialization,
+          notificationPreference: input.notificationPreference,
+          isActive: true,
+        });
+
+        return {
+          success: true,
+          message: "Sales team member added successfully",
+        };
+      } catch (error) {
+        console.error("Error adding sales team member:", error);
+        return {
+          success: false,
+          error: "Failed to add sales team member",
+        };
+      }
+    }),
+
+  /**
+   * Update sales team member
+   */
+  updateSalesTeamMember: adminProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        name: z.string().min(1).optional(),
+        email: z.string().email().optional(),
+        phone: z.string().optional(),
+        role: z.string().optional(),
+        specialization: z.string().optional(),
+        notificationPreference: z.enum(["all", "qualified_only", "hot_and_qualified", "none"]).optional(),
+        isActive: z.boolean().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      try {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        const { id, ...updateData } = input;
+        const updateFields: any = {};
+        
+        if (updateData.name) updateFields.name = updateData.name;
+        if (updateData.email) updateFields.email = updateData.email;
+        if (updateData.phone !== undefined) updateFields.phone = updateData.phone;
+        if (updateData.role !== undefined) updateFields.role = updateData.role;
+        if (updateData.specialization !== undefined) updateFields.specialization = updateData.specialization;
+        if (updateData.notificationPreference) updateFields.notificationPreference = updateData.notificationPreference;
+        if (updateData.isActive !== undefined) updateFields.isActive = updateData.isActive;
+        updateFields.updatedAt = new Date();
+
+        await (db as any)
+          .update(salesTeamMembers)
+          .set(updateFields)
+          .where(eq(salesTeamMembers.id, id));
+
+        return {
+          success: true,
+          message: "Sales team member updated successfully",
+        };
+      } catch (error) {
+        console.error("Error updating sales team member:", error);
+        return {
+          success: false,
+          error: "Failed to update sales team member",
         };
       }
     }),

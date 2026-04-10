@@ -1016,3 +1016,13 @@
 - [ ] Add CRM credentials management in admin settings - PENDING
 - [ ] Test lead scoring accuracy - PENDING
 - [ ] Test CRM synchronization - PENDING
+
+
+## Lead Notifications System (In Progress)
+- [x] Extend database schema with salesTeamMembers table
+- [x] Create email notification service for lead alerts
+- [x] Add tRPC procedures for sending lead notifications
+- [ ] Integrate notifications into contact form submission flow
+- [ ] Create admin UI for managing sales team email addresses
+- [x] Write and run tests for notification system (23 tests passing)
+- [ ] Test end-to-end lead notification flow

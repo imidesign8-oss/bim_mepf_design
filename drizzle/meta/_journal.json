@@ -127,6 +127,13 @@
       "when": 1775813187832,
       "tag": "0017_curvy_skaar",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "5",
+      "when": 1775814944728,
+      "tag": "0018_giant_molten_man",
+      "breakpoints": true
     }
   ]
 }
