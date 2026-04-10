@@ -3,7 +3,7 @@ import { trpc } from "@/lib/trpc";
 import Footer from "@/components/Footer";
 import { useState, useEffect } from "react";
 import Breadcrumb from "@/components/Breadcrumb";
-import { Phone, Mail, MapPin, Send } from "lucide-react";
+import { Phone, Mail, MapPin, Send, TrendingUp } from "lucide-react";
 
 import { toast } from "sonner";
 import {
@@ -24,13 +24,17 @@ export default function Contact() {
     phone: "",
     subject: "",
     message: "",
+    projectType: "",
+    projectSize: "",
+    estimatedBudget: "",
+    timeline: "",
   });
 
   const { data: settings } = trpc.settings.get.useQuery();
   const submitMutation = trpc.contacts.submit.useMutation({
     onSuccess: () => {
       toast.success("Message sent successfully! We'll get back to you soon.");
-      setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
+      setFormData({ name: "", email: "", phone: "", subject: "", message: "", projectType: "", projectSize: "", estimatedBudget: "", timeline: "" });
     },
     onError: (error: any) => {
       console.error("Contact submission error:", error);
@@ -89,7 +93,7 @@ export default function Contact() {
     submitMutation.mutate(formData);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
@@ -162,6 +166,17 @@ export default function Contact() {
                   We typically respond to inquiries within 24 hours during business days.
                 </p>
               </div>
+
+              {/* Lead Scoring Info */}
+              <div className="card-elegant bg-primary/5 border border-primary/20">
+                <div className="flex gap-2 mb-3">
+                  <TrendingUp className="text-primary" size={20} />
+                  <h4 className="mb-0">Priority Scoring</h4>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Providing project details helps us prioritize your inquiry and assign the right team member for faster response.
+                </p>
+              </div>
             </div>
 
             {/* Contact Form */}
@@ -232,6 +247,73 @@ export default function Contact() {
                       className="w-full px-4 py-3 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                       placeholder="Tell us about your project..."
                     />
+                  </div>
+
+                  {/* Lead Scoring Fields */}
+                  <div className="border-t pt-6 mt-6">
+                    <h4 className="font-semibold mb-4 text-sm">Project Details (Helps us prioritize)</h4>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-semibold mb-2">Project Type</label>
+                        <select
+                          name="projectType"
+                          value={formData.projectType}
+                          onChange={handleChange}
+                          className="w-full px-4 py-3 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                        >
+                          <option value="">Select project type</option>
+                          <option value="BIM">BIM Modeling</option>
+                          <option value="MEPF">MEPF Design</option>
+                          <option value="Quantities & Estimation">Quantities & Estimation</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold mb-2">Project Size</label>
+                        <select
+                          name="projectSize"
+                          value={formData.projectSize}
+                          onChange={handleChange}
+                          className="w-full px-4 py-3 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                        >
+                          <option value="">Select project size</option>
+                          <option value="Small">Small ({"<"} 10,000 sqft)</option>
+                          <option value="Medium">Medium (10,000 - 100,000 sqft)</option>
+                          <option value="Large">Large ({">"} 100,000 sqft)</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold mb-2">Estimated Budget</label>
+                        <select
+                          name="estimatedBudget"
+                          value={formData.estimatedBudget}
+                          onChange={handleChange}
+                          className="w-full px-4 py-3 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                        >
+                          <option value="">Select budget range</option>
+                          <option value="Low">Low ({"<"} ₹5 Lakhs)</option>
+                          <option value="Medium">Medium (₹5L - ₹20L)</option>
+                          <option value="High">High ({">"} ₹20L)</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold mb-2">Timeline</label>
+                        <select
+                          name="timeline"
+                          value={formData.timeline}
+                          onChange={handleChange}
+                          className="w-full px-4 py-3 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                        >
+                          <option value="">Select timeline</option>
+                          <option value="Urgent">Urgent ({"<"} 2 weeks)</option>
+                          <option value="Soon">Soon (2-4 weeks)</option>
+                          <option value="Flexible">Flexible ({">"} 1 month)</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
 
                   <button

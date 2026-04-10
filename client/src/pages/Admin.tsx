@@ -27,6 +27,7 @@ import AnalyticsDashboard from "@/components/admin/AnalyticsDashboard";
 import { PageMetadataManager } from "@/components/admin/PageMetadataManager";
 import { GSCDashboard } from "@/components/admin/GSCDashboard";
 import { SEORecommendations } from "@/components/admin/SEORecommendations";
+import LeadManagementDashboard from "@/components/admin/LeadManagementDashboard";
 
 export default function Admin() {
   const { user } = useAuth();
@@ -58,6 +59,7 @@ export default function Admin() {
     { id: "case-studies", label: "Case Studies", icon: "📸" },
     { id: "projects", label: "Projects", icon: "🏗️" },
     { id: "contacts", label: "Contact Submissions", icon: "📋" },
+    { id: "leads", label: "Lead Management", icon: "🎯" },
     { id: "contact-dashboard", label: "Contact Dashboard", icon: "📊" },
     { id: "email", label: "Email Management", icon: "✉️" },
     { id: "email-marketing", label: "Email Marketing", icon: "📢" },
@@ -138,6 +140,7 @@ export default function Admin() {
           {currentTab === "case-studies" && <CaseStudiesAdmin />}
           {currentTab === "projects" && <AdminProjects />}
           {currentTab === "contacts" && <AdminContacts />}
+          {currentTab === "leads" && <LeadManagementDashboard />}
           {currentTab === "contact-dashboard" && <ContactDashboard />}
           {currentTab === "email" && <EmailManagement />}
           {currentTab === "email-marketing" && <EmailMarketingEnhanced />}
