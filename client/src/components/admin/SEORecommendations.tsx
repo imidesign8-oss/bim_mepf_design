@@ -54,6 +54,61 @@ export function SEORecommendations() {
     return "bg-red-50";
   };
 
+  // Show loading state
+  if (healthLoading || auditsLoading) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>SEO Health Overview</CardTitle>
+            <CardDescription>Loading SEO data...</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="h-20 bg-gray-200 rounded animate-pulse"></div>
+              <div className="h-20 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Show empty state if no audits exist
+  if (!healthData?.success || !allAudits?.audits || allAudits.audits.length === 0) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span>SEO Health Overview</span>
+              <Button
+                onClick={handleAuditAll}
+                disabled={isAuditing}
+                size="sm"
+                variant="outline"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                {isAuditing ? "Auditing..." : "Run Full Audit"}
+              </Button>
+            </CardTitle>
+            <CardDescription>
+              No SEO audits have been run yet. Click "Run Full Audit" to analyze your pages.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Alert className="border-blue-300 bg-blue-50">
+              <Info className="h-4 w-4 text-blue-600" />
+              <AlertDescription className="text-blue-800">
+                <strong>Getting Started:</strong> Click the "Run Full Audit" button above to analyze all pages for SEO issues. This will check meta descriptions, titles, headings, images, and more.
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Health Overview */}
@@ -112,44 +167,44 @@ export function SEORecommendations() {
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Critical</span>
                   <div className="flex items-center gap-2">
-                    <Progress value={(allAudits?.statistics.criticalIssues || 0) / 10 * 100} className="w-24" />
-                    <span className="text-sm font-medium">{allAudits?.statistics.criticalIssues || 0}</span>
+                    <Progress value={(allAudits?.statistics?.criticalIssues || 0) / 10 * 100} className="w-24" />
+                    <span className="text-sm font-medium">{allAudits?.statistics?.criticalIssues || 0}</span>
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">High</span>
                   <div className="flex items-center gap-2">
-                    <Progress value={(allAudits?.statistics.highIssues || 0) / 10 * 100} className="w-24" />
-                    <span className="text-sm font-medium">{allAudits?.statistics.highIssues || 0}</span>
+                    <Progress value={(allAudits?.statistics?.highIssues || 0) / 10 * 100} className="w-24" />
+                    <span className="text-sm font-medium">{allAudits?.statistics?.highIssues || 0}</span>
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Medium</span>
                   <div className="flex items-center gap-2">
-                    <Progress value={(allAudits?.statistics.mediumIssues || 0) / 10 * 100} className="w-24" />
-                    <span className="text-sm font-medium">{allAudits?.statistics.mediumIssues || 0}</span>
+                    <Progress value={(allAudits?.statistics?.mediumIssues || 0) / 10 * 100} className="w-24" />
+                    <span className="text-sm font-medium">{allAudits?.statistics?.mediumIssues || 0}</span>
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Low</span>
                   <div className="flex items-center gap-2">
-                    <Progress value={(allAudits?.statistics.lowIssues || 0) / 10 * 100} className="w-24" />
-                    <span className="text-sm font-medium">{allAudits?.statistics.lowIssues || 0}</span>
+                    <Progress value={(allAudits?.statistics?.lowIssues || 0) / 10 * 100} className="w-24" />
+                    <span className="text-sm font-medium">{allAudits?.statistics?.lowIssues || 0}</span>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Top Recommendations */}
-            {healthData.topRecommendations && healthData.topRecommendations.length > 0 && (
+            {healthData?.topRecommendations && healthData.topRecommendations.length > 0 && (
               <div className="space-y-3 pt-4 border-t">
                 <h3 className="font-semibold text-sm">Top Recommendations</h3>
                 <div className="space-y-2">
-                  {healthData.topRecommendations.map((rec: string, idx: number) => (
+                  {healthData.topRecommendations.map((rec: any, idx: number) => (
                     <Alert key={idx} className="border-orange-300 bg-orange-50">
                       <AlertTriangle className="h-4 w-4 text-orange-600" />
                       <AlertDescription className="text-sm text-orange-800">
-                        {rec}
+                        {typeof rec === "string" ? rec : rec?.recommendation || "SEO improvement needed"}
                       </AlertDescription>
                     </Alert>
                   ))}
@@ -161,7 +216,7 @@ export function SEORecommendations() {
       )}
 
       {/* Page Scores */}
-      {allAudits && (
+      {allAudits?.audits && allAudits.audits.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>Page SEO Scores</CardTitle>
@@ -204,7 +259,7 @@ export function SEORecommendations() {
       )}
 
       {/* Detailed Issues */}
-      {allAudits?.audits && (
+      {allAudits?.audits && allAudits.audits.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>Detailed Issues</CardTitle>
@@ -240,6 +295,14 @@ export function SEORecommendations() {
                     </div>
                   ))
                 )}
+                {allAudits.audits.every((a: any) => !a.issues || a.issues.length === 0) && (
+                  <Alert className="border-green-300 bg-green-50">
+                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    <AlertDescription className="text-green-800">
+                      No SEO issues found! Your pages are well-optimized.
+                    </AlertDescription>
+                  </Alert>
+                )}
               </TabsContent>
 
               <TabsContent value="critical" className="space-y-3 mt-4">
@@ -248,10 +311,25 @@ export function SEORecommendations() {
                     ?.filter((i: any) => i.severity === "critical")
                     .map((issue: any, idx: number) => (
                       <div key={`${audit.pagePath}-${idx}`} className={`p-4 rounded-lg border ${getPriorityColor(issue.severity)}`}>
-                        <div className="font-semibold text-sm mb-1">{issue.issue}</div>
-                        <div className="text-xs mb-2">{issue.recommendation}</div>
+                        <div className="flex items-start gap-3">
+                          <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                          <div className="flex-1">
+                            <div className="font-semibold text-sm mb-1">{issue.issue}</div>
+                            <div className="text-xs mb-2 opacity-75">{issue.category} • {audit.pagePath}</div>
+                            <div className="text-xs mb-2">{issue.recommendation}</div>
+                            <div className="text-xs opacity-70">Impact: {issue.impact}</div>
+                          </div>
+                        </div>
                       </div>
                     ))
+                )}
+                {!allAudits.audits.some((a: any) => a.issues?.some((i: any) => i.severity === "critical")) && (
+                  <Alert className="border-green-300 bg-green-50">
+                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    <AlertDescription className="text-green-800">
+                      No critical issues found!
+                    </AlertDescription>
+                  </Alert>
                 )}
               </TabsContent>
 
@@ -261,10 +339,25 @@ export function SEORecommendations() {
                     ?.filter((i: any) => i.severity === "high")
                     .map((issue: any, idx: number) => (
                       <div key={`${audit.pagePath}-${idx}`} className={`p-4 rounded-lg border ${getPriorityColor(issue.severity)}`}>
-                        <div className="font-semibold text-sm mb-1">{issue.issue}</div>
-                        <div className="text-xs mb-2">{issue.recommendation}</div>
+                        <div className="flex items-start gap-3">
+                          <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                          <div className="flex-1">
+                            <div className="font-semibold text-sm mb-1">{issue.issue}</div>
+                            <div className="text-xs mb-2 opacity-75">{issue.category} • {audit.pagePath}</div>
+                            <div className="text-xs mb-2">{issue.recommendation}</div>
+                            <div className="text-xs opacity-70">Impact: {issue.impact}</div>
+                          </div>
+                        </div>
                       </div>
                     ))
+                )}
+                {!allAudits.audits.some((a: any) => a.issues?.some((i: any) => i.severity === "high")) && (
+                  <Alert className="border-green-300 bg-green-50">
+                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    <AlertDescription className="text-green-800">
+                      No high priority issues found!
+                    </AlertDescription>
+                  </Alert>
                 )}
               </TabsContent>
 
@@ -274,10 +367,25 @@ export function SEORecommendations() {
                     ?.filter((i: any) => i.severity === "medium")
                     .map((issue: any, idx: number) => (
                       <div key={`${audit.pagePath}-${idx}`} className={`p-4 rounded-lg border ${getPriorityColor(issue.severity)}`}>
-                        <div className="font-semibold text-sm mb-1">{issue.issue}</div>
-                        <div className="text-xs mb-2">{issue.recommendation}</div>
+                        <div className="flex items-start gap-3">
+                          <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                          <div className="flex-1">
+                            <div className="font-semibold text-sm mb-1">{issue.issue}</div>
+                            <div className="text-xs mb-2 opacity-75">{issue.category} • {audit.pagePath}</div>
+                            <div className="text-xs mb-2">{issue.recommendation}</div>
+                            <div className="text-xs opacity-70">Impact: {issue.impact}</div>
+                          </div>
+                        </div>
                       </div>
                     ))
+                )}
+                {!allAudits.audits.some((a: any) => a.issues?.some((i: any) => i.severity === "medium")) && (
+                  <Alert className="border-green-300 bg-green-50">
+                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    <AlertDescription className="text-green-800">
+                      No medium priority issues found!
+                    </AlertDescription>
+                  </Alert>
                 )}
               </TabsContent>
             </Tabs>
