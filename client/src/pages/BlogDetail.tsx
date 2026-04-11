@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import { ArrowRight, Calendar, User, Share2, Clock } from "lucide-react";
 import { Streamdown } from "streamdown";
 import { useEffect } from "react";
+import { trackPageView } from "@/lib/ga4Tracking";
 import { addJsonLd, createArticleSchema, createBreadcrumbSchema, getFullUrl, getReadingTimeFromContent, formatReadingTime } from "@/lib/seoHelpers";
 
 export default function BlogDetail() {
@@ -13,13 +14,12 @@ export default function BlogDetail() {
 
   useEffect(() => {
     if (post) {
+      trackPageView('blog_post', post.title);
       document.title = post.metaTitle || post.title;
       const metaDescription = document.querySelector('meta[name="description"]');
       if (metaDescription) {
         metaDescription.setAttribute("content", post.metaDescription || "");
       }
-
-      // Add Article schema
       const articleSchema = createArticleSchema({
         headline: post.title,
         description: post.metaDescription || post.excerpt || "",
@@ -31,8 +31,6 @@ export default function BlogDetail() {
         url: getFullUrl(`/blog/${post.slug}`),
       });
       addJsonLd(articleSchema);
-
-      // Add breadcrumb schema
       const breadcrumbSchema = createBreadcrumbSchema([
         { name: "Home", url: getFullUrl("/") },
         { name: "Blog", url: getFullUrl("/blog") },

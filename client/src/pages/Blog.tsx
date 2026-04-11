@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import Footer from "@/components/Footer";
 import { ArrowRight, Calendar, User } from "lucide-react";
-
+import { trackPageView } from "@/lib/ga4Tracking";
 import { useState, useEffect } from "react";
 import Breadcrumb from "@/components/Breadcrumb";
 import {
@@ -20,7 +20,7 @@ export default function Blog() {
   const { data: posts, isLoading } = trpc.blog.list.useQuery({ page, limit: 10 });
 
   useEffect(() => {
-    // Set page title and meta tags
+    trackPageView('blog_list', `Page ${page}`);
     setPageTitle("BIM & MEPF Design Blog | Industry Insights");
     setPageDescription(
       "Expert insights on BIM technology, MEPF design best practices, and building industry trends. Learn from our team of design professionals."
@@ -30,14 +30,12 @@ export default function Blog() {
       "https://d2xsxph8kpxj0f.cloudfront.net/310519663379809910/dQGMwfPzENE9oJMqbRVUVv/og-image-blog-K2uLwCuAVKFvkZDnLRne7k.png",
       "BIM & MEPF Design Blog - Industry Insights and Tips"
     );
-
-    // Add breadcrumb schema
     const breadcrumbSchema = createBreadcrumbSchema([
       { name: "Home", url: getFullUrl("/") },
       { name: "Blog", url: getFullUrl("/blog") },
     ]);
     addJsonLd(breadcrumbSchema);
-  }, []);
+  }, [page]);
 
   return (
     <div className="min-h-screen bg-background">

@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, CheckCircle2, AlertTriangle, Info, RefreshCw, TrendingUp } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { toast } from "sonner";
 
 export function SEORecommendations() {
   const [isAuditing, setIsAuditing] = useState(false);
@@ -15,15 +16,16 @@ export function SEORecommendations() {
   const auditAllMutation = trpc.seoAudit.auditAllPages.useMutation();
 
   const handleAuditAll = async () => {
-    setIsAuditing(true);
     try {
+      toast.loading('Running SEO audit on all pages...');
       await auditAllMutation.mutateAsync();
       await refetchHealth();
       await refetchAudits();
-    } catch (error) {
+      toast.success('SEO audit completed successfully!');
+    } catch (error: any) {
       console.error("Audit failed:", error);
-    } finally {
-      setIsAuditing(false);
+      const errorMessage = error?.message || 'Failed to run SEO audit. Please try again.';
+      toast.error(errorMessage);
     }
   };
 
