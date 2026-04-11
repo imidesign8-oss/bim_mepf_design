@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 import { useState, useEffect } from "react";
 import Breadcrumb from "@/components/Breadcrumb";
 import { Phone, Mail, MapPin, Send, TrendingUp } from "lucide-react";
-
+import { trackContactFormSubmission, trackQualifiedLead } from "@/lib/ga4Tracking";
 import { toast } from "sonner";
 import {
   setPageTitle,
@@ -32,7 +32,15 @@ export default function Contact() {
 
   const { data: settings } = trpc.settings.get.useQuery();
   const submitMutation = trpc.contacts.submit.useMutation({
-    onSuccess: () => {
+    onSuccess: (data: any) => {
+      trackContactFormSubmission(
+        data?.leadScore || 0,
+        formData.projectType,
+        formData.estimatedBudget
+      );
+      if (data?.leadScore >= 80) {
+        trackQualifiedLead(data.leadScore, formData.projectType);
+      }
       toast.success("Message sent successfully! We'll get back to you soon.");
       setFormData({ name: "", email: "", phone: "", subject: "", message: "", projectType: "", projectSize: "", estimatedBudget: "", timeline: "" });
     },
@@ -90,6 +98,7 @@ export default function Contact() {
       toast.error("Please fill in all required fields.");
       return;
     }
+    trackContactFormSubmission(0, formData.projectType, formData.estimatedBudget);
     submitMutation.mutate(formData);
   };
 

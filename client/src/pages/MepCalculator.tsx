@@ -17,6 +17,7 @@ import { Loader2, Download, Share2, AlertCircle, Zap, Droplet, Wind, Flame, Mail
 import html2pdf from "html2pdf.js";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { EmailReportDialog } from "@/components/EmailReportDialog";
+import { trackMEPCalculatorUsage, trackReportDownload, trackEmailReportShare } from "@/lib/ga4Tracking";
 
 type Vertical = "bim" | "mep";
 type ProjectType = "residential" | "commercial" | "industrial" | "hospitality" | "mixed-use";
@@ -127,6 +128,7 @@ export function MepCalculator() {
         setError("Please select at least one discipline");
         return;
       }
+      trackMEPCalculatorUsage('MEP', selectedDisciplines);
       mepCalculation.mutate({
         constructionCost: formData.constructionCost,
         projectType: formData.projectType,
@@ -136,6 +138,7 @@ export function MepCalculator() {
         buildingArea: formData.buildingArea,
       });
     } else {
+      trackMEPCalculatorUsage('BIM');
       bimCalculation.mutate({
         projectCost: formData.projectCost,
         projectType: formData.projectType,
@@ -151,6 +154,8 @@ export function MepCalculator() {
 
   const handleDownloadReport = async () => {
     if (!result) return;
+
+    trackReportDownload(vertical === 'mep' ? 'MEP' : 'BIM', 'PDF');
 
     // Get selected city and state names
     const selectedCity = cities.find((c: any) => c.id === formData.cityId);
@@ -190,6 +195,8 @@ export function MepCalculator() {
           printWindow.document.close();
           setTimeout(() => printWindow.print(), 500);
         }
+        // Track email share capability
+        trackEmailReportShare('MEP');
       } catch (err: any) {
         setError("Failed to generate report");
       }
@@ -220,6 +227,8 @@ export function MepCalculator() {
           printWindow.document.close();
           setTimeout(() => printWindow.print(), 500);
         }
+        // Track email share capability
+        trackEmailReportShare('BIM');
       } catch (err: any) {
         setError("Failed to generate BIM report: " + (err.message || "Unknown error"));
       }
