@@ -1437,13 +1437,13 @@ export const quotePricingRules = mysqlTable("quote_pricing_rules", {
   pricePerSqft: decimal("pricePerSqft", { precision: 10, scale: 2 }),
   
   // Complexity multipliers
-  simpleMultiplier: decimal("simpleMultiplier", { precision: 5, scale: 2 }).default(1.0).notNull(),
-  moderateMultiplier: decimal("moderateMultiplier", { precision: 5, scale: 2 }).default(1.2).notNull(),
-  complexMultiplier: decimal("complexMultiplier", { precision: 5, scale: 2 }).default(1.5).notNull(),
+  simpleMultiplier: decimal("simpleMultiplier", { precision: 5, scale: 2 }).default("1.00").notNull(),
+  moderateMultiplier: decimal("moderateMultiplier", { precision: 5, scale: 2 }).default("1.20").notNull(),
+  complexMultiplier: decimal("complexMultiplier", { precision: 5, scale: 2 }).default("1.50").notNull(),
   
   // Timeline multipliers
-  standardTimelineMultiplier: decimal("standardTimelineMultiplier", { precision: 5, scale: 2 }).default(1.0).notNull(),
-  fastTrackMultiplier: decimal("fastTrackMultiplier", { precision: 5, scale: 2 }).default(1.3).notNull(),
+  standardTimelineMultiplier: decimal("standardTimelineMultiplier", { precision: 5, scale: 2 }).default("1.00").notNull(),
+  fastTrackMultiplier: decimal("fastTrackMultiplier", { precision: 5, scale: 2 }).default("1.30").notNull(),
   
   // Active status
   isActive: boolean("isActive").default(true).notNull(),
