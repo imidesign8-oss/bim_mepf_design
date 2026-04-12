@@ -1261,3 +1261,196 @@ export const keywordDensity = mysqlTable("keyword_density", {
 
 export type KeywordDensity = typeof keywordDensity.$inferSelect;
 export type InsertKeywordDensity = typeof keywordDensity.$inferInsert;
+
+
+/**
+ * Client Projects - Track projects for client portal
+ */
+export const clientProjects = mysqlTable("client_projects", {
+  id: int("id").autoincrement().primaryKey(),
+  projectCode: varchar("projectCode", { length: 50 }).notNull().unique(),
+  
+  // Project details
+  projectName: varchar("projectName", { length: 255 }).notNull(),
+  projectDescription: longtext("projectDescription"),
+  clientId: int("clientId").notNull().references(() => contacts.id, { onDelete: "cascade" }),
+  
+  // Project scope
+  projectType: mysqlEnum("projectType", ["residential", "commercial", "industrial", "hospitality", "mixed-use"]).notNull(),
+  buildingArea: decimal("buildingArea", { precision: 12, scale: 2 }),
+  location: varchar("location", { length: 255 }),
+  
+  // Project timeline
+  startDate: timestamp("startDate"),
+  endDate: timestamp("endDate"),
+  currentPhase: mysqlEnum("currentPhase", ["concept", "dd", "cd", "construction", "as-built"]).default("concept").notNull(),
+  
+  // Status
+  status: mysqlEnum("status", ["active", "completed", "on-hold", "cancelled"]).default("active").notNull(),
+  
+  // Portal access
+  portalAccessToken: varchar("portalAccessToken", { length: 255 }).unique(),
+  portalAccessEnabled: boolean("portalAccessEnabled").default(true).notNull(),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  projectCodeIdx: index("project_code_idx").on(table.projectCode),
+  clientIdIdx: index("project_client_idx").on(table.clientId),
+  statusIdx: index("project_status_idx").on(table.status),
+}));
+
+export type ClientProject = typeof clientProjects.$inferSelect;
+export type InsertClientProject = typeof clientProjects.$inferInsert;
+
+/**
+ * Project Milestones - Track project phases and milestones
+ */
+export const projectMilestones = mysqlTable("project_milestones", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull().references(() => clientProjects.id, { onDelete: "cascade" }),
+  
+  // Milestone details
+  milestoneName: varchar("milestoneName", { length: 255 }).notNull(),
+  description: longtext("description"),
+  phase: mysqlEnum("phase", ["concept", "dd", "cd", "construction", "as-built"]).notNull(),
+  
+  // Timeline
+  plannedDate: timestamp("plannedDate"),
+  completedDate: timestamp("completedDate"),
+  status: mysqlEnum("status", ["pending", "in-progress", "completed", "delayed"]).default("pending").notNull(),
+  
+  // Progress
+  completionPercentage: int("completionPercentage").default(0).notNull(),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  projectIdIdx: index("milestone_project_idx").on(table.projectId),
+  statusIdx: index("milestone_status_idx").on(table.status),
+}));
+
+export type ProjectMilestone = typeof projectMilestones.$inferSelect;
+export type InsertProjectMilestone = typeof projectMilestones.$inferInsert;
+
+/**
+ * Project Deliverables - Track deliverable files and status
+ */
+export const projectDeliverables = mysqlTable("project_deliverables", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull().references(() => clientProjects.id, { onDelete: "cascade" }),
+  
+  // Deliverable details
+  deliverableName: varchar("deliverableName", { length: 255 }).notNull(),
+  description: longtext("description"),
+  deliverableType: mysqlEnum("deliverableType", ["bim-model", "drawing", "specification", "report", "schedule", "other"]).notNull(),
+  
+  // File details
+  fileUrl: text("fileUrl"),
+  fileName: varchar("fileName", { length: 255 }),
+  fileSize: int("fileSize"), // in bytes
+  fileType: varchar("fileType", { length: 50 }), // e.g., "application/pdf", "application/vnd.autodesk.revit"
+  
+  // Status
+  status: mysqlEnum("status", ["pending", "in-progress", "ready", "delivered"]).default("pending").notNull(),
+  dueDate: timestamp("dueDate"),
+  deliveredDate: timestamp("deliveredDate"),
+  
+  // Visibility
+  visibleToClient: boolean("visibleToClient").default(true).notNull(),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  projectIdIdx: index("deliverable_project_idx").on(table.projectId),
+  statusIdx: index("deliverable_status_idx").on(table.status),
+  typeIdx: index("deliverable_type_idx").on(table.deliverableType),
+}));
+
+export type ProjectDeliverable = typeof projectDeliverables.$inferSelect;
+export type InsertProjectDeliverable = typeof projectDeliverables.$inferInsert;
+
+/**
+ * Quote Requests - Track quote requests from questionnaire
+ */
+export const quoteRequests = mysqlTable("quote_requests", {
+  id: int("id").autoincrement().primaryKey(),
+  quoteCode: varchar("quoteCode", { length: 50 }).notNull().unique(),
+  
+  // Client details
+  clientName: varchar("clientName", { length: 255 }).notNull(),
+  clientEmail: varchar("clientEmail", { length: 320 }).notNull(),
+  clientPhone: varchar("clientPhone", { length: 20 }),
+  clientCompany: varchar("clientCompany", { length: 255 }),
+  
+  // Project questionnaire responses (JSON)
+  questionnaireResponses: longtext("questionnaireResponses").notNull(), // JSON object with all Q&A
+  
+  // Calculated quote
+  quoteAmount: decimal("quoteAmount", { precision: 14, scale: 2 }).notNull(),
+  currency: varchar("currency", { length: 10 }).default("INR").notNull(),
+  
+  // Quote details
+  quoteValidityDays: int("quoteValidityDays").default(30).notNull(),
+  quoteValidUntil: timestamp("quoteValidUntil"),
+  
+  // PDF proposal
+  proposalPdfUrl: text("proposalPdfUrl"),
+  proposalFileName: varchar("proposalFileName", { length: 255 }),
+  
+  // Status
+  status: mysqlEnum("status", ["generated", "sent", "viewed", "accepted", "rejected", "expired"]).default("generated").notNull(),
+  sentDate: timestamp("sentDate"),
+  viewedDate: timestamp("viewedDate"),
+  acceptedDate: timestamp("acceptedDate"),
+  rejectedDate: timestamp("rejectedDate"),
+  rejectionReason: longtext("rejectionReason"),
+  
+  // Tracking
+  emailsSent: int("emailsSent").default(0).notNull(),
+  lastEmailSentAt: timestamp("lastEmailSentAt"),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  quoteCodeIdx: index("quote_code_idx").on(table.quoteCode),
+  clientEmailIdx: index("quote_email_idx").on(table.clientEmail),
+  statusIdx: index("quote_status_idx").on(table.status),
+  createdAtIdx: index("quote_created_idx").on(table.createdAt),
+}));
+
+export type QuoteRequest = typeof quoteRequests.$inferSelect;
+export type InsertQuoteRequest = typeof quoteRequests.$inferInsert;
+
+/**
+ * Quote Pricing Rules - Define pricing rules for quote generation
+ */
+export const quotePricingRules = mysqlTable("quote_pricing_rules", {
+  id: int("id").autoincrement().primaryKey(),
+  
+  // Rule name
+  ruleName: varchar("ruleName", { length: 255 }).notNull(),
+  description: longtext("description"),
+  
+  // Pricing parameters
+  basePrice: decimal("basePrice", { precision: 14, scale: 2 }).notNull(),
+  pricePerSqft: decimal("pricePerSqft", { precision: 10, scale: 2 }),
+  
+  // Complexity multipliers
+  simpleMultiplier: decimal("simpleMultiplier", { precision: 5, scale: 2 }).default(1.0).notNull(),
+  moderateMultiplier: decimal("moderateMultiplier", { precision: 5, scale: 2 }).default(1.2).notNull(),
+  complexMultiplier: decimal("complexMultiplier", { precision: 5, scale: 2 }).default(1.5).notNull(),
+  
+  // Timeline multipliers
+  standardTimelineMultiplier: decimal("standardTimelineMultiplier", { precision: 5, scale: 2 }).default(1.0).notNull(),
+  fastTrackMultiplier: decimal("fastTrackMultiplier", { precision: 5, scale: 2 }).default(1.3).notNull(),
+  
+  // Active status
+  isActive: boolean("isActive").default(true).notNull(),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type QuotePricingRule = typeof quotePricingRules.$inferSelect;
+export type InsertQuotePricingRule = typeof quotePricingRules.$inferInsert;

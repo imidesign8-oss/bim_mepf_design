@@ -1156,3 +1156,30 @@
 - [x] Add keyword manager, internal link builder, and performance tracker to sidebar
 - [x] TypeScript clean, all components fully typed
 - [x] Ready for end-to-end testing
+
+
+## Google Search Console API Integration (In Progress)
+- [ ] Set up Google Search Console OAuth and API credentials
+- [ ] Create GSC API service to fetch ranking data
+- [ ] Build tRPC procedures for GSC data retrieval
+- [ ] Update Keyword Performance Tracker to use real GSC data
+- [ ] Add GSC sync scheduling and caching
+- [ ] Test end-to-end GSC integration
+
+
+## Client Portal & Project Dashboard (In Progress)
+- [ ] Create database schema for projects, milestones, deliverables, and quotes
+- [ ] Build client portal with project dashboard and milestone tracker
+- [ ] Implement deliverable status tracking and file download center
+- [ ] Add real-time notifications for milestone completion
+- [ ] Integrate email notifications for project updates
+- [ ] Test client portal end-to-end
+
+## Automated Quote/Proposal Generator (In Progress)
+- [ ] Create project questionnaire with 10-15 questions
+- [ ] Build quote calculation engine based on project complexity
+- [ ] Generate professional branded proposal PDFs
+- [ ] Implement instant email delivery of quotes
+- [ ] Build quote tracking dashboard for admin
+- [ ] Add quote status tracking (viewed, accepted, rejected)
+- [ ] Test quote generation and delivery
