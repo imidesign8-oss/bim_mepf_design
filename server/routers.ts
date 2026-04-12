@@ -16,6 +16,7 @@ import { pageMetadataRouter } from "./routers/pageMetadata";
 import { gscIntegrationRouter } from "./routers/gscIntegration";
 import { seoAuditRouter } from "./routers/seoAudit";
 import { leadScoringRouter } from "./routers/leadScoring";
+import { keywordsRouter } from "./routers/keywords";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import {
@@ -67,6 +68,7 @@ export const appRouter = router({
   gsc: gscIntegrationRouter,
   seoAudit: seoAuditRouter,
   leadScoring: leadScoringRouter,
+  keywords: keywordsRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

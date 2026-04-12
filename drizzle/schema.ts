@@ -1190,3 +1190,74 @@ export const seoAudits = mysqlTable("seo_audits", {
 
 export type SEOAudit = typeof seoAudits.$inferSelect;
 export type InsertSEOAudit = typeof seoAudits.$inferInsert;
+
+
+/**
+ * Keywords table for tracking target keywords and their performance
+ */
+export const keywords = mysqlTable("keywords", {
+  id: int("id").autoincrement().primaryKey(),
+  keyword: varchar("keyword", { length: 255 }).notNull(),
+  category: varchar("category", { length: 100 }), // e.g., "BIM", "MEPF", "Design"
+  searchVolume: int("searchVolume"), // Monthly search volume
+  difficulty: int("difficulty"), // Keyword difficulty (0-100)
+  relatedPages: longtext("relatedPages"), // JSON array of page IDs/slugs
+  targetPosition: int("targetPosition"), // Target ranking position
+  currentPosition: int("currentPosition"), // Current ranking position
+  notes: text("notes"),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  keywordIdx: index("keyword_idx").on(table.keyword),
+  categoryIdx: index("keyword_category_idx").on(table.category),
+}));
+
+export type Keyword = typeof keywords.$inferSelect;
+export type InsertKeyword = typeof keywords.$inferInsert;
+
+/**
+ * Internal Links table for tracking internal linking strategy
+ */
+export const internalLinks = mysqlTable("internal_links", {
+  id: int("id").autoincrement().primaryKey(),
+  sourcePagePath: varchar("sourcePagePath", { length: 255 }).notNull(), // e.g., "/blog/post-slug"
+  targetPagePath: varchar("targetPagePath", { length: 255 }).notNull(), // e.g., "/services/bim-design"
+  anchorText: varchar("anchorText", { length: 255 }).notNull(),
+  linkType: mysqlEnum("linkType", ["contextual", "related", "navigation", "footer"]).default("contextual").notNull(),
+  keywordTarget: varchar("keywordTarget", { length: 255 }), // Target keyword for this link
+  position: int("position"), // Position in the page (1st, 2nd, etc.)
+  notes: text("notes"),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  sourceIdx: index("internal_link_source_idx").on(table.sourcePagePath),
+  targetIdx: index("internal_link_target_idx").on(table.targetPagePath),
+  linkTypeIdx: index("internal_link_type_idx").on(table.linkType),
+}));
+
+export type InternalLink = typeof internalLinks.$inferSelect;
+export type InsertInternalLink = typeof internalLinks.$inferInsert;
+
+/**
+ * Keyword Density Analysis table for tracking keyword usage on pages
+ */
+export const keywordDensity = mysqlTable("keyword_density", {
+  id: int("id").autoincrement().primaryKey(),
+  pagePath: varchar("pagePath", { length: 255 }).notNull(),
+  keyword: varchar("keyword", { length: 255 }).notNull(),
+  density: decimal("density", { precision: 5, scale: 2 }), // Percentage (e.g., 2.5%)
+  count: int("count"), // Number of times keyword appears
+  wordCount: int("wordCount"), // Total words on page
+  recommendations: text("recommendations"), // Optimization suggestions
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  pageKeywordIdx: index("keyword_density_page_keyword_idx").on(table.pagePath, table.keyword),
+  pageIdx: index("keyword_density_page_idx").on(table.pagePath),
+}));
+
+export type KeywordDensity = typeof keywordDensity.$inferSelect;
+export type InsertKeywordDensity = typeof keywordDensity.$inferInsert;

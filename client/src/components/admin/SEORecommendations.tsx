@@ -10,22 +10,36 @@ import { toast } from "sonner";
 
 export function SEORecommendations() {
   const [isAuditing, setIsAuditing] = useState(false);
+  const utils = trpc.useUtils();
 
   const { data: healthData, isLoading: healthLoading, refetch: refetchHealth } = trpc.seoAudit.getHealthOverview.useQuery();
   const { data: allAudits, isLoading: auditsLoading, refetch: refetchAudits } = trpc.seoAudit.getAllPageAudits.useQuery();
-  const auditAllMutation = trpc.seoAudit.auditAllPages.useMutation();
+  const auditAllMutation = trpc.seoAudit.auditAllPages.useMutation({
+    onSuccess: async () => {
+      // Invalidate all SEO audit queries to force refetch
+      await utils.seoAudit.getHealthOverview.invalidate();
+      await utils.seoAudit.getAllPageAudits.invalidate();
+      // Refetch data
+      await refetchHealth();
+      await refetchAudits();
+    },
+  });
 
   const handleAuditAll = async () => {
     try {
-      toast.loading('Running SEO audit on all pages...');
+      setIsAuditing(true);
+      const loadingToast = toast.loading('Running SEO audit on all pages...');
       await auditAllMutation.mutateAsync();
-      await refetchHealth();
-      await refetchAudits();
+      // Wait for cache invalidation to complete
+      await new Promise(resolve => setTimeout(resolve, 500));
+      toast.dismiss(loadingToast);
       toast.success('SEO audit completed successfully!');
     } catch (error: any) {
       console.error("Audit failed:", error);
       const errorMessage = error?.message || 'Failed to run SEO audit. Please try again.';
       toast.error(errorMessage);
+    } finally {
+      setIsAuditing(false);
     }
   };
 

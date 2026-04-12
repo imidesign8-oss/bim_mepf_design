@@ -313,14 +313,21 @@ export async function saveAuditResult(
       return false;
     }
 
+    const id = `${result.pagePath}-${Date.now()}`;
+    const now = Date.now();
+
     await (db as any).insert(seoAudits).values({
+      id,
       pagePath: result.pagePath,
       score: result.score,
       issues: JSON.stringify(result.issues),
       recommendations: JSON.stringify(result.recommendations),
-      auditedAt: result.timestamp,
+      auditedAt: now,
+      createdAt: now,
+      updatedAt: now,
     });
 
+    console.log(`✅ SEO audit saved for ${result.pagePath} with score ${result.score}`);
     return true;
   } catch (error) {
     console.error("Error saving SEO audit result:", error);
