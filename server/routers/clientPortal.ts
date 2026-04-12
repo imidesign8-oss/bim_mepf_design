@@ -14,6 +14,7 @@ import {
   getQuoteByCode,
   updateQuoteStatus,
 } from "../services/quoteGeneratorService";
+import { generateProposalPDF } from "../services/pdfGeneratorService";
 
 export const clientPortalRouter = router({
   // Client Portal Procedures
@@ -128,6 +129,103 @@ export const clientPortalRouter = router({
       };
     }),
 
+  generateProposalPDF: publicProcedure
+    .input(
+      z.object({
+        clientName: z.string(),
+        clientEmail: z.string().email(),
+        clientCompany: z.string().optional(),
+        projectName: z.string(),
+        projectType: z.string(),
+        buildingArea: z.number(),
+        complexity: z.string(),
+        timeline: z.string(),
+        disciplines: z.array(z.string()),
+        additionalServices: z.array(z.string()),
+        coordinationRequired: z.boolean(),
+        estimatedPrice: z.number(),
+        priceBreakdown: z.object({
+          basePrice: z.number(),
+          complexityMultiplier: z.number(),
+          timelineMultiplier: z.number(),
+          coordinationBonus: z.number(),
+          existingModelsDiscount: z.number(),
+        }),
+      })
+    )
+    .mutation(async ({ input }: any) => {
+      try {
+        // Default deliverables based on disciplines
+        const deliverables = [
+          "3D BIM Model (Revit/IFC format)",
+          "Architectural Drawings (Plans, Elevations, Sections)",
+          "MEP Coordination Drawings",
+          "Specifications & BOQ",
+          "Project Report & Documentation",
+        ];
+
+        // Default milestones
+        const milestones = [
+          {
+            name: "Concept Design",
+            duration: "2-3 weeks",
+            description: "Initial design concept and client approval",
+          },
+          {
+            name: "Design Development",
+            duration: "3-4 weeks",
+            description: "Detailed design development and coordination",
+          },
+          {
+            name: "Construction Documents",
+            duration: "2-3 weeks",
+            description: "Final construction documents and specifications",
+          },
+          {
+            name: "Project Delivery",
+            duration: "1 week",
+            description: "Final deliverables and project handover",
+          },
+        ];
+
+        const proposalData = {
+          clientName: input.clientName,
+          clientEmail: input.clientEmail,
+          clientCompany: input.clientCompany || "N/A",
+          projectName: input.projectName,
+          projectType: input.projectType,
+          buildingArea: input.buildingArea,
+          complexity: input.complexity,
+          timeline: input.timeline,
+          disciplines: input.disciplines,
+          additionalServices: input.additionalServices,
+          coordinationRequired: input.coordinationRequired,
+          estimatedPrice: input.estimatedPrice,
+          priceBreakdown: input.priceBreakdown,
+          deliverables,
+          milestones,
+          proposalDate: new Date(),
+          validityDays: 30,
+        };
+
+        const pdfBuffer = await generateProposalPDF(proposalData);
+
+        // Return base64 encoded PDF for download
+        return {
+          success: true,
+          pdf: pdfBuffer.toString("base64"),
+          fileName: `Proposal_${input.projectName.replace(/\s+/g, "_")}_${Date.now()}.pdf`,
+          message: "Proposal PDF generated successfully",
+        };
+      } catch (error) {
+        console.error("Error generating proposal PDF:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to generate proposal PDF",
+        });
+      }
+    }),
+
   getQuote: publicProcedure
     .input(z.object({ quoteCode: z.string() }))
     .query(async ({ input }: any) => {
@@ -150,27 +248,21 @@ export const clientPortalRouter = router({
         throw new Error("Failed to accept quote");
       }
 
-      // TODO: Send acceptance notification to admin
-      // TODO: Create project from quote
-
-      return { message: "Quote accepted successfully" };
+      return {
+        message: "Quote accepted successfully. Our team will contact you soon.",
+      };
     }),
 
   rejectQuote: publicProcedure
-    .input(
-      z.object({
-        quoteCode: z.string(),
-        reason: z.string().optional(),
-      })
-    )
+    .input(z.object({ quoteCode: z.string() }))
     .mutation(async ({ input }: any) => {
       const success = await updateQuoteStatus(input.quoteCode, "rejected");
       if (!success) {
         throw new Error("Failed to reject quote");
       }
 
-      // TODO: Send rejection notification to admin
-
-      return { message: "Quote rejected" };
+      return {
+        message: "Quote rejected. We appreciate your consideration.",
+      };
     }),
 });

@@ -21,6 +21,8 @@ import Admin from "./pages/Admin";
 import Unsubscribe from "./pages/Unsubscribe";
 import { MepCalculator } from "./pages/MepCalculator";
 import { MepAdmin } from "./pages/MepAdmin";
+import { QuoteGenerator } from "./pages/QuoteGenerator";
+import { ClientPortalPage } from "./pages/ClientPortal";
 import { AIChatWidget } from "./components/AIChatWidget";
 import Analytics from "./components/Analytics";
 import Header from "./components/Header";
@@ -41,6 +43,9 @@ function Router() {
       <Route path={"/contact"} component={Contact} />
       <Route path={"/mep-calculator"} component={MepCalculator} />
       <Route path={"/mep-admin"} component={MepAdmin} />
+      <Route path={"/quote"} component={QuoteGenerator} />
+      <Route path={"/portal"} component={ClientPortalPage} />
+      <Route path={"/portal/dashboard"} component={ClientPortalPage} />
       <Route path={"/admin"} component={Admin} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />

@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { trpc } from "@/lib/trpc";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { Loader2, CheckCircle, DollarSign } from "lucide-react";
 
 const quoteSchema = z.object({
@@ -32,8 +32,7 @@ const quoteSchema = z.object({
 
 type QuoteFormData = z.infer<typeof quoteSchema>;
 
-export default function QuoteGenerator() {
-  const { toast } = useToast();
+export function QuoteGenerator() {
   const [step, setStep] = useState<"form" | "review" | "success">("form");
   const [quoteAmount, setQuoteAmount] = useState(0);
   const [quoteCode, setQuoteCode] = useState("");
@@ -46,9 +45,9 @@ export default function QuoteGenerator() {
     handleSubmit,
     watch,
     formState: { errors, isSubmitting },
-    setValue,
+    setValue: setFormValue,
   } = useForm<QuoteFormData>({
-    resolver: zodResolver(quoteSchema),
+    resolver: zodResolver(quoteSchema) as any,
     defaultValues: {
       disciplines: [],
       additionalServices: [],
@@ -56,6 +55,10 @@ export default function QuoteGenerator() {
       coordinationRequired: false,
     },
   });
+
+  const setValue = (field: keyof QuoteFormData, value: any) => {
+    setFormValue(field, value);
+  };
 
   const formData = watch();
 
@@ -80,11 +83,7 @@ export default function QuoteGenerator() {
 
   const onSubmit = async (data: any) => {
     if (!calculatedQuote) {
-      toast({
-        title: "Error",
-        description: "Please fill all required fields",
-        variant: "destructive",
-      });
+      toast.error("Please fill all required fields");
       return;
     }
 
@@ -98,16 +97,9 @@ export default function QuoteGenerator() {
       setQuoteAmount(calculatedQuote.amount);
       setStep("success");
 
-      toast({
-        title: "Success",
-        description: "Quote submitted successfully! Check your email for the proposal.",
-      });
+      toast.success("Quote submitted successfully! Check your email for the proposal.");
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to submit quote",
-        variant: "destructive",
-      });
+      toast.error(error.message || "Failed to submit quote");
     }
   };
 
@@ -238,7 +230,7 @@ export default function QuoteGenerator() {
                   <Label htmlFor="projectType">Project Type *</Label>
                   <Select
                     value={formData.projectType}
-                    onValueChange={(value: any) => setValue("projectType" as any, value)}
+                    onValueChange={(value: any) => setValue("projectType", value)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select project type" />
@@ -289,7 +281,7 @@ export default function QuoteGenerator() {
 
               <div className="mb-6">
                 <Label className="mb-3 block">Project Complexity *</Label>
-                <RadioGroup value={formData.complexity} onValueChange={(value: any) => setValue("complexity" as any, value)}>
+                <RadioGroup value={formData.complexity} onValueChange={(value: any) => setValue("complexity", value)}>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="simple" id="simple" />
                     <Label htmlFor="simple" className="font-normal cursor-pointer">
@@ -313,7 +305,7 @@ export default function QuoteGenerator() {
 
               <div className="mb-6">
                 <Label className="mb-3 block">Timeline *</Label>
-                <RadioGroup value={formData.timeline} onValueChange={(value: any) => setValue("timeline" as any, value)}>
+                <RadioGroup value={formData.timeline} onValueChange={(value: any) => setValue("timeline", value)}>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="standard" id="standard" />
                     <Label htmlFor="standard" className="font-normal cursor-pointer">
@@ -339,10 +331,10 @@ export default function QuoteGenerator() {
                         checked={formData.disciplines.includes(service)}
                         onCheckedChange={(checked) => {
                           if (checked) {
-                            setValue("disciplines" as any, [...formData.disciplines, service]);
+                            setValue("disciplines", [...formData.disciplines, service]);
                           } else {
                             setValue(
-                              "disciplines" as any,
+                              "disciplines",
                               formData.disciplines.filter((d) => d !== service)
                             );
                           }
@@ -370,10 +362,10 @@ export default function QuoteGenerator() {
                           checked={formData.additionalServices.includes(service)}
                           onCheckedChange={(checked) => {
                             if (checked) {
-                              setValue("additionalServices" as any, [...formData.additionalServices, service]);
+                              setValue("additionalServices", [...formData.additionalServices, service]);
                             } else {
                               setValue(
-                                "additionalServices" as any,
+                                "additionalServices",
                                 formData.additionalServices.filter((s) => s !== service)
                               );
                             }
@@ -393,7 +385,7 @@ export default function QuoteGenerator() {
                   <Checkbox
                     id="hasExistingModels"
                     checked={formData.hasExistingModels}
-                    onCheckedChange={(checked) => setValue("hasExistingModels" as any, !!checked)}
+                    onCheckedChange={(checked) => setValue("hasExistingModels", !!checked)}
                   />
                   <Label htmlFor="hasExistingModels" className="font-normal cursor-pointer">
                     We have existing BIM models (may reduce scope)
@@ -404,7 +396,7 @@ export default function QuoteGenerator() {
                   <Checkbox
                     id="coordinationRequired"
                     checked={formData.coordinationRequired}
-                    onCheckedChange={(checked) => setValue("coordinationRequired" as any, !!checked)}
+                    onCheckedChange={(checked) => setValue("coordinationRequired", !!checked)}
                   />
                   <Label htmlFor="coordinationRequired" className="font-normal cursor-pointer">
                     Multi-discipline coordination required
