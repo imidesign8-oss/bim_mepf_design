@@ -1114,3 +1114,45 @@
 - [x] TypeScript clean, all procedures properly typed
 - [x] 20+ tRPC procedures for keyword and link management
 - [x] Ready for admin UI implementation
+
+
+## Admin UI for Keyword Management (In Progress)
+- [ ] Create KeywordManager admin component with table view
+- [ ] Add keyword add/edit/delete functionality
+- [ ] Implement category filtering and search
+- [ ] Add difficulty level and search volume display
+- [ ] Create keyword ranking progress tracking
+- [ ] Integrate into Admin panel as new tab
+- [ ] Write tests for keyword management UI
+- [ ] Test end-to-end keyword CRUD operations
+
+## Internal Link Builder (In Progress)
+- [ ] Create InternalLinkBuilder component with visual interface
+- [ ] Build link suggestion engine based on keywords
+- [ ] Add drag-and-drop link creation
+- [ ] Implement anchor text optimization suggestions
+- [ ] Create link audit view showing orphaned pages
+- [ ] Add link type categorization (contextual, related, navigation)
+- [ ] Integrate into Admin panel as new tab
+- [ ] Write tests for link builder functionality
+
+## Keyword Performance Tracking (In Progress)
+- [ ] Create keyword ranking tracker component
+- [ ] Integrate GSC data for current rankings
+- [ ] Add ranking progress charts (30d, 90d trends)
+- [ ] Show ranking position vs target position
+- [ ] Add keyword difficulty and search volume metrics
+- [ ] Create performance dashboard with key metrics
+- [ ] Implement ranking alerts for significant changes
+- [ ] Write tests for performance tracking
+
+
+## Admin UI for Keyword Management (Completed)
+- [x] Create admin UI component for keyword management (KeywordManager.tsx)
+- [x] Build internal link builder with visual interface (InternalLinkBuilder.tsx)
+- [x] Add keyword performance tracking with mock GSC data (KeywordPerformanceTracker.tsx)
+- [x] Create keyword ranking dashboard with Recharts visualizations
+- [x] Integrate all three components into admin panel tabs
+- [x] Add keyword manager, internal link builder, and performance tracker to sidebar
+- [x] TypeScript clean, all components fully typed
+- [x] Ready for end-to-end testing

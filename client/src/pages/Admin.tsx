@@ -28,6 +28,9 @@ import { PageMetadataManager } from "@/components/admin/PageMetadataManager";
 import { GSCDashboard } from "@/components/admin/GSCDashboard";
 import { SEORecommendations } from "@/components/admin/SEORecommendations";
 import LeadManagementDashboard from "@/components/admin/LeadManagementDashboard";
+import { KeywordManager } from "@/components/admin/KeywordManager";
+import { InternalLinkBuilder } from "@/components/admin/InternalLinkBuilder";
+import { KeywordPerformanceTracker } from "@/components/admin/KeywordPerformanceTracker";
 
 export default function Admin() {
   const { user } = useAuth();
@@ -75,6 +78,9 @@ export default function Admin() {
     { id: "gsc", label: "GSC Dashboard", icon: "📊" },
     { id: "seo-recommendations", label: "SEO Recommendations", icon: "💬" },
     { id: "schema-validator", label: "Schema Validator", icon: "✓" },
+    { id: "keywords", label: "Keyword Manager", icon: "🔑" },
+    { id: "internal-links", label: "Internal Link Builder", icon: "🔗" },
+    { id: "keyword-tracking", label: "Keyword Performance", icon: "📊" },
     { id: "settings", label: "Settings", icon: "⚙️" },
   ];
 
@@ -156,6 +162,9 @@ export default function Admin() {
           {currentTab === "gsc" && <GSCDashboard />}
           {currentTab === "seo-recommendations" && <SEORecommendations />}
           {currentTab === "schema-validator" && <SchemaValidator />}
+          {currentTab === "keywords" && <KeywordManager />}
+          {currentTab === "internal-links" && <InternalLinkBuilder />}
+          {currentTab === "keyword-tracking" && <KeywordPerformanceTracker />}
           {currentTab === "settings" && <AdminSettings />}
         </main>
       </div>
