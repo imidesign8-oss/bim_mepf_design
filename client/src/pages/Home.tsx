@@ -110,11 +110,9 @@ export default function Home() {
               <a href="/quote" className="px-8 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors inline-flex items-center gap-2 cursor-pointer">
                 Get Quote <ArrowRight size={20} />
               </a>
-              <Link href="/projects">
-                <a className="px-8 py-3 bg-secondary text-secondary-foreground rounded-lg font-semibold hover:bg-secondary/80 transition-colors border border-border inline-flex items-center justify-center">
-                  View Projects
-                </a>
-              </Link>
+              <a href="/projects" className="px-8 py-3 bg-secondary text-secondary-foreground rounded-lg font-semibold hover:bg-secondary/80 transition-colors border border-border inline-flex items-center justify-center">
+                View Projects
+              </a>
             </div>
           </div>
         </div>
@@ -152,26 +150,22 @@ export default function Home() {
             </div>
             <div className="grid-responsive">
               {services.slice(0, 3).map((service) => (
-                <Link key={service.id} href={`/services/${service.slug}`}>
-                  <a className="card-elegant group flex flex-col">
-                    {service.image && (
-                      <img src={service.image} alt={service.title} className="w-full h-48 object-cover rounded-lg mb-4" />
-                    )}
-                    <h3 className="mb-2 group-hover:text-primary transition-colors">{service.title}</h3>
-                    <p className="text-sm text-muted-foreground mb-4 flex-grow">{service.shortDescription}</p>
-                    <div className="flex items-center text-primary font-semibold whitespace-nowrap">
-                      Learn More <ArrowRight size={16} className="ml-2" />
-                    </div>
-                  </a>
-                </Link>
+                <a key={service.id} href={`/services/${service.slug}`} className="card-elegant group flex flex-col">
+                  {service.image && (
+                    <img src={service.image} alt={service.title} className="w-full h-48 object-cover rounded-lg mb-4" />
+                  )}
+                  <h3 className="mb-2 group-hover:text-primary transition-colors">{service.title}</h3>
+                  <p className="text-sm text-muted-foreground mb-4 flex-grow">{service.shortDescription}</p>
+                  <div className="flex items-center text-primary font-semibold whitespace-nowrap">
+                    Learn More <ArrowRight size={16} className="ml-2" />
+                  </div>
+                </a>
               ))}
             </div>
             <div className="text-center mt-12">
-              <Link href="/services">
-                <a className="inline-flex items-center text-primary font-semibold hover:gap-3 gap-2 transition-all">
-                  View All Services <ArrowRight size={20} />
-                </a>
-              </Link>
+              <a href="/services" className="inline-flex items-center text-primary font-semibold hover:gap-3 gap-2 transition-all">
+                View All Services <ArrowRight size={20} />
+              </a>
             </div>
           </div>
         </section>
@@ -187,31 +181,27 @@ export default function Home() {
             </div>
             <div className="grid-responsive">
               {projects.slice(0, 3).map((project) => (
-                <Link key={project.id} href={`/projects/${project.slug}`}>
-                  <a className="card-elegant group overflow-hidden">
-                    {project.featuredImage && (
-                      <img 
-                        src={project.featuredImage} 
-                        alt={project.title} 
-                        className="w-full h-48 object-cover rounded-lg mb-4 group-hover:scale-105 transition-transform"
-                      />
-                    )}
-                    <h3 className="mb-2 group-hover:text-primary transition-colors">{project.title}</h3>
-                    {project.client && <p className="text-sm text-muted-foreground mb-2">Client: {project.client}</p>}
-                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{project.shortDescription}</p>
-                    <div className="flex items-center text-primary font-semibold">
-                      View Project <ArrowRight size={16} className="ml-2" />
-                    </div>
-                  </a>
-                </Link>
+                <a key={project.id} href={`/projects/${project.slug}`} className="card-elegant group overflow-hidden">
+                  {project.featuredImage && (
+                    <img 
+                      src={project.featuredImage} 
+                      alt={project.title} 
+                      className="w-full h-48 object-cover rounded-lg mb-4 group-hover:scale-105 transition-transform"
+                    />
+                  )}
+                  <h3 className="mb-2 group-hover:text-primary transition-colors">{project.title}</h3>
+                  {project.client && <p className="text-sm text-muted-foreground mb-2">Client: {project.client}</p>}
+                  <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{project.shortDescription}</p>
+                  <div className="flex items-center text-primary font-semibold">
+                    View Project <ArrowRight size={16} className="ml-2" />
+                  </div>
+                </a>
               ))}
             </div>
             <div className="text-center mt-12">
-              <Link href="/projects">
-                <a className="inline-flex items-center text-primary font-semibold hover:gap-3 gap-2 transition-all">
-                  View All Projects <ArrowRight size={20} />
-                </a>
-              </Link>
+              <a href="/projects" className="inline-flex items-center text-primary font-semibold hover:gap-3 gap-2 transition-all">
+                View All Projects <ArrowRight size={20} />
+              </a>
             </div>
           </div>
         </section>
@@ -232,27 +222,21 @@ export default function Home() {
               We specialize in comprehensive BIM and MEPF solutions for modern buildings. Learn more about our specialized services:
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Link href="/services/building-information-modeling">
-                <a className="p-6 border border-border rounded-lg hover:border-primary hover:bg-primary/5 transition-all">
-                  <h3 className="mb-3">BIM Services</h3>
-                  <p className="text-sm text-muted-foreground mb-4">3D modeling, coordination, clash detection, and 4D/5D planning</p>
-                  <span className="text-primary font-semibold text-sm">Learn More →</span>
-                </a>
-              </Link>
-              <Link href="/services/mepf-design-modeling-coordination">
-                <a className="p-6 border border-border rounded-lg hover:border-primary hover:bg-primary/5 transition-all">
-                  <h3 className="mb-3">MEPF Design</h3>
-                  <p className="text-sm text-muted-foreground mb-4">Mechanical, electrical, plumbing, and fire protection design coordination</p>
-                  <span className="text-primary font-semibold text-sm">Learn More →</span>
-                </a>
-              </Link>
-              <Link href="/services/quantities-estimating">
-                <a className="p-6 border border-border rounded-lg hover:border-primary hover:bg-primary/5 transition-all">
-                  <h3 className="mb-3">Quantities & Estimating</h3>
-                  <p className="text-sm text-muted-foreground mb-4">Material take-off, bill of quantities, and variation quantification</p>
-                  <span className="text-primary font-semibold text-sm">Learn More →</span>
-                </a>
-              </Link>
+              <a href="/services/building-information-modeling" className="p-6 border border-border rounded-lg hover:border-primary hover:bg-primary/5 transition-all">
+                <h3 className="mb-3">BIM Services</h3>
+                <p className="text-sm text-muted-foreground mb-4">3D modeling, coordination, clash detection, and 4D/5D planning</p>
+                <span className="text-primary font-semibold text-sm">Learn More →</span>
+              </a>
+              <a href="/services/mepf-design-modeling-coordination" className="p-6 border border-border rounded-lg hover:border-primary hover:bg-primary/5 transition-all">
+                <h3 className="mb-3">MEPF Design</h3>
+                <p className="text-sm text-muted-foreground mb-4">Mechanical, electrical, plumbing, and fire protection design coordination</p>
+                <span className="text-primary font-semibold text-sm">Learn More →</span>
+              </a>
+              <a href="/services/quantities-estimating" className="p-6 border border-border rounded-lg hover:border-primary hover:bg-primary/5 transition-all">
+                <h3 className="mb-3">Quantities & Estimating</h3>
+                <p className="text-sm text-muted-foreground mb-4">Material take-off, bill of quantities, and variation quantification</p>
+                <span className="text-primary font-semibold text-sm">Learn More →</span>
+              </a>
             </div>
           </div>
         </div>
@@ -263,13 +247,11 @@ export default function Home() {
         <div className="container text-center">
           <h2 className="mb-6">Ready to Transform Your Project?</h2>
           <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Let's discuss your BIM and MEPF design requirements and create exceptional solutions together. Explore our <Link href="/about"><a className="text-primary font-semibold hover:underline">about us</a></Link> page to learn more about our team and experience.
+            Let's discuss your BIM and MEPF design requirements and create exceptional solutions together. Explore our <a href="/about" className="text-primary font-semibold hover:underline">about us</a> page to learn more about our team and experience.
           </p>
-          <Link href="/contact">
-            <a className="inline-flex items-center px-8 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors">
-              Contact Us Today <ArrowRight size={20} className="ml-2" />
-            </a>
-          </Link>
+          <a href="/contact" className="inline-flex items-center px-8 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors">
+            Contact Us Today <ArrowRight size={20} className="ml-2" />
+          </a>
         </div>
       </section>
 
