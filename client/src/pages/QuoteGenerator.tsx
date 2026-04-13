@@ -427,7 +427,7 @@ export function QuoteGenerator() {
               <Button
                 type="submit"
                 size="lg"
-                disabled={isSubmitting || !calculatedQuote}
+                disabled={isSubmitting}
                 className="flex-1"
               >
                 {isSubmitting ? (
