@@ -20,6 +20,7 @@ import { keywordsRouter } from "./routers/keywords";
 import { clientPortalRouter } from "./routers/clientPortal";
 import { adminTokenRouter } from "./routers/adminTokenRouter";
 import { notificationRouter } from "./routers/notificationRouter";
+import { quoteManagementRouter } from "./routers/quoteManagement";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import {
@@ -75,6 +76,7 @@ export const appRouter = router({
   clientPortal: clientPortalRouter,
   adminTokens: adminTokenRouter,
   notifications: notificationRouter,
+  quoteManagement: quoteManagementRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

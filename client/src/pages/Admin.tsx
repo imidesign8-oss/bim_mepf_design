@@ -28,6 +28,8 @@ import { PageMetadataManager } from "@/components/admin/PageMetadataManager";
 import { GSCDashboard } from "@/components/admin/GSCDashboard";
 import { SEORecommendations } from "@/components/admin/SEORecommendations";
 import LeadManagementDashboard from "@/components/admin/LeadManagementDashboard";
+import AdminQuoteManagement from "./AdminQuoteManagement";
+import AdminTokenDashboard from "./AdminTokenDashboard";
 import { KeywordManager } from "@/components/admin/KeywordManager";
 import { InternalLinkBuilder } from "@/components/admin/InternalLinkBuilder";
 import { KeywordPerformanceTracker } from "@/components/admin/KeywordPerformanceTracker";
@@ -81,6 +83,8 @@ export default function Admin() {
     { id: "keywords", label: "Keyword Manager", icon: "🔑" },
     { id: "internal-links", label: "Internal Link Builder", icon: "🔗" },
     { id: "keyword-tracking", label: "Keyword Performance", icon: "📊" },
+    { id: "quotes", label: "Quote Management", icon: "💼" },
+    { id: "tokens", label: "Token Management", icon: "🔐" },
     { id: "settings", label: "Settings", icon: "⚙️" },
   ];
 
@@ -165,6 +169,8 @@ export default function Admin() {
           {currentTab === "keywords" && <KeywordManager />}
           {currentTab === "internal-links" && <InternalLinkBuilder />}
           {currentTab === "keyword-tracking" && <KeywordPerformanceTracker />}
+          {currentTab === "quotes" && <AdminQuoteManagement />}
+          {currentTab === "tokens" && <AdminTokenDashboard />}
           {currentTab === "settings" && <AdminSettings />}
         </main>
       </div>
