@@ -74,9 +74,9 @@ export default function ProjectDetail() {
       {/* Breadcrumb */}
       <div className="bg-secondary/30 border-b border-border">
         <div className="container py-4 flex items-center gap-2 text-sm">
-          <Link href="/"><a className="text-primary hover:underline">Home</a></Link>
+          <a href="/" className="text-primary hover:underline">Home</a>
           <span className="text-muted-foreground">/</span>
-          <Link href="/projects"><a className="text-primary hover:underline">Projects</a></Link>
+          <a href="/projects" className="text-primary hover:underline">Projects</a>
           <span className="text-muted-foreground">/</span>
           <span className="text-muted-foreground">{project.title}</span>
         </div>

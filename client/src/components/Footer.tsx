@@ -43,34 +43,22 @@ export default function Footer() {
             <h3 className="text-lg font-semibold text-white mb-6 font-playfair">Quick Links</h3>
             <ul className="space-y-3">
               <li>
-                <Link href="/">
-                  <a className="text-slate-300 hover:text-primary transition-colors text-sm">Home</a>
-                </Link>
+                <a href="/" className="text-slate-300 hover:text-primary transition-colors text-sm">Home</a>
               </li>
               <li>
-                <Link href="/about">
-                  <a className="text-slate-300 hover:text-primary transition-colors text-sm">About Us</a>
-                </Link>
+                <a href="/about" className="text-slate-300 hover:text-primary transition-colors text-sm">About Us</a>
               </li>
               <li>
-                <Link href="/services">
-                  <a className="text-slate-300 hover:text-primary transition-colors text-sm">Services</a>
-                </Link>
+                <a href="/services" className="text-slate-300 hover:text-primary transition-colors text-sm">Services</a>
               </li>
               <li>
-                <Link href="/projects">
-                  <a className="text-slate-300 hover:text-primary transition-colors text-sm">Projects</a>
-                </Link>
+                <a href="/projects" className="text-slate-300 hover:text-primary transition-colors text-sm">Projects</a>
               </li>
               <li>
-                <Link href="/blog">
-                  <a className="text-slate-300 hover:text-primary transition-colors text-sm">Blog</a>
-                </Link>
+                <a href="/blog" className="text-slate-300 hover:text-primary transition-colors text-sm">Blog</a>
               </li>
               <li>
-                <Link href="/contact">
-                  <a className="text-slate-300 hover:text-primary transition-colors text-sm">Contact</a>
-                </Link>
+                <a href="/contact" className="text-slate-300 hover:text-primary transition-colors text-sm">Contact</a>
               </li>
             </ul>
           </div>

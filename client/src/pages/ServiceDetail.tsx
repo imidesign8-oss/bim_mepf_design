@@ -199,9 +199,9 @@ export default function ServiceDetail() {
       {/* Breadcrumb */}
       <div className="bg-secondary/30 border-b border-border">
         <div className="container py-4 flex items-center gap-2 text-sm">
-          <Link href="/"><a className="text-primary hover:underline">Home</a></Link>
+          <a href="/" className="text-primary hover:underline">Home</a>
           <span className="text-muted-foreground">/</span>
-          <Link href="/services"><a className="text-primary hover:underline">Services</a></Link>
+          <a href="/services" className="text-primary hover:underline">Services</a>
           <span className="text-muted-foreground">/</span>
           <span className="text-muted-foreground">{service.title}</span>
         </div>

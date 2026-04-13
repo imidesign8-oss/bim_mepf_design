@@ -79,9 +79,9 @@ export default function BlogDetail() {
     <div className="min-h-screen bg-background">{/* Breadcrumb */}
       <div className="bg-secondary/30 border-b border-border">
         <div className="container py-4 flex items-center gap-2 text-sm">
-          <Link href="/"><a className="text-primary hover:underline">Home</a></Link>
+          <a href="/" className="text-primary hover:underline">Home</a>
           <span className="text-muted-foreground">/</span>
-          <Link href="/blog"><a className="text-primary hover:underline">Blog</a></Link>
+          <a href="/blog" className="text-primary hover:underline">Blog</a>
           <span className="text-muted-foreground">/</span>
           <span className="text-muted-foreground">{post.title}</span>
         </div>
