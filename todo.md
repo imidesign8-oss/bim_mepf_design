@@ -1277,6 +1277,7 @@
 - [x] Create quoteManagementRouter with full tRPC procedures
 - [x] Add AdminTokenDashboard to admin panel for token management
 - [x] Test quote submission and approval workflow end-to-end
+- [x] Fix nested anchor tags in Header causing button unclickability
 
 
 ## Email Integration for Approved Quotes (Completed)

@@ -47,51 +47,33 @@ export default function Header() {
         </Link>
         
         <div className="hidden md:flex gap-6 lg:gap-8">
-          <Link href="/">
-            <a className={`nav-link ${isActive("/") ? "active" : ""}`}>
-              Home
-            </a>
-          </Link>
-          <Link href="/about">
-            <a className={`nav-link ${isActive("/about") ? "active" : ""}`}>
-              About
-            </a>
-          </Link>
-          <Link href="/services">
-            <a className={`nav-link ${isActive("/services") ? "active" : ""}`}>
-              Services
-            </a>
-          </Link>
-          <Link href="/projects">
-            <a className={`nav-link ${isActive("/projects") ? "active" : ""}`}>
-              Projects
-            </a>
-          </Link>
-          <Link href="/blog">
-            <a className={`nav-link ${isActive("/blog") ? "active" : ""}`}>
-              Blog
-            </a>
-          </Link>
-          <Link href="/contact">
-            <a className={`nav-link ${isActive("/contact") ? "active" : ""}`}>
-              Contact
-            </a>
-          </Link>
-          <Link href="/mep-calculator">
-            <a className={`nav-link ${isActive("/mep-calculator") ? "active" : ""}`}>
-              MEP Calculator
-            </a>
-          </Link>
-          <Link href="/quote">
-            <a className={`nav-link ${isActive("/quote") ? "active" : ""}`}>
-              Get Quote
-            </a>
-          </Link>
-          <Link href="/portal">
-            <a className={`nav-link ${isActive("/portal") ? "active" : ""}`}>
-              Client Portal
-            </a>
-          </Link>
+          <a href="/" className={`nav-link ${isActive("/") ? "active" : ""}`}>
+            Home
+          </a>
+          <a href="/about" className={`nav-link ${isActive("/about") ? "active" : ""}`}>
+            About
+          </a>
+          <a href="/services" className={`nav-link ${isActive("/services") ? "active" : ""}`}>
+            Services
+          </a>
+          <a href="/projects" className={`nav-link ${isActive("/projects") ? "active" : ""}`}>
+            Projects
+          </a>
+          <a href="/blog" className={`nav-link ${isActive("/blog") ? "active" : ""}`}>
+            Blog
+          </a>
+          <a href="/contact" className={`nav-link ${isActive("/contact") ? "active" : ""}`}>
+            Contact
+          </a>
+          <a href="/mep-calculator" className={`nav-link ${isActive("/mep-calculator") ? "active" : ""}`}>
+            MEP Calculator
+          </a>
+          <a href="/quote" className={`nav-link ${isActive("/quote") ? "active" : ""}`}>
+            Get Quote
+          </a>
+          <a href="/portal" className={`nav-link ${isActive("/portal") ? "active" : ""}`}>
+            Client Portal
+          </a>
         </div>
         
         <div className="flex gap-2 md:gap-4 items-center">
