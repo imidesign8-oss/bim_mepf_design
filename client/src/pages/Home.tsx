@@ -107,11 +107,9 @@ export default function Home() {
               Transform your building projects with cutting-edge BIM technology and expert MEPF design solutions. We deliver precision, efficiency, and innovation.
             </p>
             <div className="flex gap-4 justify-center flex-wrap items-center">
-              <Link href="/quote">
-                <a className="px-8 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors inline-flex items-center gap-2">
-                  Get Quote <ArrowRight size={20} />
-                </a>
-              </Link>
+              <a href="/quote" className="px-8 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors inline-flex items-center gap-2 cursor-pointer">
+                Get Quote <ArrowRight size={20} />
+              </a>
               <Link href="/projects">
                 <a className="px-8 py-3 bg-secondary text-secondary-foreground rounded-lg font-semibold hover:bg-secondary/80 transition-colors border border-border inline-flex items-center justify-center">
                   View Projects

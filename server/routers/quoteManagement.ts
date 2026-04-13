@@ -8,6 +8,7 @@ import {
 } from "../../drizzle/schema";
 import { eq, desc } from "drizzle-orm";
 import crypto from "crypto";
+import { sendQuoteApprovalEmail } from "../services/quoteEmailService";
 
 /**
  * Generate a secure random token
@@ -177,6 +178,19 @@ export const quoteManagementRouter = router({
         const db = await getDb();
         if (!db) throw new Error("Database not available");
 
+        // Fetch the quote to get all details
+        const quotes = await db
+          .select()
+          .from(quoteRequests)
+          .where(eq(quoteRequests.id, quoteId));
+        
+        if (quotes.length === 0) {
+          throw new Error("Quote not found");
+        }
+        
+        const quote = quotes[0];
+        const clientName = quote.clientName;
+
         // Update quote status to sent (approved state)
         await db
           .update(quoteRequests)
@@ -223,14 +237,26 @@ export const quoteManagementRouter = router({
           updatedAt: new Date(),
         });
 
+        // Send approval email with token
+        const emailResult = await sendQuoteApprovalEmail({
+          clientEmail: clientEmail || quote.clientEmail,
+          clientName,
+          projectName,
+          quoteAmount: parseFloat(quote.quoteAmount as any),
+          accessToken: token,
+          expiresAt,
+          quoteCode: quote.quoteCode,
+        });
+
         return {
           success: true,
           message: "Quote approved and token generated",
           token,
           projectId,
           expiresAt: expiresAt.toISOString(),
-          clientEmail,
+          clientEmail: clientEmail || quote.clientEmail,
           projectName,
+          emailSent: emailResult.success,
         };
       } catch (error: any) {
         console.error("Failed to approve quote and generate token:", error);
