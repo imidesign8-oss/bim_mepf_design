@@ -162,6 +162,13 @@
       "when": 1775992835294,
       "tag": "0022_lonely_the_leader",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "5",
+      "when": 1776006019667,
+      "tag": "0023_nappy_firestar",
+      "breakpoints": true
     }
   ]
 }

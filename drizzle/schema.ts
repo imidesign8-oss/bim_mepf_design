@@ -1454,3 +1454,153 @@ export const quotePricingRules = mysqlTable("quote_pricing_rules", {
 
 export type QuotePricingRule = typeof quotePricingRules.$inferSelect;
 export type InsertQuotePricingRule = typeof quotePricingRules.$inferInsert;
+
+
+/**
+ * Email Tracking - Track proposal email delivery and opens
+ */
+export const emailTracking = mysqlTable("email_tracking", {
+  id: int("id").autoincrement().primaryKey(),
+  quoteRequestId: int("quoteRequestId").notNull().references(() => quoteRequests.id, { onDelete: "cascade" }),
+  
+  // Email details
+  recipientEmail: varchar("recipientEmail", { length: 320 }).notNull(),
+  subject: varchar("subject", { length: 255 }).notNull(),
+  
+  // Delivery tracking
+  status: mysqlEnum("status", ["pending", "sent", "delivered", "bounced", "failed"]).default("pending").notNull(),
+  sentAt: timestamp("sentAt"),
+  deliveredAt: timestamp("deliveredAt"),
+  
+  // Open tracking
+  openCount: int("openCount").default(0).notNull(),
+  firstOpenedAt: timestamp("firstOpenedAt"),
+  lastOpenedAt: timestamp("lastOpenedAt"),
+  
+  // Download tracking
+  downloadCount: int("downloadCount").default(0).notNull(),
+  firstDownloadedAt: timestamp("firstDownloadedAt"),
+  lastDownloadedAt: timestamp("lastDownloadedAt"),
+  
+  // Error tracking
+  errorMessage: text("errorMessage"),
+  errorCount: int("errorCount").default(0).notNull(),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  quoteRequestIdIdx: index("email_tracking_quote_idx").on(table.quoteRequestId),
+  recipientEmailIdx: index("email_tracking_email_idx").on(table.recipientEmail),
+  statusIdx: index("email_tracking_status_idx").on(table.status),
+  sentAtIdx: index("email_tracking_sent_idx").on(table.sentAt),
+}));
+
+export type EmailTracking = typeof emailTracking.$inferSelect;
+export type InsertEmailTracking = typeof emailTracking.$inferInsert;
+
+/**
+ * Client Portal Tokens - Manage access tokens for client portal
+ */
+export const clientPortalTokens = mysqlTable("client_portal_tokens", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull().references(() => clientProjects.id, { onDelete: "cascade" }),
+  
+  // Token details
+  token: varchar("token", { length: 255 }).notNull().unique(),
+  tokenName: varchar("tokenName", { length: 255 }).notNull(),
+  description: text("description"),
+  
+  // Expiration
+  expiresAt: timestamp("expiresAt"),
+  isActive: boolean("isActive").default(true).notNull(),
+  
+  // Usage tracking
+  createdByUserId: int("createdByUserId").notNull().references(() => users.id, { onDelete: "set null" }),
+  lastUsedAt: timestamp("lastUsedAt"),
+  usageCount: int("usageCount").default(0).notNull(),
+  
+  // Security
+  ipWhitelist: longtext("ipWhitelist"), // JSON array of allowed IPs
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  projectIdIdx: index("token_project_idx").on(table.projectId),
+  tokenIdx: index("token_idx").on(table.token),
+  isActiveIdx: index("token_active_idx").on(table.isActive),
+  expiresAtIdx: index("token_expires_idx").on(table.expiresAt),
+}));
+
+export type ClientPortalToken = typeof clientPortalTokens.$inferSelect;
+export type InsertClientPortalToken = typeof clientPortalTokens.$inferInsert;
+
+/**
+ * Portal Notifications - Real-time notifications for deliverables and milestones
+ */
+export const portalNotifications = mysqlTable("portal_notifications", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull().references(() => clientProjects.id, { onDelete: "cascade" }),
+  
+  // Notification details
+  type: mysqlEnum("type", ["deliverable_uploaded", "milestone_completed", "project_update", "message", "deadline_approaching"]).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  message: longtext("message").notNull(),
+  
+  // Related entities
+  deliverableId: int("deliverableId").references(() => projectDeliverables.id, { onDelete: "set null" }),
+  milestoneId: int("milestoneId").references(() => projectMilestones.id, { onDelete: "set null" }),
+  
+  // Status
+  isRead: boolean("isRead").default(false).notNull(),
+  readAt: timestamp("readAt"),
+  
+  // Priority
+  priority: mysqlEnum("priority", ["low", "normal", "high", "urgent"]).default("normal").notNull(),
+  
+  // Action URL
+  actionUrl: text("actionUrl"),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  projectIdIdx: index("notification_project_idx").on(table.projectId),
+  typeIdx: index("notification_type_idx").on(table.type),
+  isReadIdx: index("notification_read_idx").on(table.isRead),
+  deliverableIdIdx: index("notification_deliverable_idx").on(table.deliverableId),
+  milestoneIdIdx: index("notification_milestone_idx").on(table.milestoneId),
+  createdAtIdx: index("notification_created_idx").on(table.createdAt),
+}));
+
+export type PortalNotification = typeof portalNotifications.$inferSelect;
+export type InsertPortalNotification = typeof portalNotifications.$inferInsert;
+
+/**
+ * Token Usage Analytics - Track token usage for analytics
+ */
+export const tokenUsageAnalytics = mysqlTable("token_usage_analytics", {
+  id: int("id").autoincrement().primaryKey(),
+  tokenId: int("tokenId").notNull().references(() => clientPortalTokens.id, { onDelete: "cascade" }),
+  
+  // Session details
+  sessionId: varchar("sessionId", { length: 255 }).notNull(),
+  ipAddress: varchar("ipAddress", { length: 45 }),
+  userAgent: text("userAgent"),
+  
+  // Activity
+  action: varchar("action", { length: 100 }).notNull(), // e.g., "login", "view_project", "download_file"
+  resourceType: varchar("resourceType", { length: 100 }), // e.g., "deliverable", "milestone"
+  resourceId: int("resourceId"),
+  
+  // Timing
+  duration: int("duration"), // in seconds
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  tokenIdIdx: index("usage_token_idx").on(table.tokenId),
+  sessionIdIdx: index("usage_session_idx").on(table.sessionId),
+  actionIdx: index("usage_action_idx").on(table.action),
+  createdAtIdx: index("usage_created_idx").on(table.createdAt),
+}));
+
+export type TokenUsageAnalytic = typeof tokenUsageAnalytics.$inferSelect;
+export type InsertTokenUsageAnalytic = typeof tokenUsageAnalytics.$inferInsert;
