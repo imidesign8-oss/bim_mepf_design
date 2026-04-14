@@ -132,20 +132,29 @@ export async function createQuoteRequest(
       quoteCode,
       clientName,
       clientEmail,
-      clientPhone,
-      clientCompany,
+      clientPhone: clientPhone || null,
+      clientCompany: clientCompany || null,
       questionnaireResponses: JSON.stringify(questionnaire),
-      quoteAmount: quoteAmount.toString() as any,
+      quoteAmount: quoteAmount.toString(),
       currency: "INR",
       quoteValidityDays: 30,
       quoteValidUntil,
-      status: "generated" as any,
-    } as any);
+      proposalPdfUrl: null,
+      proposalFileName: null,
+      status: "generated",
+      sentDate: null,
+      viewedDate: null,
+      acceptedDate: null,
+      rejectedDate: null,
+      rejectionReason: null,
+      emailsSent: 0,
+      lastEmailSentAt: null,
+    });
 
-    return { quoteCode, quoteValidUntil: quoteValidUntil || new Date() };
+    return { quoteCode, quoteValidUntil };
   } catch (error: any) {
     console.error("Error creating quote request:", error);
-    throw new Error(`Failed to create quote: ${error.message || 'Unknown error'}`);
+    throw new Error(`Failed to create quote request: ${error.message || 'Unknown error'}`);
   }
 }
 
