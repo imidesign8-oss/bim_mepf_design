@@ -1387,7 +1387,7 @@ export const quoteRequests = mysqlTable("quote_requests", {
   questionnaireResponses: longtext("questionnaireResponses").notNull(), // JSON object with all Q&A
   
   // Calculated quote
-  quoteAmount: decimal("quoteAmount", { precision: 14, scale: 2 }).notNull(),
+  quoteAmount: varchar("quoteAmount", { length: 20 }).notNull(),
   currency: varchar("currency", { length: 10 }).default("INR").notNull(),
   
   // Quote details

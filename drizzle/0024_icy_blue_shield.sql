@@ -1,0 +1,1 @@
+ALTER TABLE `quote_requests` MODIFY COLUMN `quoteAmount` varchar(20) NOT NULL;

@@ -107,26 +107,32 @@ export const clientPortalRouter = router({
         additionalServices: input.additionalServices,
       };
 
-      const result = await createQuoteRequest(
-        input.clientName,
-        input.clientEmail,
-        input.clientPhone,
-        input.clientCompany,
-        questionnaire,
-        input.quoteAmount
-      );
+      try {
+        const result = await createQuoteRequest(
+          input.clientName,
+          input.clientEmail,
+          input.clientPhone,
+          input.clientCompany,
+          questionnaire,
+          input.quoteAmount
+        );
 
-      if (!result) {
-        throw new Error("Failed to create quote request");
+        if (!result) {
+          throw new Error("Failed to create quote request");
+        }
+        
+        return {
+          quoteCode: result.quoteCode,
+          message: "Quote request submitted successfully. Check your email for the proposal.",
+        };
+      } catch (error: any) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: error.message || "Failed to create quote request",
+        });
       }
 
-      // TODO: Send email with quote
-      // TODO: Trigger GA4 event for quote submission
 
-      return {
-        quoteCode: result.quoteCode,
-        message: "Quote request submitted successfully. Check your email for the proposal.",
-      };
     }),
 
   generateProposalPDF: publicProcedure

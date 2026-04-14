@@ -169,6 +169,13 @@
       "when": 1776006019667,
       "tag": "0023_nappy_firestar",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "5",
+      "when": 1776146133659,
+      "tag": "0024_icy_blue_shield",
+      "breakpoints": true
     }
   ]
 }

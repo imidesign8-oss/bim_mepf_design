@@ -135,17 +135,17 @@ export async function createQuoteRequest(
       clientPhone,
       clientCompany,
       questionnaireResponses: JSON.stringify(questionnaire),
-      quoteAmount: quoteAmount.toString(),
+      quoteAmount: quoteAmount.toString() as any,
       currency: "INR",
       quoteValidityDays: 30,
       quoteValidUntil,
-      status: "generated",
-    });
+      status: "generated" as any,
+    } as any);
 
-    return { quoteCode, quoteValidUntil };
-  } catch (error) {
+    return { quoteCode, quoteValidUntil: quoteValidUntil || new Date() };
+  } catch (error: any) {
     console.error("Error creating quote request:", error);
-    return null;
+    throw new Error(`Failed to create quote: ${error.message || 'Unknown error'}`);
   }
 }
 
