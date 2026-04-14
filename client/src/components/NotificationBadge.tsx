@@ -13,7 +13,7 @@ interface Notification {
   createdAt: Date;
 }
 
-export default function NotificationBadge() {
+export function NotificationBadge({ accessToken }: { accessToken: string | null }) {
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
 

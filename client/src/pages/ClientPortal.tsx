@@ -7,6 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { ClientPortalLogin } from "@/components/ClientPortalLogin";
+import { NotificationBadge } from "@/components/NotificationBadge";
 import { Calendar, FileText, CheckCircle, Clock, AlertCircle, Download } from "lucide-react";
 
 interface ProjectData {
@@ -120,9 +121,12 @@ export function ClientPortalPage() {
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-6xl mx-auto px-4 py-6 flex justify-between items-center">
           <h1 className="text-3xl font-bold text-gray-900">Client Portal</h1>
-          <Button onClick={handleLogout} variant="outline">
-            Logout
-          </Button>
+          <div className="flex items-center gap-4">
+            <NotificationBadge accessToken={accessToken} />
+            <Button onClick={handleLogout} variant="outline">
+              Logout
+            </Button>
+          </div>
         </div>
       </div>
 
