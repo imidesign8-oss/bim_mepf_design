@@ -58,11 +58,11 @@ export const clientPortalRouter = router({
       z.object({
         projectName: z.string(),
         projectType: z.enum(["residential", "commercial", "industrial", "hospitality", "mixed-use"]),
-        buildingArea: z.number(),
+        buildingArea: z.coerce.number(),
         complexity: z.enum(["simple", "moderate", "complex"]),
         timeline: z.enum(["standard", "fast-track"]),
         disciplines: z.array(z.string()),
-        numberOfFloors: z.number(),
+        numberOfFloors: z.coerce.number(),
         hasExistingModels: z.boolean(),
         coordinationRequired: z.boolean(),
         additionalServices: z.array(z.string()),
@@ -82,15 +82,15 @@ export const clientPortalRouter = router({
         clientCompany: z.string(),
         projectName: z.string(),
         projectType: z.enum(["residential", "commercial", "industrial", "hospitality", "mixed-use"]),
-        buildingArea: z.number(),
+        buildingArea: z.coerce.number(),
         complexity: z.enum(["simple", "moderate", "complex"]),
         timeline: z.enum(["standard", "fast-track"]),
         disciplines: z.array(z.string()),
-        numberOfFloors: z.number(),
+        numberOfFloors: z.coerce.number(),
         hasExistingModels: z.boolean(),
         coordinationRequired: z.boolean(),
         additionalServices: z.array(z.string()),
-        quoteAmount: z.number(),
+        quoteAmount: z.coerce.number(),
       })
     )
     .mutation(async ({ input }: any) => {
