@@ -176,6 +176,20 @@
       "when": 1776146133659,
       "tag": "0024_icy_blue_shield",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "5",
+      "when": 1776301121605,
+      "tag": "0025_flippant_wasp",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "5",
+      "when": 1776301260138,
+      "tag": "0026_normal_tusk",
+      "breakpoints": true
     }
   ]
 }

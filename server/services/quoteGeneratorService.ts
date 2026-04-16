@@ -146,8 +146,16 @@ export async function createQuoteRequest(
       currency: "INR",
       quoteValidityDays: 30,
       quoteValidUntil,
+      proposalPdfUrl: null as any,
+      proposalFileName: null as any,
       status: "generated",
+      sentDate: null as any,
+      viewedDate: null as any,
+      acceptedDate: null as any,
+      rejectedDate: null as any,
+      rejectionReason: null as any,
       emailsSent: 0,
+      lastEmailSentAt: null as any,
     } as any);
 
     console.log("Quote created successfully:", quoteCode);
