@@ -128,32 +128,32 @@ export async function createQuoteRequest(
   quoteValidUntil.setDate(quoteValidUntil.getDate() + 30); // Valid for 30 days
 
   try {
+    console.log("Creating quote with:", {
+      quoteCode,
+      clientName,
+      clientEmail,
+      quoteAmount: quoteAmount.toString(),
+    });
+
     const result = await db.insert(quoteRequests).values({
       quoteCode,
       clientName,
       clientEmail,
-      clientPhone: clientPhone || null,
-      clientCompany: clientCompany || null,
+      clientPhone: clientPhone || "",
+      clientCompany: clientCompany || "",
       questionnaireResponses: JSON.stringify(questionnaire),
       quoteAmount: quoteAmount.toString(),
       currency: "INR",
       quoteValidityDays: 30,
       quoteValidUntil,
-      proposalPdfUrl: null,
-      proposalFileName: null,
       status: "generated",
-      sentDate: null,
-      viewedDate: null,
-      acceptedDate: null,
-      rejectedDate: null,
-      rejectionReason: null,
       emailsSent: 0,
-      lastEmailSentAt: null,
-    });
+    } as any);
 
+    console.log("Quote created successfully:", quoteCode);
     return { quoteCode, quoteValidUntil };
   } catch (error: any) {
-    console.error("Error creating quote request:", error);
+    console.error("Error creating quote request:", error.message, error.stack);
     throw new Error(`Failed to create quote request: ${error.message || 'Unknown error'}`);
   }
 }
