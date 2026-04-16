@@ -1317,3 +1317,43 @@
 - [x] Test milestone timeline display
 - [x] Test deliverable status display
 - [x] Test notification badge functionality
+
+
+## CRITICAL: Quote Form Database Sync Issue (Current Blocker)
+- [ ] **URGENT**: Fix quote_requests table sync with Drizzle ORM schema
+  - Root cause: Physical database table is out of sync with schema definition
+  - The schema expects fields: proposalPdfUrl, sentDate, viewedDate, acceptedDate, rejectedDate, rejectionReason, lastEmailSentAt
+  - Physical table may not have all these columns or has type mismatches
+  - Quote submission fails with "Failed to create quote request" error
+
+## Solution Steps:
+1. **Option A (Recommended)**: Run `pnpm db:push --force` to recreate all tables from current schema
+   - This will drop and recreate tables to match the schema exactly
+   - WARNING: This will clear any existing data in the tables
+   
+2. **Option B (Preserve Data)**: Manually add missing columns using ALTER TABLE statements
+   - Connect to TiDB database and run ALTER TABLE commands
+   - Add missing columns one by one
+   - Verify table structure matches schema
+
+3. **Option C (Temporary)**: Simplify schema to only essential fields
+   - Remove optional fields from quoteRequests table definition
+   - Not recommended as it loses functionality
+
+## Code Changes Made:
+- Updated createQuoteRequest function in server/services/quoteGeneratorService.ts
+- Now explicitly maps all fields including optional ones with null values
+- Added comprehensive error logging to capture SQL error details
+- Created test file: server/services/quoteGeneratorService.test.ts
+
+## Files to Review:
+- QUOTE_SUBMISSION_FIX_GUIDE.md - Comprehensive troubleshooting guide
+- server/services/quoteGeneratorService.ts - Updated with explicit field mapping
+- server/services/quoteGeneratorService.test.ts - Test suite for quote generation
+
+## Next Steps After Fix:
+1. Verify quote submission works end-to-end
+2. Test admin approval workflow
+3. Verify email delivery of approved quotes
+4. Test client portal access with generated tokens
+5. Verify notifications display correctly
