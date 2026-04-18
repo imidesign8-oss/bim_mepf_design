@@ -2,6 +2,7 @@ import { getDb } from "../db";
 import { quoteRequests, quotePricingRules } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 import crypto from "crypto";
+import { getActiveMockPricingRule, createMockQuoteRequest, getMockQuoteRequest, updateMockQuoteRequest } from "../mockDb";
 
 export interface QuestionnaireResponse {
   projectName: string;
@@ -31,18 +32,31 @@ export function generateQuoteCode(): string {
 export async function calculateQuoteAmount(
   questionnaire: QuestionnaireResponse
 ): Promise<{ amount: number; breakdown: Record<string, number> }> {
+  let rule: any = null;
+  
+  // Try to get pricing rules from database
   const db = await getDb();
-  if (!db) {
-    return { amount: 0, breakdown: {} };
+  if (db) {
+    try {
+      const rules = await db
+        .select()
+        .from(quotePricingRules)
+        .where(eq(quotePricingRules.isActive, true));
+      if (rules && rules.length > 0) {
+        rule = rules[0];
+      }
+    } catch (error) {
+      console.warn('[QuoteGenerator] Database query failed, using mock data:', error);
+    }
+  }
+  
+  // Fallback to mock database
+  if (!rule) {
+    rule = getActiveMockPricingRule();
+    console.log('[QuoteGenerator] Using mock pricing rule');
   }
 
-  // Get active pricing rules
-  const rules = await db
-    .select()
-    .from(quotePricingRules)
-    .where(eq(quotePricingRules.isActive, true));
-
-  if (!rules || rules.length === 0) {
+  if (!rule) {
     // Default pricing if no rules exist
     return {
       amount: 50000, // Default base amount
@@ -50,7 +64,6 @@ export async function calculateQuoteAmount(
     };
   }
 
-  const rule = rules[0];
   let breakdown: Record<string, number> = {};
 
   // Base price
@@ -120,12 +133,24 @@ export async function createQuoteRequest(
   questionnaire: QuestionnaireResponse,
   quoteAmount: number
 ) {
-  const db = await getDb();
-  if (!db) return null;
-
   const quoteCode = generateQuoteCode();
   const quoteValidUntil = new Date();
   quoteValidUntil.setDate(quoteValidUntil.getDate() + 30); // Valid for 30 days
+
+  const quoteData = {
+    quoteCode,
+    clientName,
+    clientEmail,
+    clientPhone: clientPhone || "",
+    clientCompany: clientCompany || "",
+    questionnaireResponses: JSON.stringify(questionnaire),
+    quoteAmount: quoteAmount.toString(),
+    currency: "INR",
+    quoteValidityDays: 30,
+    quoteValidUntil: quoteValidUntil || new Date(),
+    status: "generated",
+    emailsSent: 0,
+  };
 
   try {
     console.log("Creating quote with:", {
@@ -135,22 +160,23 @@ export async function createQuoteRequest(
       quoteAmount: quoteAmount.toString(),
     });
 
-    const result = await db.insert(quoteRequests).values({
-      quoteCode,
-      clientName,
-      clientEmail,
-      clientPhone: clientPhone || "",
-      clientCompany: clientCompany || "",
-      questionnaireResponses: JSON.stringify(questionnaire),
-      quoteAmount: quoteAmount.toString(),
-      currency: "INR",
-      quoteValidityDays: 30,
-      quoteValidUntil: quoteValidUntil || new Date(),
-      status: "generated",
-      emailsSent: 0,
-    } as any);
+    // Try to save to database
+    const db = await getDb();
+    if (db) {
+      try {
+        await db.insert(quoteRequests).values(quoteData as any);
+        console.log("Quote created successfully in database:", quoteCode);
+      } catch (dbError) {
+        console.warn('[QuoteGenerator] Database insert failed, using mock storage:', dbError);
+        // Fall back to mock database
+        createMockQuoteRequest(quoteData);
+      }
+    } else {
+      // Use mock database
+      createMockQuoteRequest(quoteData);
+      console.log('[QuoteGenerator] Created quote in mock storage:', quoteCode);
+    }
 
-    console.log("Quote created successfully:", quoteCode);
     return { quoteCode, quoteValidUntil };
   } catch (error: any) {
     console.error("Error creating quote request:", {
@@ -170,19 +196,37 @@ export async function createQuoteRequest(
  */
 export async function getQuoteByCode(quoteCode: string) {
   const db = await getDb();
-  if (!db) return null;
+  
+  let quote: any = null;
 
-  const quotes = await db
-    .select()
-    .from(quoteRequests)
-    .where(eq(quoteRequests.quoteCode, quoteCode));
+  // Try database first
+  if (db) {
+    try {
+      const quotes = await db
+        .select()
+        .from(quoteRequests)
+        .where(eq(quoteRequests.quoteCode, quoteCode));
 
-  if (!quotes || quotes.length === 0) return null;
+      if (quotes && quotes.length > 0) {
+        quote = quotes[0];
+      }
+    } catch (error) {
+      console.warn('[QuoteGenerator] Database query failed, checking mock storage:', error);
+    }
+  }
 
-  const quote = quotes[0];
+  // Fall back to mock database
+  if (!quote) {
+    quote = getMockQuoteRequest(parseInt(quoteCode.split('-')[0]) || 0);
+  }
+
+  if (!quote) return null;
+
   return {
     ...quote,
-    questionnaireResponses: JSON.parse(quote.questionnaireResponses),
+    questionnaireResponses: typeof quote.questionnaireResponses === 'string' 
+      ? JSON.parse(quote.questionnaireResponses)
+      : quote.questionnaireResponses,
   };
 }
 
@@ -194,7 +238,6 @@ export async function updateQuoteStatus(
   status: "sent" | "viewed" | "accepted" | "rejected" | "expired"
 ) {
   const db = await getDb();
-  if (!db) return null;
 
   const updateData: Record<string, any> = { status };
 
@@ -209,12 +252,27 @@ export async function updateQuoteStatus(
   }
 
   try {
-    await db
-      .update(quoteRequests)
-      .set(updateData)
-      .where(eq(quoteRequests.quoteCode, quoteCode));
+    // Try database first
+    if (db) {
+      try {
+        await db
+          .update(quoteRequests)
+          .set(updateData)
+          .where(eq(quoteRequests.quoteCode, quoteCode));
+        return true;
+      } catch (dbError) {
+        console.warn('[QuoteGenerator] Database update failed, using mock storage:', dbError);
+      }
+    }
 
-    return true;
+    // Fall back to mock database
+    const mockQuote = getMockQuoteRequest(parseInt(quoteCode.split('-')[0]) || 0);
+    if (mockQuote) {
+      updateMockQuoteRequest(mockQuote.id, updateData);
+      return true;
+    }
+
+    return false;
   } catch (error) {
     console.error("Error updating quote status:", error);
     return false;

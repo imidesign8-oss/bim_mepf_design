@@ -668,7 +668,19 @@ export const appRouter = router({
       }))
       .mutation(async ({ input, ctx }) => {
         ensureAdmin(ctx);
-        return upsertCompanySettings(input);
+        return upsertCompanySettings({
+          companyName: input.companyName || 'IMI Design',
+          companyDescription: input.companyDescription,
+          logo: input.logo,
+          favicon: input.favicon,
+          phone: input.phone,
+          email: input.email,
+          address: input.address,
+          socialLinks: input.socialLinks,
+          siteTitle: input.siteTitle,
+          siteDescription: input.siteDescription,
+          siteKeywords: input.siteKeywords,
+        } as any);
       }),
   }),
 

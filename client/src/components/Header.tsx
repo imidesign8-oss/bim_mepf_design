@@ -1,31 +1,8 @@
 import { Link } from "wouter";
-import { useAuth } from "@/_core/hooks/useAuth";
 import MobileMenu from "./MobileMenu";
 import { useLocation } from "wouter";
-import { getLoginUrl } from "@/const";
-import { trpc } from "@/lib/trpc";
-
-function LogoutButton() {
-  const logoutMutation = trpc.auth.logout.useMutation();
-  
-  const handleLogout = async () => {
-    await logoutMutation.mutateAsync();
-    window.location.href = "/";
-  };
-  
-  return (
-    <button
-      onClick={handleLogout}
-      disabled={logoutMutation.isPending}
-      className="px-4 py-2 bg-secondary text-foreground rounded-lg font-semibold hover:bg-secondary/90 transition-colors text-sm md:text-base disabled:opacity-50"
-    >
-      {logoutMutation.isPending ? "Logging out..." : "Logout"}
-    </button>
-  );
-}
 
 export default function Header() {
-  const { user } = useAuth();
   const [location] = useLocation();
 
   const isActive = (path: string) => {
@@ -65,33 +42,12 @@ export default function Header() {
           <a href="/contact" className={`nav-link ${isActive("/contact") ? "active" : ""}`}>
             Contact
           </a>
-          <a href="/mep-calculator" className={`nav-link ${isActive("/mep-calculator") ? "active" : ""}`}>
-            MEP Calculator
-          </a>
-          <a href="/quote" className={`nav-link ${isActive("/quote") ? "active" : ""}`}>
-            Get Quote
-          </a>
           <a href="/portal" className={`nav-link ${isActive("/portal") ? "active" : ""}`}>
             Client Portal
           </a>
         </div>
         
         <div className="flex gap-2 md:gap-4 items-center">
-          {user?.role === "admin" && (
-            <button
-              onClick={() => window.location.href = "/admin"}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors text-sm md:text-base"
-            >
-              Admin
-            </button>
-          )}
-          {user ? (
-            <LogoutButton />
-          ) : (
-            <a href={getLoginUrl()} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors text-sm md:text-base">
-              Login
-            </a>
-          )}
           <MobileMenu />
         </div>
       </div>

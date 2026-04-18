@@ -1,11 +1,32 @@
 import { Link } from "wouter";
 import { Mail, Phone, MapPin, Linkedin, Twitter, Facebook, Instagram } from "lucide-react";
 import { SubscriptionForm } from "./SubscriptionForm";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { getLoginUrl } from "@/const";
+import { trpc } from "@/lib/trpc";
+
+function LogoutButton() {
+  const logoutMutation = trpc.auth.logout.useMutation();
+  
+  const handleLogout = async () => {
+    await logoutMutation.mutateAsync();
+    window.location.href = "/";
+  };
+  
+  return (
+    <button
+      onClick={handleLogout}
+      disabled={logoutMutation.isPending}
+      className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors text-sm"
+    >
+      {logoutMutation.isPending ? "Logging out..." : "Logout"}
+    </button>
+  );
+}
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
-
-
+  const { user } = useAuth();
 
   return (
     <footer className="bg-slate-900 text-slate-100 mt-20">
@@ -147,6 +168,34 @@ export default function Footer() {
 
             {/* Newsletter Signup */}
             <SubscriptionForm />
+          </div>
+        </div>
+
+        {/* Action Buttons Section */}
+        <div className="border-t border-slate-700 pt-8 mb-8">
+          <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+            <a
+              href="/mep-calculator"
+              className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors text-sm"
+            >
+              MEP Calculator
+            </a>
+            <a
+              href="/quote"
+              className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors text-sm"
+            >
+              Get Quote
+            </a>
+            {user ? (
+              <LogoutButton />
+            ) : (
+              <a
+                href={getLoginUrl()}
+                className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors text-sm"
+              >
+                Login
+              </a>
+            )}
           </div>
         </div>
 

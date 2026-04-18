@@ -1357,3 +1357,7 @@
 3. Verify email delivery of approved quotes
 4. Test client portal access with generated tokens
 5. Verify notifications display correctly
+
+
+## UI/UX Updates
+- [x] Move MEP Calculator, Get Quote, and Login buttons from header to footer

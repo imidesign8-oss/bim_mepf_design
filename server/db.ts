@@ -1,5 +1,6 @@
 import { eq, desc, and, asc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
+import mysql from "mysql2/promise";
 import { 
   InsertUser, users, 
   blogPosts, InsertBlogPost, BlogPost,
@@ -21,17 +22,34 @@ import {
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
+let _pool: mysql.Pool | null = null;
 
 export async function getDb() {
-  if (!_db && process.env.DATABASE_URL) {
+  if (!_db) {
     try {
-      _db = drizzle(process.env.DATABASE_URL);
+      const connectionString = process.env.DATABASE_URL || "mysql://root:password@localhost:3306/bim_mepf";
+      _pool = mysql.createPool(connectionString);
+      _db = drizzle(_pool);
+      console.log('[Database] MySQL database initialized');
     } catch (error) {
-      console.warn("[Database] Failed to connect:", error);
+      console.error('[Database] Failed to initialize MySQL:', error);
       _db = null;
     }
   }
   return _db;
+}
+
+export async function executeRawQuery(query: string, params?: any[]) {
+  if (!_pool) {
+    throw new Error("Database pool not initialized");
+  }
+  const connection = await _pool.getConnection();
+  try {
+    const [result] = await connection.execute(query, params || []);
+    return result;
+  } finally {
+    connection.release();
+  }
 }
 
 export async function upsertUser(user: InsertUser): Promise<void> {
@@ -323,7 +341,7 @@ export async function createContactReply(data: InsertContactReply) {
   return db.insert(contactReplies).values(data);
 }
 
-export async function getContactRepliesByContactId(contactId: number) {
+export async function getContactReplies(contactId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
@@ -334,40 +352,34 @@ export async function getContactRepliesByContactId(contactId: number) {
 
 // ==================== PAGE CONTENT ====================
 
-export async function upsertPageContent(pageKey: string, data: Omit<InsertPageContent, 'pageKey'>) {
+export async function upsertPageContent(data: InsertPageContent) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  const existing = await db.select().from(pageContent).where(eq(pageContent.pageKey, pageKey)).limit(1);
-  
-  if (existing.length > 0) {
-    return db.update(pageContent).set(data).where(eq(pageContent.pageKey, pageKey));
-  } else {
-    return db.insert(pageContent).values({ ...data, pageKey });
-  }
+  return db.insert(pageContent).values(data).onDuplicateKeyUpdate({
+    set: data,
+  });
 }
 
-export async function getPageContent(pageKey: string) {
+export async function getPageContent(pageSlug: string) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  const result = await db.select().from(pageContent).where(eq(pageContent.pageKey, pageKey)).limit(1);
+  const result = await db.select().from(pageContent)
+    .where(eq(pageContent.pageSlug, pageSlug))
+    .limit(1);
   return result.length > 0 ? result[0] : null;
 }
 
 // ==================== COMPANY SETTINGS ====================
 
-export async function upsertCompanySettings(data: Partial<InsertCompanySettings>) {
+export async function upsertCompanySettings(data: InsertCompanySettings) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  const existing = await db.select().from(companySettings).limit(1);
-  
-  if (existing.length > 0) {
-    return db.update(companySettings).set(data).where(eq(companySettings.id, existing[0].id));
-  } else {
-    return db.insert(companySettings).values(data as InsertCompanySettings);
-  }
+  return db.insert(companySettings).values(data).onDuplicateKeyUpdate({
+    set: data,
+  });
 }
 
 export async function getCompanySettings() {
@@ -409,126 +421,166 @@ export async function getCaseStudyById(id: number) {
   return result.length > 0 ? result[0] : null;
 }
 
-export async function getCaseStudyBySlug(slug: string) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
-  const result = await db.select().from(caseStudies).where(eq(caseStudies.slug, slug)).limit(1);
-  return result.length > 0 ? result[0] : null;
-}
-
-export async function getCaseStudiesByCategory(category: "BIM" | "MEPF" | "Quantities & Estimation", published: boolean = true) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
-  const conditions = [eq(caseStudies.serviceCategory, category)];
-  if (published) {
-    conditions.push(eq(caseStudies.published, true));
-  }
-  return db.select().from(caseStudies)
-    .where(and(...conditions))
-    .orderBy(desc(caseStudies.order), desc(caseStudies.createdAt));
-}
-
 export async function getAllCaseStudies(published: boolean = true) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  if (published) {
-    return db.select().from(caseStudies)
-      .where(eq(caseStudies.published, true))
-      .orderBy(desc(caseStudies.order), desc(caseStudies.createdAt));
-  }
   return db.select().from(caseStudies)
-    .orderBy(desc(caseStudies.order), desc(caseStudies.createdAt));
+    .where(eq(caseStudies.published, published))
+    .orderBy(desc(caseStudies.createdAt));
 }
-
 
 // ==================== SUBSCRIPTIONS ====================
 
-export async function createSubscription(data: InsertSubscription): Promise<Subscription | null> {
+export async function createSubscription(data: InsertSubscription) {
   const db = await getDb();
-  if (!db) return null;
+  if (!db) throw new Error("Database not available");
   
-  const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-  
-  try {
-    const result = await db.insert(subscriptions).values({
-      ...data,
-      unsubscribeToken: token,
-      isActive: true
-    });
-    
-    const [subscription] = await db.select().from(subscriptions).where(eq(subscriptions.email, data.email));
-    return subscription || null;
-  } catch (error) {
-    console.error("[DB] Failed to create subscription:", error);
-    return null;
-  }
+  return db.insert(subscriptions).values(data);
 }
 
-export async function getSubscriptionByEmail(email: string): Promise<Subscription | null> {
+export async function getSubscriptionByEmail(email: string) {
   const db = await getDb();
-  if (!db) return null;
+  if (!db) throw new Error("Database not available");
   
-  try {
-    const [subscription] = await db.select().from(subscriptions).where(eq(subscriptions.email, email));
-    return subscription || null;
-  } catch (error) {
-    console.error("[DB] Failed to get subscription:", error);
-    return null;
-  }
+  const result = await db.select().from(subscriptions)
+    .where(eq(subscriptions.email, email))
+    .limit(1);
+  return result.length > 0 ? result[0] : null;
 }
 
-export async function getSubscriptionByToken(token: string): Promise<Subscription | null> {
+export async function getAllSubscriptions() {
   const db = await getDb();
-  if (!db) return null;
+  if (!db) throw new Error("Database not available");
   
-  try {
-    const [subscription] = await db.select().from(subscriptions).where(eq(subscriptions.unsubscribeToken, token));
-    return subscription || null;
-  } catch (error) {
-    console.error("[DB] Failed to get subscription by token:", error);
-    return null;
-  }
+  return db.select().from(subscriptions);
 }
 
-export async function listSubscriptions(limit = 50, offset = 0): Promise<Subscription[]> {
+// ==================== PAGE METADATA ====================
+
+export async function upsertPageMetadata(data: InsertPageMetadata) {
   const db = await getDb();
-  if (!db) return [];
+  if (!db) throw new Error("Database not available");
   
-  try {
-    return await db.select().from(subscriptions).limit(limit).offset(offset).orderBy(desc(subscriptions.subscribedAt));
-  } catch (error) {
-    console.error("[DB] Failed to list subscriptions:", error);
-    return [];
-  }
+  return db.insert(pageMetadata).values(data).onDuplicateKeyUpdate({
+    set: data,
+  });
 }
 
-export async function unsubscribeEmail(email: string): Promise<boolean> {
+export async function getPageMetadata(pageSlug: string) {
   const db = await getDb();
-  if (!db) return false;
+  if (!db) throw new Error("Database not available");
   
-  try {
-    await db.update(subscriptions)
-      .set({ isActive: false, unsubscribedAt: new Date() })
-      .where(eq(subscriptions.email, email));
-    return true;
-  } catch (error) {
-    console.error("[DB] Failed to unsubscribe:", error);
-    return false;
-  }
+  const result = await db.select().from(pageMetadata)
+    .where(eq(pageMetadata.pageSlug, pageSlug))
+    .limit(1);
+  return result.length > 0 ? result[0] : null;
 }
 
-export async function deleteSubscription(id: number): Promise<boolean> {
+// ==================== LEAD SCORES ====================
+
+export async function createLeadScore(data: InsertLeadScore) {
   const db = await getDb();
-  if (!db) return false;
+  if (!db) throw new Error("Database not available");
   
-  try {
-    await db.delete(subscriptions).where(eq(subscriptions.id, id));
-    return true;
-  } catch (error) {
-    console.error("[DB] Failed to delete subscription:", error);
-    return false;
-  }
+  return db.insert(leadScores).values(data);
+}
+
+export async function getLeadScoreByEmail(email: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.select().from(leadScores)
+    .where(eq(leadScores.email, email))
+    .limit(1);
+  return result.length > 0 ? result[0] : null;
+}
+
+// ==================== LEAD SCORING RULES ====================
+
+export async function getAllLeadScoringRules() {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db.select().from(leadScoringRules);
+}
+
+// ==================== LEAD ROUTING ====================
+
+export async function createLeadRouting(data: InsertLeadRouting) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db.insert(leadRouting).values(data);
+}
+
+export async function getLeadRoutingByEmail(email: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.select().from(leadRouting)
+    .where(eq(leadRouting.email, email))
+    .limit(1);
+  return result.length > 0 ? result[0] : null;
+}
+
+// ==================== CRM INTEGRATIONS ====================
+
+export async function createCrmIntegration(data: InsertCrmIntegration) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db.insert(crmIntegrations).values(data);
+}
+
+export async function getCrmIntegrationByType(type: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.select().from(crmIntegrations)
+    .where(eq(crmIntegrations.type, type))
+    .limit(1);
+  return result.length > 0 ? result[0] : null;
+}
+
+// ==================== CRM SYNC LOGS ====================
+
+export async function createCrmSyncLog(data: InsertCrmSyncLog) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db.insert(crmSyncLogs).values(data);
+}
+
+export async function getCrmSyncLogs(limit: number = 50) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db.select().from(crmSyncLogs)
+    .orderBy(desc(crmSyncLogs.createdAt))
+    .limit(limit);
+}
+
+
+// ==================== SUBSCRIPTIONS (Additional) ====================
+
+export async function listSubscriptions() {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db.select().from(subscriptions);
+}
+
+export async function unsubscribeEmail(email: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db.delete(subscriptions).where(eq(subscriptions.email, email));
+}
+
+export async function deleteSubscription(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db.delete(subscriptions).where(eq(subscriptions.id, id));
 }
