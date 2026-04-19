@@ -186,6 +186,14 @@ export default function Footer() {
             >
               Get Quote
             </a>
+            {user?.role === "admin" && (
+              <a
+                href="/admin"
+                className="px-6 py-3 bg-secondary text-secondary-foreground rounded-lg font-semibold hover:bg-secondary/90 transition-colors text-sm"
+              >
+                Admin Dashboard
+              </a>
+            )}
             {user ? (
               <LogoutButton />
             ) : (

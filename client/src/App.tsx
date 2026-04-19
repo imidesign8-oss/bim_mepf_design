@@ -7,6 +7,8 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { useScrollToTop } from "./hooks/useScrollToTop";
 import { useSmoothScroll } from "./hooks/useSmoothScroll";
 import FloatingBackToTop from "./components/FloatingBackToTop";
+import MobileFooterDrawer from "./components/MobileFooterDrawer";
+import QuickActionWidget from "./components/QuickActionWidget";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Services from "./pages/Services";
@@ -80,6 +82,8 @@ function App() {
           </div>
           <FloatingBackToTop />
           <AIChatWidget />
+          <MobileFooterDrawer />
+          <QuickActionWidget />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

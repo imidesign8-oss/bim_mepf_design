@@ -1361,3 +1361,6 @@
 
 ## UI/UX Updates
 - [x] Move MEP Calculator, Get Quote, and Login buttons from header to footer
+- [x] Add Admin button to footer with auth check
+- [x] Implement mobile footer drawer for better mobile UX
+- [x] Add quick action floating widget for MEP Calculator and Get Quote
