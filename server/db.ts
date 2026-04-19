@@ -350,14 +350,19 @@ export async function getContactReplies(contactId: number) {
     .orderBy(desc(contactReplies.createdAt));
 }
 
+export async function getContactRepliesByContactId(contactId: number) {
+  return getContactReplies(contactId);
+}
+
 // ==================== PAGE CONTENT ====================
 
-export async function upsertPageContent(data: InsertPageContent) {
+export async function upsertPageContent(pageKey: string, data: Partial<InsertPageContent>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  return db.insert(pageContent).values(data).onDuplicateKeyUpdate({
-    set: data,
+  const fullData = { pageSlug: pageKey, ...data };
+  return db.insert(pageContent).values(fullData as InsertPageContent).onDuplicateKeyUpdate({
+    set: fullData,
   });
 }
 
@@ -421,6 +426,23 @@ export async function getCaseStudyById(id: number) {
   return result.length > 0 ? result[0] : null;
 }
 
+export async function getCaseStudyBySlug(slug: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.select().from(caseStudies).where(eq(caseStudies.slug, slug)).limit(1);
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function getCaseStudiesByCategory(category: string, published: boolean = true) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db.select().from(caseStudies)
+    .where(published ? eq(caseStudies.published, true) : undefined)
+    .orderBy(desc(caseStudies.createdAt));
+}
+
 export async function getAllCaseStudies(published: boolean = true) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -445,6 +467,16 @@ export async function getSubscriptionByEmail(email: string) {
   
   const result = await db.select().from(subscriptions)
     .where(eq(subscriptions.email, email))
+    .limit(1);
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function getSubscriptionByToken(token: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.select().from(subscriptions)
+    .where(eq(subscriptions.email, token))
     .limit(1);
   return result.length > 0 ? result[0] : null;
 }
@@ -564,11 +596,14 @@ export async function getCrmSyncLogs(limit: number = 50) {
 
 // ==================== SUBSCRIPTIONS (Additional) ====================
 
-export async function listSubscriptions() {
+export async function listSubscriptions(limit?: number, offset?: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  return db.select().from(subscriptions);
+  let query = db.select().from(subscriptions);
+  if (limit) query = query.limit(limit);
+  if (offset) query = query.offset(offset);
+  return query;
 }
 
 export async function unsubscribeEmail(email: string) {
