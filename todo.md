@@ -1386,3 +1386,15 @@
 - [ ] Add contextual links from Services page to related Projects
 - [ ] Add contextual links from Blog posts to relevant Services
 - [ ] Test schema markup with Google Rich Results Test
+
+
+## Related Projects & FAQ Enhancement (Completed)
+- [x] Create RelatedProjects component for service pages (RelatedProjects.tsx)
+- [x] Implement FAQ section with collapsible Q&A (ServiceFAQ.tsx)
+- [x] Add FAQPage schema markup for featured snippets (integrated in ServiceFAQ)
+- [x] Create comprehensive FAQ content for all services (FAQ_CONTENT.md)
+- [x] Service-specific FAQ content for BIM Modeling
+- [x] Service-specific FAQ content for MEP Coordination
+- [x] Service-specific FAQ content for Quantities & Estimation
+- [ ] Add related projects section to ServiceDetail page
+- [ ] Test FAQ schema with Google Rich Results Test
