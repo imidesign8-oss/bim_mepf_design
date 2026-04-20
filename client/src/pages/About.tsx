@@ -21,9 +21,9 @@ export default function About() {
 
   useEffect(() => {
     // Set page title and meta tags
-    setPageTitle("About IMI Design | BIM & MEPF Experts");
+    setPageTitle("About IMI Design | Expert BIM & MEPF Design Professionals");
     setPageDescription(
-      "Meet our team of BIM and MEPF design professionals. We deliver excellence, innovation, and integrity in every building design project."
+      "Learn about IMI Design's expertise in BIM modeling, MEPF coordination, and innovative design solutions. Professional building design consultants with years of industry experience."
     );
     setCanonicalUrl(getFullUrl("/about"));
     setOpenGraphImage(
@@ -50,9 +50,9 @@ export default function About() {
       <section className="py-20 md:py-32 bg-gradient-to-br from-primary/5 to-accent/5">
         <div className="container">
           <div className="max-w-3xl">
-            <h1 className="mb-6">About Our Company</h1>
+            <h1 className="mb-6">About IMI Design - Professional BIM & MEPF Design Experts</h1>
             <p className="text-xl text-muted-foreground">
-              We are a team of dedicated professionals specializing in BIM and MEPF design, committed to delivering excellence in every project.
+              We are a team of dedicated BIM and MEPF design professionals committed to delivering precision modeling, expert coordination, and innovative design solutions for modern building projects.
             </p>
           </div>
         </div>

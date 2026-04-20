@@ -13,8 +13,8 @@ export default function Projects() {
   const { data: stats } = trpc.stats.getAllStats.useQuery();
 
   useEffect(() => {
-    setPageTitle("Portfolio | BIM & MEPF Projects | IMI Design");
-    setPageDescription("View our portfolio of completed BIM coordination and MEPF design projects. Showcase of expertise in building design and engineering.");
+    setPageTitle("BIM & MEPF Design Projects | Portfolio & Case Studies");
+    setPageDescription("Explore our portfolio of completed BIM coordination and MEPF design projects. Case studies showcasing expertise in building design, coordination, and engineering solutions.");
     setCanonicalUrl(getFullUrl("/projects"));
     const breadcrumbSchema = createBreadcrumbSchema([
       { name: "Home", url: getFullUrl("/") },
@@ -34,9 +34,9 @@ export default function Projects() {
       <section className="py-20 md:py-32 bg-gradient-to-br from-primary/5 to-accent/5">
         <div className="container">
           <div className="max-w-3xl">
-            <h1 className="mb-6">Our Projects</h1>
+            <h1 className="mb-6">BIM & MEPF Design Projects - Portfolio & Case Studies</h1>
             <p className="text-xl text-muted-foreground">
-              Showcase of our completed and ongoing projects demonstrating our expertise and commitment to excellence.
+              Explore our portfolio of completed BIM coordination and MEPF design projects demonstrating our expertise in building design, coordination, and engineering excellence.
             </p>
           </div>
         </div>

@@ -21,9 +21,9 @@ export default function Blog() {
 
   useEffect(() => {
     trackPageView('blog_list', `Page ${page}`);
-    setPageTitle("BIM & MEPF Design Blog | Industry Insights");
+    setPageTitle("BIM & MEPF Design Blog | Industry Insights & Best Practices");
     setPageDescription(
-      "Expert insights on BIM technology, MEPF design best practices, and building industry trends. Learn from our team of design professionals."
+      "Read expert articles on BIM technology, MEPF design best practices, building information modeling, and construction industry trends from design professionals."
     );
     setCanonicalUrl(getFullUrl("/blog"));
     setOpenGraphImage(
@@ -48,9 +48,9 @@ export default function Blog() {
       <section className="py-20 md:py-32 bg-gradient-to-br from-primary/5 to-accent/5">
         <div className="container">
           <div className="max-w-3xl">
-            <h1 className="mb-6">Our Blog</h1>
+            <h1 className="mb-6">BIM & MEPF Design Blog - Industry Insights & Tips</h1>
             <p className="text-xl text-muted-foreground">
-              Insights, tips, and updates about BIM technology, MEPF design, and industry trends.
+              Expert insights, best practices, and updates about BIM technology, MEPF design, building coordination, and construction industry trends.
             </p>
           </div>
         </div>

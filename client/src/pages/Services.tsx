@@ -22,9 +22,9 @@ export default function Services() {
 
   useEffect(() => {
     // Set page title and meta tags
-    setPageTitle("BIM & MEPF Design Services | IMI Design");
+    setPageTitle("BIM & MEPF Design Services | Professional Coordination & Modeling");
     setPageDescription(
-      "Professional BIM coordination, MEP design, and 3D visualization services for modern buildings. Expert solutions for mechanical, electrical, and plumbing design."
+      "Comprehensive BIM and MEPF design services including 3D modeling, clash detection, MEP coordination, and building information modeling for modern construction projects."
     );
     setCanonicalUrl(getFullUrl("/services"));
     setOpenGraphImage(

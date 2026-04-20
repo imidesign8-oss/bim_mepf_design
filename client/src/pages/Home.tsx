@@ -27,9 +27,9 @@ export default function Home() {
 
   useEffect(() => {
     // Set page title and meta tags
-    setPageTitle("Professional BIM & MEPF Design Services for Modern Buildings");
+    setPageTitle("BIM & MEPF Design Services | Professional Coordination & Modeling");
     setPageDescription(
-      "Expert BIM coordination, 3D modeling, and MEPF design services. Mechanical, electrical, plumbing, and fire protection design for modern buildings."
+      "Professional BIM and MEPF design services with 3D modeling, clash detection, and MEP coordination. Expert building design solutions for modern projects."
     );
     setCanonicalUrl(getFullUrl("/"));
     setOpenGraphImage(
@@ -101,10 +101,10 @@ export default function Home() {
         <div className="container relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="mb-6 slide-up">
-              Professional <span className="gradient-text">BIM & MEPF</span> Design Services
+              Professional <span className="gradient-text">BIM & MEPF Design</span> Services
             </h1>
             <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-              Transform your building projects with cutting-edge BIM technology and expert MEPF design solutions. We deliver precision, efficiency, and innovation.
+              Expert BIM modeling and MEPF coordination for modern buildings. We deliver precision 3D coordination, clash detection, and innovative design solutions for commercial and residential projects.
             </p>
             <div className="flex gap-4 justify-center flex-wrap items-center">
               <a href="/quote" className="px-8 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors inline-flex items-center gap-2 cursor-pointer">
@@ -145,8 +145,8 @@ export default function Home() {
         <section className="section-padding">
           <div className="container">
             <div className="section-title">
-              <h2>Our Services</h2>
-              <p>Comprehensive BIM and MEPF design solutions tailored to your needs</p>
+              <h2>BIM & MEPF Design Services</h2>
+              <p>Comprehensive building information modeling and MEP coordination services for modern architecture and construction</p>
             </div>
             <div className="grid-responsive">
               {services.slice(0, 3).map((service) => (
@@ -176,8 +176,8 @@ export default function Home() {
         <section className="section-padding bg-secondary/30">
           <div className="container">
             <div className="section-title">
-              <h2>Featured Projects</h2>
-              <p>Showcase of our recent and completed projects</p>
+              <h2>BIM Design Projects & Case Studies</h2>
+              <p>Explore our portfolio of successful building design and coordination projects</p>
             </div>
             <div className="grid-responsive">
               {projects.slice(0, 3).map((project) => (
