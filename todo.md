@@ -1376,3 +1376,13 @@
 - [x] Add Admin button to footer with auth check
 - [x] Implement mobile footer drawer for better mobile UX
 - [x] Add quick action floating widget for MEP Calculator and Get Quote
+
+
+## Internal Linking & Schema Markup (Completed)
+- [x] Create internal linking strategy document with link recommendations (INTERNAL_LINKING_STRATEGY.md)
+- [x] Implement Service schema markup with pricing and provider info (SERVICE_SCHEMA_MARKUP.md)
+- [x] Enhanced createServiceSchema function with provider details
+- [x] Created implementation guide for service pages
+- [ ] Add contextual links from Services page to related Projects
+- [ ] Add contextual links from Blog posts to relevant Services
+- [ ] Test schema markup with Google Rich Results Test

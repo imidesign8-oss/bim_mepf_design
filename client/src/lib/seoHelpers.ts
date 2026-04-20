@@ -161,7 +161,7 @@ export function createLocalBusinessSchema(org: SchemaOrganization) {
 }
 
 /**
- * Create Service schema
+ * Create Service schema with pricing and detailed information
  */
 export function createServiceSchema(service: SchemaService, provider: SchemaOrganization) {
   return {
@@ -176,6 +176,16 @@ export function createServiceSchema(service: SchemaService, provider: SchemaOrga
       name: provider.name,
       url: provider.url,
       logo: provider.logo,
+      telephone: provider.phone,
+      email: provider.email,
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: provider.address.streetAddress,
+        addressLocality: provider.address.addressLocality,
+        addressRegion: provider.address.addressRegion,
+        postalCode: provider.address.postalCode,
+        addressCountry: provider.address.addressCountry,
+      },
     },
     ...(service.areaServed && { areaServed: service.areaServed }),
     ...(service.serviceType && { serviceType: service.serviceType }),
