@@ -1398,3 +1398,20 @@
 - [x] Service-specific FAQ content for Quantities & Estimation
 - [ ] Add related projects section to ServiceDetail page
 - [ ] Test FAQ schema with Google Rich Results Test
+
+
+## CRITICAL: Keyword Management Database Issue (Current Blocker)
+- [ ] Fix TiDB Cloud database connectivity for keyword management feature
+- [ ] Verify database connection string is correct in environment variables
+- [ ] Test keyword insertion after database fix
+- [ ] Ensure all admin features can save to database
+- [ ] Verify quote form submission works after database fix
+
+
+## New Service: Sub Sea Cable Engineering & Consultancy (Completed)
+- [x] Create service with detailed description and specifications (SUBSEA_CABLE_SERVICE.md)
+- [x] Add SEO keywords and meta tags (Primary, Secondary, Long-tail keywords)
+- [x] Create service schema markup (JSON-LD included)
+- [x] Add FAQ content for the service (10 comprehensive FAQs)
+- [ ] Add service to database via Admin Dashboard
+- [ ] Test service display on website
